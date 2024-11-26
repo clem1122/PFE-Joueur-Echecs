@@ -23,12 +23,12 @@ class ValueHead(nn.Module):
         return x
 #ouput.shape = [batch_size,3], proba de win, draw et loss
     
-filters = 128
-val_head = ValueHead(filters)
+# filters = 128
+# val_head = ValueHead(filters)
 
-batch_size = 16
-input_channels = 128
-x = torch.randn(batch_size, input_channels, 8, 8) 
-output = val_head(x)
+# batch_size = 16
+# input_channels = 128
+# x = torch.randn(batch_size, input_channels, 8, 8) 
+# output = val_head(x)
 
-print(output.shape)
+# print(output.shape)

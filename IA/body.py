@@ -80,19 +80,18 @@ class Body(nn.Module):
         )
 
     def forward(self, x):
-        print("début", x.shape)
         x = self.conv(x)
         x = self.relu(x) 
         x = self.residual_blocks(x) 
         return x
     
-input_channels = 112 
-filters = 128  
-blocks = 10
-se_channels = 32
-batch_size=16
+# input_channels = 112 
+# filters = 128  
+# blocks = 10
+# se_channels = 32
+# batch_size=16
 
-body = Body(input_channels, filters, blocks, se_channels)
-x = torch.randn(batch_size, input_channels, 8, 8) 
-out = body(x)
-print("OUT final",out.shape)
+# body = Body(input_channels, filters, blocks, se_channels)
+# x = torch.randn(batch_size, input_channels, 8, 8) 
+# out = body(x)
+# print("OUT final",out.shape)

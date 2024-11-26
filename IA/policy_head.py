@@ -21,12 +21,12 @@ class PolicyHead(nn.Module):
               
 # output.shape = [batch_size, 1858]
     
-filters = 128
-pol_head = PolicyHead(filters)
+# filters = 128
+# pol_head = PolicyHead(filters)
 
-batch_size = 16
-input_channels = 128
-x = torch.randn(batch_size, input_channels, 8, 8) 
-output = pol_head(x)
+# batch_size = 16
+# input_channels = 128
+# x = torch.randn(batch_size, input_channels, 8, 8) 
+# output = pol_head(x)
 
-print(output.shape)
+# print(output.shape)
