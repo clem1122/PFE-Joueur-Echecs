@@ -17,10 +17,18 @@ class Space:
 				chessboard[square_name] = (x, y)
 				
 		for i in range(1, 9):
-			square_name = "v" + str(i)
-			chessboard[square_name] = (-10, i * square_size)
+			b_square_name_1 = "v" + str(i)
+			b_square_name_2 = "v" + str(i+8)
+			w_square_name_1 = "V" + str(i)
+			w_square_name_2 = "V" + str(i+8)
+			chessboard[b_square_name_1] = (-2*square_size, i * square_size)
+			chessboard[b_square_name_2] = (-square_size, i * square_size)
+			chessboard[w_square_name_1] = (2*square_size, i * square_size)
+			chessboard[w_square_name_2] = (square_size, i * square_size)
+			
 		
 		return chessboard
+
 
 
 class RoboticMove:
