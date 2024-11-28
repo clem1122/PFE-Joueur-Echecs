@@ -3,6 +3,11 @@
 from pyniryo import *
 from cv2 import imwrite
 import numpy as np
+import sys
+
+move = str(sys.argv[1])
+height = float(sys.argv[2])
+isEndMove = bool(sys.argv[3])
 
 # === Parameters ==
 
@@ -91,7 +96,7 @@ def go_take_move_release(move,z_grasp_piece, isEndMove = True):
 robot.calibrate_auto()
 #robot.move_pose(observation_pose)
 #robot.move_joints(observation_joints)
-go_take_move_release("a8e3", 1,True)
+go_take_move_release(move, height,isEndMove)
 
 #mtx,dist = robot.get_camera_intrinsics()
 #robot.move_joints(observation_pose)

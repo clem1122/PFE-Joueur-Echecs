@@ -19,16 +19,14 @@ class Space:
 				z = a1_pose[2]
 				chessboard[square_name] = (x, y, z)
 				
-		for i in range(1, 9):
-			b_square_name_1 = "v" + str(i)
-			b_square_name_2 = "v" + str(i+8)
-			w_square_name_1 = "V" + str(i)
-			w_square_name_2 = "V" + str(i+8)
-			chessboard[b_square_name_1] = (-2*square_size, i * square_size)
-			chessboard[b_square_name_2] = (-square_size, i * square_size)
-			chessboard[w_square_name_1] = (2*square_size, i * square_size)
-			chessboard[w_square_name_2] = (square_size, i * square_size)
-			
+		for i in range(0, 4):
+		    for j in range(1,5):
+			b_square_name = "v" + str((i*4)+j)
+			w_square_name = "V" + str((i*4)+j)
+
+			chessboard[b_square_name] = (i*square_size, -j * square_size,self.a1_pose[2])
+			chessboard[w_square_name] = (i*square_size, (12-j) * square_size,self.a1_pose[2])
+					
 		
 		return chessboard
 
