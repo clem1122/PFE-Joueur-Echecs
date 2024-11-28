@@ -43,11 +43,11 @@ for game in dataset['train']:
             piece_color = piece.color  # 0 for white, 1 for black
             board_tensor[piece_type + 6 * piece_color, square // 8, square % 8] = 1  # Set the corresponding tensor element to 1
     
-    # Now `board_tensor` is a tensor representation of the board state
-    # Pass this to your model for predictions (policy and value heads)
-    policy_output, value_output = model(board_tensor.unsqueeze(0))  # Assuming batch size of 1
+    # # Now `board_tensor` is a tensor representation of the board state
+    # # Pass this to your model for predictions (policy and value heads)
+    # policy_output, value_output = model(board_tensor.unsqueeze(0))  # Assuming batch size of 1
 
-    print("Policy Output:", policy_output)
-    print("Value Output:", value_output)
+    # print("Policy Output:", policy_output)
+    # print("Value Output:", value_output)
 
     break  # Just process one game for testing
