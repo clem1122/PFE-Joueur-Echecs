@@ -1,6 +1,6 @@
 class Space:
 	def __init__(self):
-		self.a1_pose = [0.150, 0.136, 0.097]
+		self.a1_pose = [0.150, 0.136, 0.095]
 		self.square_size = 0.04
 		self.chessboard = self.generate()
 		
@@ -31,9 +31,9 @@ class Space:
 class Height:
 	def __init__(self):
 		self.LOW = 0
-		self.MID = 0.02
-		self.HIGH = 0.03
-		self.ABOVE = 0.12
+		self.MID = 0.025
+		self.HIGH = 0.035
+		self.ABOVE = 0.125
 		
 space = Space()
 height = Height()
