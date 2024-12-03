@@ -1,7 +1,7 @@
 class Space:
 	def __init__(self):
-		self.a1_pose = [0.150, 0.136, 0.095]
-		self.square_size = 0.04
+		self.a1_pose = [0.146, 0.129, 0.108]
+		self.square_size = 0.037
 		self.chessboard = self.generate()
 		
 		
@@ -28,12 +28,27 @@ class Space:
 				
 		return chessboard
 
+
+		
 class Height:
 	def __init__(self):
 		self.LOW = 0
 		self.MID = 0.025
 		self.HIGH = 0.035
 		self.ABOVE = 0.125
+		self.pieces_height = self.generate_height_dictionary()
 		
+	def generate_height_dictionnary(self):
+		
+		height_dictionary = {}
+		pieces_list = ['r','n','b','q','k','p']
+		height_list = ['MID','MID','MID','HIGH','HIGH','LOW']
+		
+		for i,piece in pieces_list :
+			height_dictionary[piece] = height_list[i]
+			height_dictionary[upper(piece)] = height_list[i]
+	
+		return height_dictionary
 space = Space()
 height = Height()
+
