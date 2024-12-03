@@ -32,13 +32,19 @@ for move_uci in moves_uci:
 # Y a un souciiiiiiiiiiiiis --> LC0 mapping pour legal moves ?
     
 
-dataset = load_dataset('angeluriot/chess_games')
+# dataset = load_dataset('angeluriot/chess_games')
 
-for game in dataset['train']:
-    winner = game['winner']
-    end_type = game['end_type']
-    print(winner)
-    print(end_type)
+# for game in dataset['train']:
+#     winner = game['winner']
+#     end_type = game['end_type']
+#     print(winner)
+#     print(end_type)
  
 
 def get_value_target(winner):
+    if winner == "white":
+        return [1, 0, 0]
+    if winner == "black":
+        return [0, 0, 1]
+    else :
+        return [0, 1, 0]
