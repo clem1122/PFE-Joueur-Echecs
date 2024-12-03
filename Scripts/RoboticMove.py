@@ -1,16 +1,26 @@
 import PChess as pc
+from Space.py import Space
+from Space.py import Height
 
+space = Space()
+height = Height()
 
+		
 class RoboticMove:
-	def __init__(self, A, B):
-		s = Space();
-		self.take_coord = s.chessboard[A];
-		self.drop_coord = s.chessboard[B];
+	def __init__(self,PChess_move):
+		self.take_coord = space.chessboard[PChess_move.start()]
+		self.drop_coord = space.chessboard[PChess_move.end()]
+		self.piece_height = height.pieces_height(PChess_move.moving_piece().type())
+		self.isEndMove = True
+		
 	def __str__(self):
 		return "Robotic move from " + str(self.take_coord) + " to " + str(self.drop_coord)
-
+		
+		
 
 def create_robotic_move(move):
+#Créer x robotic_move à partir d'un move de PChess (chaque robotique_move contient le coup, la hauteur, le endmove)
+	
 	return RoboticMove(move.start(), move.end())
 		
 
@@ -40,3 +50,4 @@ def create_complex_robotic_move(move):
 
 def valhalla(A):
 	return "v1"
+	
