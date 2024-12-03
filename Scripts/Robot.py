@@ -7,7 +7,6 @@ class Robot:
 	def __init__(self):
 
 		self.ip = "192.168.94.1"
-
 		self.niryo = NiryoRobot(robot_ip)
 		
 	def move_to_square(square):
@@ -23,7 +22,12 @@ class Robot:
 		return PoseObject(poseList[0], poseList[1], poseList[2] + height, poseList[3], poseList[4], poseList[5])
 
 	def play_move(PChess_move):
-		pass
+		
+		isComplex = (Pchess_move.isCapture() + Pchess_move.isPromoting() + Pchess_move.isCastling() + Pchess_move.isEnPassant()) > 0
+		
+		if not isComplex :
+			execute_move(RoboticMove(PChess_move))
+			
 	
 	
 	def execute_move(robotic_move):

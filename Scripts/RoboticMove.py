@@ -16,8 +16,9 @@ class RoboticMove:
 	def __str__(self):
 		return "Robotic move from " + str(self.take_coord) + " to " + str(self.drop_coord)
 		
-		
-
+	
+	
+	
 def create_robotic_move(move):
 #Créer x robotic_move à partir d'un move de PChess (chaque robotique_move contient le coup, la hauteur, le endmove)
 	
