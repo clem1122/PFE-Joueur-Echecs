@@ -3,7 +3,7 @@ import PChess as pc
 
 class RoboticMove:
 	def __init__(self, A, B):
-		s = Space();
+		s = Space;
 		self.take_coord = s.chessboard[A];
 		self.drop_coord = s.chessboard[B];
 	def __str__(self):
