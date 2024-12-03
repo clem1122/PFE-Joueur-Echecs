@@ -4,7 +4,7 @@ import torch
 import numpy as np
 
 from datasets import load_dataset
-from Model import Model  # Import your Model here
+from model.Model import Model  # Import your Model here
 
 # Load dataset
 dataset = load_dataset('angeluriot/chess_games')
