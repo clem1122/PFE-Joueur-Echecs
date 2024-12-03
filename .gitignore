@@ -1,0 +1,41 @@
+# Virtual environment directories
+venv/
+.venv/
+env/
+.env/
+
+# Python bytecode files
+__pycache__/
+*.py[cod]
+
+# IDE specific files
+.idea/
+.vscode/
+.ropeproject/
+
+# macOS system files
+.DS_Store
+
+# Windows system files
+Thumbs.db
+Desktop.ini
+
+# Log files
+*.log
+
+# Testing and coverage files
+.coverage
+.tox/
+.nox/
+.coverage.*
+.hypothesis/
+.pytest_cache/
+
+# Build and distribution directories
+build/
+dist/
+*.egg-info/
+
+# Sensitive data
+.env
+
