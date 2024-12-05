@@ -8,7 +8,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--move-to-square", type=str)
 args = parser.parse_args()
 
-b = pc.Board()
+b = pc.Board('rnbqkbnrppp.pppp...........p........P...........PPPP.PPPRNBQKBNR')
 b.print()
 robot = Robot()
 
@@ -17,7 +17,7 @@ def robot_play(moveStr):
 		raise Exception("Unvalid Move length")
 	
 	m = b.create_move(moveStr)
-	robot.play_move(m)
+	robot.play_move(b,m)
 	b.play(moveStr)
 	
 def robot_play_test(moveStr, h):
@@ -44,5 +44,3 @@ else :
 		isRobotTurn = not isRobotTurn
 
 robot.close()
-
-	

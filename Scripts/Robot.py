@@ -1,6 +1,6 @@
 from pyniryo import *
 from Space import space, height
-from RoboticMove import RoboticMove, TestRoboticMove
+from RoboticMove import RoboticMove, TestRoboticMove, create_complex_robotic_move
 
 
 class Robot:
@@ -20,22 +20,24 @@ class Robot:
 	def get_pose(self, coord_list, h):
 		return PoseObject(coord_list[0], coord_list[1], coord_list[2]+h, coord_list[3], coord_list[4], coord_list[5])
 
-	def play_move(self, PChess_move):
+	def play_move(self, board, PChess_move):
 		
 		isComplex = (PChess_move.isCapture() + PChess_move.isPromoting() + PChess_move.isCastling() + PChess_move.isEnPassant()) > 0
 		if not isComplex :
-			self.execute_move(RoboticMove(PChess_move.start(),PChess_move.end(),PChess_move.movingPiece()))
+			self.execute_move(RoboticMove(PChess_move.start(),PChess_move.end(),PChess_move.moving_piece()))
+			
+		else :
+			complex_move_list = create_complex_robotic_move(board ,PChess_move)
+			
+			for robotic_move in complex_move_list :
+				self.execute_move(robotic_move)
 			
 	def play_test_move(self, PChess_move, h):
 		isComplex = (PChess_move.isCapture() + PChess_move.isPromoting() + PChess_move.isCastling() + PChess_move.isEnPassant()) > 0
 		
 		if not isComplex :
 			self.execute_move(TestRoboticMove(PChess_move, h))
-		if isComplex :
-			complex_move_list = create_complex_robotic_move(PChess_move)
-			
-			for robotic_move in complex_move :
-				self.execute_move(robotic_move)
+		
 			
 	
 	def execute_move(self, robotic_move):

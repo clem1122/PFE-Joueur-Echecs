@@ -19,7 +19,7 @@ class Space:
 				chessboard[square_name] = [x, y, z]
 				
 		valhalla_offset_y = 1.3  #square
-		valhalla_offset_z = 0.01 #cm
+		valhalla_offset_z = 0.00 #m
 		for i in range(0, 4):
 			for j in range(1,5):
 				b_square_name = "v" + str((i*4)+j)
