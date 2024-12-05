@@ -8,12 +8,13 @@ class Robot:
 	def __init__(self):
 		self.ip = "192.168.94.1"
 		self.niryo = NiryoRobot(self.ip)
+		self.niryo.calibrate_auto()
 		
 	def move_to_square(self, square):
 		if len(square) != 2:
 			raise Exception("Uncorrect Move argument")
-		
-		self.niryo.move_pose(self.get_pose(square, height.LOW))
+		list_coord = space.chessboard[square] + [2.36, 1.57, -3.14]
+		self.niryo.move_pose(self.get_pose(list_coord, height.HIGH))
 	
 
 	def get_pose(self, coord_list, h):
@@ -23,12 +24,18 @@ class Robot:
 		
 		isComplex = (PChess_move.isCapture() + PChess_move.isPromoting() + PChess_move.isCastling() + PChess_move.isEnPassant()) > 0
 		if not isComplex :
-			self.execute_move(RoboticMove(PChess_move))
+			self.execute_move(RoboticMove(PChess_move.start(),PChess_move.end(),PChess_move.movingPiece()))
 			
 	def play_test_move(self, PChess_move, h):
 		isComplex = (PChess_move.isCapture() + PChess_move.isPromoting() + PChess_move.isCastling() + PChess_move.isEnPassant()) > 0
+		
 		if not isComplex :
 			self.execute_move(TestRoboticMove(PChess_move, h))
+		if isComplex :
+			complex_move_list = create_complex_robotic_move(PChess_move)
+			
+			for robotic_move in complex_move :
+				self.execute_move(robotic_move)
 			
 	
 	def execute_move(self, robotic_move):
