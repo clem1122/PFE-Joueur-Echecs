@@ -9,6 +9,7 @@ class Robot:
 		self.ip = "192.168.94.1"
 		self.niryo = NiryoRobot(self.ip)
 		self.niryo.calibrate_auto()
+		self.niryo.set_arm_max_velocity(100)
 		
 	def move_to_square(self, square):
 		if len(square) != 2:

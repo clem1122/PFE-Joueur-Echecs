@@ -39,17 +39,19 @@ def create_complex_robotic_move(board,PChess_move):
 		return [RoboticMove(B, V, killed_piece, False), RoboticMove(A, B, played_piece)]
 		
 	elif(PChess_move.isCastling()):
-		move_gap = ord(PChess_move.start()[0]) - ord(PChess_move.start()[0])
+		move_gap = ord(PChess_move.start()[0]) - ord(PChess_move.end()[0])
 		if  move_gap== -2:
-			rook_coord = "H" + PChess_move.start()[0]
-			new_rook_coord = "F" + PChess_move.start()[0]
+			rook_coord = "h" + PChess_move.start()[1]
+			new_rook_coord = "f" + PChess_move.start()[1]
 		elif move_gap == 2:
-			rook_coord = "A" + PChess_move.start()[0]
-			new_rook_coord = "D" + PChess_move.start()[0]
+			rook_coord = "a" + PChess_move.start()[1]
+			new_rook_coord = "d" + PChess_move.start()[1]
 		else : 
-			raise Exception("Gap between king start and king and equals " + str(move_gap))
+			raise Exception("Gap between king start and king end equals " + str(move_gap))
 			
-		return [RoboticMove(A, B), RoboticMove(rook_coord, new_rook_coord)]
+		rook = board.piece_on_square(rook_coord)
+			
+		return [RoboticMove(A, B, played_piece, False), RoboticMove(rook_coord, new_rook_coord, rook)]
 		
 	elif(PChess_move.isPromoting()):
 		F = valhalla(A)
@@ -57,17 +59,18 @@ def create_complex_robotic_move(board,PChess_move):
 		return [RoboticMove(A, V), RoboticMove(F, B)]
 		
 	elif(PChess_move.isEnPassant()):
-		killed_piece_coord = B
+		killed_piece_coord = B[0]
+		row_int = int(B[1])
 		if played_piece.isWhite():
-			killed_piece_coord[1] -= 1
+			killed_piece_coord += str(row_int - 1)
 		else :
-			killed_piece_coord[1] += 1
+			killed_piece_coord += str(row_int + 1)
 		
 		killed_piece = board.piece_on_square(killed_piece_coord)
 			
 		V = valhalla_free_space(board,killed_piece)
 
-		return [RoboticMove(A, B), RoboticMove(killed_piece_coord, V)]
+		return [RoboticMove(A, B, played_piece, False), RoboticMove(killed_piece_coord, V, killed_piece)]
 		
 	else:
 		raise Exception("Move is not complex")

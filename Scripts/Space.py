@@ -46,7 +46,7 @@ class Height:
 		
 		height_dictionary = {}
 		pieces_list = ['r','n','b','q','k','p']
-		height_list = [self.MID,self.MID,self.MID,self.HIGH,self.HIGH,self.LOW]
+		height_list = [self.LOW,self.MID,self.MID,self.HIGH,self.HIGH,self.LOW]
 		
 		for i,piece in enumerate(pieces_list) :
 			height_dictionary[piece] = height_list[i]

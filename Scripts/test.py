@@ -4,13 +4,18 @@ import sys
 import argparse
 import PChess as pc
 
+capture_FEN = 'rnbqkbnrppp.pppp...........p........P...........PPPP.PPPRNBQKBNR'
+roque_FEN = 'r...k..rpppq.ppp..npbn....b.p.....B.P.....NPBN..PPPQ.PPPR...K..R'
+prise_en_passant_FEN = 'rnbqkbnrpppppppp....................P...........PPPP.PPPRNBQKBNR'
+
 parser = argparse.ArgumentParser()
 parser.add_argument("--move-to-square", type=str)
 args = parser.parse_args()
 
-b = pc.Board('rnbqkbnrppp.pppp...........p........P...........PPPP.PPPRNBQKBNR')
+b = pc.Board(prise_en_passant_FEN)
 b.print()
 robot = Robot()
+
 
 def robot_play(moveStr):
 	if len(moveStr) != 4:
