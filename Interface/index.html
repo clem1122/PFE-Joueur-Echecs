@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Apprendre les Échecs</title>
+  <!-- Lien vers Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Lien vers ton CSS personnalisé -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <!-- Barre de navigation -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">Échecs</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+          <li class="nav-item"><a class="nav-link active" href="#">Accueil</a></li>
+          <li class="nav-item"><a class="nav-link" href="#">Leçons</a></li>
+          <li class="nav-item"><a class="nav-link" href="#">Ressources</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Contenu principal -->
+  <header class="bg-primary text-white text-center py-5">
+    <h1>Bienvenue sur Apprendre les Échecs</h1>
+    <p>Maîtrisez le jeu grâce à nos leçons et exercices.</p>
+  </header>
+
+  <main class="container my-4">
+    <!-- Section échiquier -->
+    <section class="text-center mb-5">
+      <h2>Échiquier</h2>
+      <div class="d-flex justify-content-center">
+        <table class="table table-bordered" style="width: 320px; height: 320px; table-layout: fixed;">
+          <!-- Génération simple d'un échiquier -->
+          <tbody>
+            <!-- Ligne 1 -->
+            <tr>
+              <td class="bg-dark"></td>
+              <td class="bg-light"></td>
+              <td class="bg-dark"></td>
+              <td class="bg-light"></td>
+              <td class="bg-dark"></td>
+              <td class="bg-light"></td>
+              <td class="bg-dark"></td>
+              <td class="bg-light"></td>
+            </tr>
+            <!-- Répéter pour les autres lignes -->
+            <tr>
+              <td class="bg-light"></td>
+              <td class="bg-dark"></td>
+              <td class="bg-light"></td>
+              <td class="bg-dark"></td>
+              <td class="bg-light"></td>
+              <td class="bg-dark"></td>
+              <td class="bg-light"></td>
+              <td class="bg-dark"></td>
+            </tr>
+            <!-- Continue pour les 8 lignes -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Section leçons -->
+    <section>
+      <h2>Leçons disponibles</h2>
+      <div class="row">
+        <!-- Carte de leçon 1 -->
+        <div class="col-md-4">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Introduction aux règles</h5>
+              <p class="card-text">Découvrez les bases du jeu, les mouvements des pièces et les objectifs.</p>
+              <a href="#" class="btn btn-primary">Voir la leçon</a>
+            </div>
+          </div>
+        </div>
+        <!-- Carte de leçon 2 -->
+        <div class="col-md-4">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Stratégies d'ouverture</h5>
+              <p class="card-text">Apprenez à développer vos pièces et contrôler le centre.</p>
+              <a href="#" class="btn btn-primary">Voir la leçon</a>
+            </div>
+          </div>
+        </div>
+        <!-- Carte de leçon 3 -->
+        <div class="col-md-4">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Tactiques avancées</h5>
+              <p class="card-text">Maîtrisez les fourchettes, les clouages, et autres tactiques avancées.</p>
+              <a href="#" class="btn btn-primary">Voir la leçon</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Pied de page -->
+  <footer class="bg-dark text-white text-center py-3">
+    <p>&copy; 2024 Apprendre les Échecs. Tous droits réservés.</p>
+  </footer>
+
+  <!-- Lien vers Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
