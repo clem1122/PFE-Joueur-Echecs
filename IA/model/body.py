@@ -16,20 +16,21 @@ class SELayer(nn.Module):
         self.fc2 = nn.Linear(se_channels, 2 * filters)
 
     def forward(self, x):
-        print("x dans SE", x.shape)
         batch_size, filters, _, _ = x.size()
+
         out = self.global_avg_pool(x)
-        print("pooling", out.shape)
+
         out = out.view(batch_size, filters) 
-        print(out.shape)
+
         out = self.fc1(out)
-        print("fc1", out.shape)
         out = self.relu(out) 
+
         out = self.fc2(out) 
-        print("fc2", out.shape)
+
         w, b = torch.split(out, filters, dim=1) 
-        print("w", w.shape, "b", b.shape)
+
         out = torch.sigmoid(w) 
+
         return x * out.view(batch_size, filters, 1, 1) + b.view(batch_size, filters, 1, 1)
 
 
@@ -48,14 +49,19 @@ class ResidualBlock(nn.Module):
         self.relu = nn.ReLU()
 
     def forward(self, x):
+
         out = self.conv1(x)
         out = self.relu(out) 
+
         out = self.conv2(out)
         out = self.relu(out) 
+
         if self.se_channels:  
             out = self.se_layer(out)
+
         out += x 
         out = self.relu(out)
+        
         return out
 
 
@@ -74,19 +80,18 @@ class Body(nn.Module):
         )
 
     def forward(self, x):
-        print("début", x.shape)
         x = self.conv(x)
         x = self.relu(x) 
         x = self.residual_blocks(x) 
         return x
     
-input_channels = 112 
-filters = 128  
-blocks = 2 #???????? #selon chatgpt pour 128 on met environ 10 blocs masi j'ai mis 2 pour de tests
-se_channels = 32
-batch_size=16
+# input_channels = 112 
+# filters = 128  
+# blocks = 10
+# se_channels = 32
+# batch_size=16
 
-body = Body(input_channels, filters, blocks, se_channels)
-x = torch.randn(batch_size, input_channels, 8, 8) 
-out = body(x)
-print("OUT final",out.shape)
+# body = Body(input_channels, filters, blocks, se_channels)
+# x = torch.randn(batch_size, input_channels, 8, 8) 
+# out = body(x)
+# print("OUT final",out.shape)

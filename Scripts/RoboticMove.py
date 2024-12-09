@@ -1,66 +1,98 @@
 import PChess as pc
+from Space import space, height
+import re
 
-class Space:
-	def __init__(self):
-		self.chessboard = self.generate()
 		
-	def generate(self):
-		square_size = 5
-		columns = "abcdefgh"
-		rows = range(1, 9)
-		chessboard = {}
-		for i, column in enumerate(columns):
-			for j, row in enumerate(rows):
-				square_name = f"{column}{row}"
-				x = i * square_size
-				y = j * square_size
-				chessboard[square_name] = (x, y)
-				
-		for i in range(1, 9):
-			square_name = "v" + str(i)
-			chessboard[square_name] = (-10, i * square_size)
-		
-		return chessboard
-
-
 class RoboticMove:
-	def __init__(self, A, B):
-		s = Space();
-		self.take_coord = s.chessboard[A];
-		self.drop_coord = s.chessboard[B];
+	def __init__(self,start_coord,end_coord,piece, isEndMove = True):
+		self.take_coord = space.chessboard[start_coord]
+		self.drop_coord = space.chessboard[end_coord]
+		self.isEndMove = isEndMove
+		self.orientation = [2.36, 1.57, -3.14]
+		self.take_pose = self.take_coord + self.orientation
+		self.drop_pose = self.drop_coord + self.orientation
+		if piece.type() != '.':
+			self.piece_height = height.pieces_height[piece.type()]
+		
 	def __str__(self):
 		return "Robotic move from " + str(self.take_coord) + " to " + str(self.drop_coord)
-
-
+		
+	
+	
 def create_robotic_move(move):
+#Créer x robotic_move à partir d'un move de PChess (chaque robotique_move contient le coup, la hauteur, le endmove)
+	
 	return RoboticMove(move.start(), move.end())
 		
 
-
-
-def create_complex_robotic_move(move):
-	A = move.start()
-	B = move.end()
-	if(move.isCapture() and move.isPromotion()):
+def create_complex_robotic_move(board,PChess_move):
+	A = PChess_move.start()
+	B = PChess_move.end()
+	played_piece = board.piece_on_square(A)
+	
+	if(PChess_move.isCapture() and PChess_move.isPromoting()):
 		raise Exception("Promotin + Capture")
 		
-	if(move.isCapture()):
-		V = valhalla(A)
-		return [RoboticMove(B, V), RoboticMove(A, B)]
-	elif(move.isCastling()):
-		C = "a1"
-		D = "a2"
-		return [RoboticMove(A, B), RoboticMove(C, D)]
-	elif(move.isPromotion()):
+	if(PChess_move.isCapture()):
+		killed_piece = board.piece_on_square(B)
+		V = valhalla_free_space(board,killed_piece)
+		return [RoboticMove(B, V, killed_piece, False), RoboticMove(A, B, played_piece)]
+		
+	elif(PChess_move.isCastling()):
+		move_gap = ord(PChess_move.start()[0]) - ord(PChess_move.end()[0])
+		if  move_gap== -2:
+			rook_coord = "h" + PChess_move.start()[1]
+			new_rook_coord = "f" + PChess_move.start()[1]
+		elif move_gap == 2:
+			rook_coord = "a" + PChess_move.start()[1]
+			new_rook_coord = "d" + PChess_move.start()[1]
+		else : 
+			raise Exception("Gap between king start and king end equals " + str(move_gap))
+			
+		rook = board.piece_on_square(rook_coord)
+			
+		return [RoboticMove(A, B, played_piece, False), RoboticMove(rook_coord, new_rook_coord, rook)]
+		
+	elif(PChess_move.isPromoting()):
 		F = valhalla(A)
 		V = valhalla(A)
 		return [RoboticMove(A, V), RoboticMove(F, B)]
-	elif(move.isEnPassant()):
-		V = valhalla(A)
-		E = "a4";
-		return [RoboticMove(A, B), RoboticMove(E, V)]
+		
+	elif(PChess_move.isEnPassant()):
+		killed_piece_coord = B[0]
+		row_int = int(B[1])
+		if played_piece.isWhite():
+			killed_piece_coord += str(row_int - 1)
+		else :
+			killed_piece_coord += str(row_int + 1)
+		
+		killed_piece = board.piece_on_square(killed_piece_coord)
+			
+		V = valhalla_free_space(board,killed_piece)
+
+		return [RoboticMove(A, B, played_piece, False), RoboticMove(killed_piece_coord, V, killed_piece)]
+		
 	else:
 		raise Exception("Move is not complex")
 
-def valhalla(A):
-	return "v1"
+def valhalla_free_space(board,killed_piece):
+
+	colour = 'V' if killed_piece.isWhite() else 'v'
+	string = board.valhalla_FEN()[0:16] if killed_piece.isWhite() else board.valhalla_FEN()[16:]
+	index = string.index('.') +1
+
+	return colour+str(index)
+	
+def get_castling_rook_coord(board,PChess_move):
+	if abs(ord(PChess_move.start()[0]) - ord(PChess_move.start()[0])) == 3:
+		return "H" + PChess_move.start()[0]
+	if abs(ord(PChess_move.start()[0]) - ord(PChess_move.start()[0])) == 4:
+		return "A" + PChess_move.start()[0]
+
+
+
+class TestRoboticMove(RoboticMove):
+	def __init__(self, PChess_move, h):
+		super().__init__(PChess_move)
+		self.piece_height = h
+	

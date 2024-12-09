@@ -1,0 +1,25 @@
+experiment_name: EXPERIMENT_NAME
+mlflow_tracking_uri: 'file:/media/volmnt/Mlflow'
+
+train:
+  tune:
+
+    num_epochs : 50
+    lr : 0.1
+
+    input_channels : 112
+    filters : 28
+    blocks : 10 
+    se_channels : 32
+    bias : True
+    kernel_size : 3
+    stride : 1
+    padding : 1
+    output_dim : 80
+    mapping_dim : 1858
+    valout1 : 32
+    valout2 : 128
+    
+    alpha : 1
+    beta : 1
+    
