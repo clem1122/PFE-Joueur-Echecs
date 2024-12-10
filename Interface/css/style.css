@@ -1,0 +1,48 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%; /* Ensure body and html fill the viewport */
+  }
+
+
+.background {
+    background-color: lightblue;
+    width: 100%;
+    height: 100%;
+}
+
+/* Ensure container is centered with proper height */
+#container {
+    display: flex;
+    justify-content: center;  /* Center horizontally */
+    align-items: center;      /* Center vertically */
+    gap: 20px;              /* Space between canvas and checkbox */
+    height: 100%;
+  }
+  
+  /* Optional: Add border and specific size to canvas */
+  #chessboard {
+      /* Style for canvas border */
+    max-width: 100%; 
+    display: flex;
+    justify-content: center;   /* Center horizontally */
+    align-items: center;       /* Ensure canvas doesn't overflow */
+    height: auto;              /* Maintain aspect ratio */
+  }
+  
+  /* Style the checkbox and label */
+  .form-check {
+    display: flex;
+    align-items: center;      /* Center vertically */
+  }
+
+  .form-check-input:checked {
+    background-color: #4CAF50; /* Green when checked */
+    border-color: #4CAF50;     /* Border color when checked */
+  }
+
+  .form-check-label {
+    margin-left: 10px;         /* Add a gap between the toggle and the text */
+  }
+  
+  
