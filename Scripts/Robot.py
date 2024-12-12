@@ -65,7 +65,7 @@ class Robot:
 		
 		self.niryo.execute_trajectory_from_poses_and_joints(traj_to_piece)
 		self.niryo.close_gripper()
-		self.niryo.execute_trajectory_from_poses_and_joints(traj_to_square, dist_smoothing = 0.8)
+		self.niryo.execute_trajectory_from_poses_and_joints(traj_to_square, dist_smoothing = 0.5)
 		self.niryo.open_gripper()
 		self.niryo.execute_trajectory_from_poses_and_joints(traj_to_home)
 
