@@ -10,6 +10,7 @@ prise_en_passant_FEN = 'rnbqkbnrpppppppp....................P...........PPPP.PPP
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--move-to-square", type=str)
+parser.add_argument("--obs-pose", action="store_true")
 args = parser.parse_args()
 
 b = pc.Board(prise_en_passant_FEN)
@@ -35,7 +36,8 @@ def robot_play_test(moveStr, h):
 	
 if args.move_to_square :
 	robot.move_to_square(args.move_to_square)
-	
+elif args.obs_pose:
+	robot.move_to_obs_pose()	
 else :
 
 	isRobotTurn = True

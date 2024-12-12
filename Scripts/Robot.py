@@ -10,6 +10,9 @@ class Robot:
 		self.niryo = NiryoRobot(self.ip)
 		self.niryo.calibrate_auto()
 		self.niryo.set_arm_max_velocity(100)
+
+	def move_to_obs_pose(self):
+		self.niryo.move_joints(space.observation_joints)	
 		
 	def move_to_square(self, square):
 		if len(square) != 2:
@@ -55,6 +58,7 @@ class Robot:
 
 		traj_to_piece  = [pose1, pose2]
 		traj_to_square = [pose3, pose4, pose5]
+
 
 		traj_to_home = [pose6]
 
