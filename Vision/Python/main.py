@@ -9,7 +9,7 @@ from image_processing import detect_differences, analyze_squares, determine_move
 
 # Paramètres
 calibration_file = "chessboard_calibration.pkl"
-reference_image_path = "empty.png"
+reference_image_path = "img0.png"
 output_size = (800, 800) # Modifier et voir la difference (400,400)
 square_size = output_size[0] // 8
 sensitivity_threshold = 40 # Seuil pour la diff de pixels 
