@@ -4,16 +4,18 @@ import sys
 import argparse
 import PChess as pc
 
+classic_FEN = 'rnbqkbnrpppppppp................................PPPPPPPPRNBQKBNR'
 capture_FEN = 'rnbqkbnrppp.pppp...........p........P...........PPPP.PPPRNBQKBNR'
 roque_FEN = 'r...k..rpppq.ppp..npbn....b.p.....B.P.....NPBN..PPPQ.PPPR...K..R'
 prise_en_passant_FEN = 'rnbqkbnrpppppppp....................P...........PPPP.PPPRNBQKBNR'
+promotion_FEN = 'r.b.kbnrpPpp.ppp..n.................p.q..P...N....PPPPPPRNBQKB.R'
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--move-to-square", type=str)
 parser.add_argument("--obs-pose", action="store_true")
 args = parser.parse_args()
 
-b = pc.Board(prise_en_passant_FEN)
+b = pc.Board(promotion_FEN)
 b.print()
 robot = Robot()
 

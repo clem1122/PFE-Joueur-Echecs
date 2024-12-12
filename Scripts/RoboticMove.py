@@ -54,9 +54,15 @@ def create_complex_robotic_move(board,PChess_move):
 		return [RoboticMove(A, B, played_piece, False), RoboticMove(rook_coord, new_rook_coord, rook)]
 		
 	elif(PChess_move.isPromoting()):
-		F = valhalla(A)
-		V = valhalla(A)
-		return [RoboticMove(A, V), RoboticMove(F, B)]
+		
+		type_list = get_valhalla_types(board.valhalla_FEN(),PChess_move.moving_piece().isWhite())
+		new_type = None
+		while new_type not in type_list : new_type = input("Choisissez votre nouvelle pièce parmi : " + " ".join(type_list) + "\n")
+		
+		V = valhalla_free_space(board,PChess_move.moving_piece())
+		F = get_valhalla_coord(new_type,board)
+
+		return [RoboticMove(A, B, played_piece, False), RoboticMove(B, V, played_piece, False), RoboticMove(F, B, board.piece_on_square(F))]
 		
 	elif(PChess_move.isEnPassant()):
 		killed_piece_coord = B[0]
@@ -89,7 +95,21 @@ def get_castling_rook_coord(board,PChess_move):
 	if abs(ord(PChess_move.start()[0]) - ord(PChess_move.start()[0])) == 4:
 		return "A" + PChess_move.start()[0]
 
+def get_valhalla_types(valhalla_FEN,isWhite):
+	liste_type = []
+	for piece in valhalla_FEN:
+		if piece.isupper() and isWhite and piece != '.':
+			liste_type.append(piece)
+		elif piece.islower() and not isWhite and piece != '.':
+			liste_type.append(piece)
+	
+	return liste_type
 
+def get_valhalla_coord(piece_type,board):
+	for i in range(len(board.valhalla_FEN())) :
+		piece = board.valhalla_FEN()[i]
+		if piece == piece_type:
+			return board.valhalla_index_to_coord(i)
 
 class TestRoboticMove(RoboticMove):
 	def __init__(self, PChess_move, h):
