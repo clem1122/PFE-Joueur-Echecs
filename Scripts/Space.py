@@ -22,8 +22,8 @@ class Space:
 		valhalla_offset_z = 0.00 #m
 		for i in range(0, 4):
 			for j in range(1,5):
-				b_square_name = "v" + str((i*4)+j)
-				w_square_name = "V" + str((i*4)+j)
+				b_square_name = "v" + format((i*4)+j, 'x')
+				w_square_name = "V" + format((i*4)+j, 'x')
 				
 
 				chessboard[b_square_name] = [self.a1_pose[0] + i*self.square_size, self.a1_pose[1] + (j + valhalla_offset_y) * self.square_size, self.a1_pose[2]-valhalla_offset_z]
