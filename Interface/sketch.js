@@ -11,12 +11,12 @@ let port = "8080";
 let url = "http://localhost:" + port;
 let isWhite = true;
 let Box;
-let threat_button = '.'.repeat(64);
-let control_button = '.'.repeat(64);
-let play_button = '.'.repeat(64);
-localStorage.setItem("threat_button", threat_button);
-localStorage.setItem("control_button", control_button);
-localStorage.setItem("play_button", play_button);
+let threats = '.'.repeat(64);
+let controlled = '.'.repeat(64);
+let playable = '.'.repeat(64);
+localStorage.setItem("threats", threats);
+localStorage.setItem("controlled", controlled);
+localStorage.setItem("playable", playable);
 
 
 function preload() {
@@ -50,13 +50,13 @@ function setup() {
 
 function draw() {
 	
-	threat_button = localStorage.getItem("threat_button");
-	control_button = localStorage.getItem("control_button");
-	play_button = localStorage.getItem("play_button");
+	threats = localStorage.getItem("threats");
+	controlled = localStorage.getItem("controlled");
+	playable = localStorage.getItem("playable");
 	drawBoard();
-	drawFEN(threat_button,color(150,0,0,175))
-	drawFEN(control_button,color(0,0,150,100))
-	drawFEN(play_button,color(0,150,0,100))
+	drawFEN(threats,color(150,0,0,175))
+	drawFEN(controlled,color(0,0,150,100))
+	drawFEN(playable,color(0,150,0,100))
 	drawPieces();
 	
 }

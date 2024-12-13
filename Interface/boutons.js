@@ -1,8 +1,8 @@
 async function getInfo(toggleId) {
 
-  const buttonIds = ['threat_button', 'control_button', 'play_button']; // Liste des IDs connus
+  const buttonIds = ['threats', 'controlled', 'playable']; // Liste des IDs connus
   const all_toggle_buttons = buttonIds.map(id => document.getElementById(id));
-  
+
   try {
     const response = await fetch(`http://127.0.0.1:5000/get-info/${toggleId}`);
     const data = await response.json();

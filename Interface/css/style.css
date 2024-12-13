@@ -37,17 +37,17 @@ body, html {
   }
 
 
-  #threat_button:checked{
+  #threats:checked{
     background-color: #d42d2d; /* Green when checked */
     border-color: #d42d2d;  
   }
 
-  #play_button:checked{
+  #playable:checked{
     background-color: #17910e; /* Green when checked */
     border-color: #17910e;  
   }
 
-  #control_button:checked{
+  #controlled:checked{
     background-color: #0f0faa; /* Green when checked */
     border-color: #0f0faa;  
   }
