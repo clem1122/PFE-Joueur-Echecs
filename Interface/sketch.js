@@ -11,6 +11,12 @@ let port = "8080";
 let url = "http://localhost:" + port;
 let isWhite = true;
 let Box;
+let threats = '.'.repeat(64);
+let controlled = '.'.repeat(64);
+let playable = '.'.repeat(64);
+localStorage.setItem("threats", threats);
+localStorage.setItem("controlled", controlled);
+localStorage.setItem("playable", playable);
 
 
 function preload() {
@@ -43,20 +49,26 @@ function setup() {
 }
 
 function draw() {
+	
+	threats = localStorage.getItem("threats");
+	controlled = localStorage.getItem("controlled");
+	playable = localStorage.getItem("playable");
 	drawBoard();
-	drawThreats();
+	drawFEN(threats,color(150,0,0,175))
+	drawFEN(controlled,color(0,0,150,100))
+	drawFEN(playable,color(0,150,0,100))
+	drawPieces();
+	
 }
 
-function drawThreats() {
-	let threats = localStorage.getItem("ThreatsFEN");
-	if (threats === undefined) { return; }
-	console.log(threats[0]);
+function drawFEN(FEN,couleur) {
+
 	for (let i = 0; i < rows; i++) {
 		for (let j = 0; j < cols; j++) {
 			let x = j * squareSize;
 			let y = i * squareSize;
-			fill(100, 0, 0);
-			if (threats[i + j * 8] == '1') {
+			fill(couleur);
+			if (FEN[i * 8+ j ] == '1') {
 				rect(x, y, squareSize, squareSize);
 			}
 
@@ -82,7 +94,7 @@ function drawBoard() {
 
 		}
 	}
-	drawPieces();
+
 }
 
 function drawPieces() {

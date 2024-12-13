@@ -5,12 +5,18 @@ app = Flask(__name__)
 
 CORS(app)
 # Exemple de données à renvoyer
-data = {
-    "toggle1": "..................................1.1.................1.........",
-    "toggle2": "Coups possibles",
-    "toggle3": "Cases controlées",
+color_FEN = {
+    "threats": "...............................................................",
+    "playable": "................................................................",
+    "controlled": ".................................................................",
     "toggle4": "Aide"
 }
+
+@app.route('/')
+def home():
+    print("La route / a été appelée")
+    return "Le serveur flask tourne bien à cette URL"
+
 
 @app.route('/get-info/<toggle_id>', methods=['GET'])
 def get_info(toggle_id):
@@ -24,9 +30,15 @@ def get_info(toggle_id):
     else:
         return jsonify({"error": "Bouton non trouvé"}), 404
 
-@app.route('/')
-def home():
-    return "Hello, Flask!"
+
+@app.route('/set-color-FEN', methods=['GET'])
+def set_color_FEN():
+    global color_FEN
+    data = request.get_json()
+    color_FEN["controlled"] = data.controlled
+    color_FEN["playable"] = data.playable
+    color_FEN["threats"] = data.threats
+    return jsonify({"status": "success", "received": color_FEN})
 
 
 if __name__ == '__main__':
