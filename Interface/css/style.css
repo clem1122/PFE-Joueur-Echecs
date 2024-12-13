@@ -36,9 +36,20 @@ body, html {
     align-items: center;      /* Center vertically */
   }
 
-  .form-check-input:checked {
-    background-color: #4CAF50; /* Green when checked */
-    border-color: #4CAF50;     /* Border color when checked */
+
+  #threat_button:checked{
+    background-color: #d42d2d; /* Green when checked */
+    border-color: #d42d2d;  
+  }
+
+  #play_button:checked{
+    background-color: #17910e; /* Green when checked */
+    border-color: #17910e;  
+  }
+
+  #control_button:checked{
+    background-color: #0f0faa; /* Green when checked */
+    border-color: #0f0faa;  
   }
 
   .form-check-label {

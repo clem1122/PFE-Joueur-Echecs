@@ -11,6 +11,12 @@ let port = "8080";
 let url = "http://localhost:" + port;
 let isWhite = true;
 let Box;
+let threat_button = '.'.repeat(64);
+let control_button = '.'.repeat(64);
+let play_button = '.'.repeat(64);
+localStorage.setItem("threat_button", threat_button);
+localStorage.setItem("control_button", control_button);
+localStorage.setItem("play_button", play_button);
 
 
 function preload() {
@@ -43,20 +49,26 @@ function setup() {
 }
 
 function draw() {
+	
+	threat_button = localStorage.getItem("threat_button");
+	control_button = localStorage.getItem("control_button");
+	play_button = localStorage.getItem("play_button");
 	drawBoard();
-	drawThreats();
+	drawFEN(threat_button,color(150,0,0,175))
+	drawFEN(control_button,color(0,0,150,100))
+	drawFEN(play_button,color(0,150,0,100))
+	drawPieces();
+	
 }
 
-function drawThreats() {
-	let threats = localStorage.getItem("ThreatsFEN");
-	if (threats === undefined) { return; }
-	console.log(threats[0]);
+function drawFEN(FEN,couleur) {
+
 	for (let i = 0; i < rows; i++) {
 		for (let j = 0; j < cols; j++) {
 			let x = j * squareSize;
 			let y = i * squareSize;
-			fill(100, 0, 0);
-			if (threats[i + j * 8] == '1') {
+			fill(couleur);
+			if (FEN[i * 8+ j ] == '1') {
 				rect(x, y, squareSize, squareSize);
 			}
 
@@ -82,7 +94,7 @@ function drawBoard() {
 
 		}
 	}
-	drawPieces();
+
 }
 
 function drawPieces() {
