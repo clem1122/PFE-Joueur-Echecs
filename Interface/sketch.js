@@ -19,6 +19,8 @@ localStorage.setItem("controlled", controlled);
 localStorage.setItem("playable", playable);
 
 
+
+
 function preload() {
 	pieceImages['Q'] = loadImage("Images/Q.png");
 	pieceImages['K'] = loadImage("Images/K.png");
@@ -53,15 +55,17 @@ function draw() {
 	threats = localStorage.getItem("threats");
 	controlled = localStorage.getItem("controlled");
 	playable = localStorage.getItem("playable");
+	getBoardFEN();
+	console.log(FEN)
 	drawBoard();
-	drawFEN(threats,color(150,0,0,175))
-	drawFEN(controlled,color(0,0,150,100))
-	drawFEN(playable,color(0,150,0,100))
+	draw_color_FEN(threats,color(150,0,0,175));
+	draw_color_FEN(controlled,color(0,0,150,100));
+	draw_color_FEN(playable,color(0,150,0,100));
 	drawPieces();
 	
 }
 
-function drawFEN(FEN,couleur) {
+function draw_color_FEN(FEN,couleur) {
 
 	for (let i = 0; i < rows; i++) {
 		for (let j = 0; j < cols; j++) {
@@ -154,8 +158,11 @@ function mousePressed() {
 
 
 
+async function getBoardFEN() {
 
-
-
-
+	const url_board = "http://127.0.0.1:5000/get-board-FEN";
+	const response_board = await fetch(url_board);
+	const data = await response_board.json();
+	FEN = data.board_FEN;
+}
 
