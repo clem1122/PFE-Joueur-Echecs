@@ -37,9 +37,11 @@ def send_color_FEN(board):
 		
 while True:
 	moveStr = input("Move :")
+
 	if b.play(moveStr) :
 		send_color_FEN(b)
 		send_board_FEN(b)
+
 
 
 

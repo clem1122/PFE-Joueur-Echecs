@@ -55,7 +55,9 @@ function draw() {
 	threats = localStorage.getItem("threats");
 	controlled = localStorage.getItem("controlled");
 	playable = localStorage.getItem("playable");
-	getBoardFEN();
+	if (frameCount % 10 == 0){
+		getBoardFEN();
+	}
 	drawBoard();
 	draw_color_FEN(threats,color(150,0,0,175));
 	draw_color_FEN(controlled,color(0,0,150,100));

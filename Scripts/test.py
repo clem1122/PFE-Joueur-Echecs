@@ -22,9 +22,12 @@ b.print()
 robot = Robot()
 flask = True
 
+if flask :
+	requests.get("http://127.0.0.1:5000/new-game") #Regénère les FEN de la flask
+
 def send_board_FEN(board):
-	url = "http://127.0.0.1:5000/send-board-FEN"
-	payload = {"board-FEN": board.FEN()}
+	url = "http://127.0.0.1:5000/set-board-FEN"
+	payload = {"board_FEN": board.FEN()}
 	response = requests.post(url, json=payload)
 	if response.status_code == 200:
 		print("Board envoyé")
@@ -73,6 +76,7 @@ else :
 
 	while True:
 		moveStr = input("Move :")
+		
 		if isRobotTurn:
 			robot_play(moveStr)
 		else:
@@ -81,6 +85,7 @@ else :
 		if flask:	
 			send_color_FEN(b)
 			send_board_FEN(b)
+			
 		isRobotTurn = not isRobotTurn
 
 robot.close()

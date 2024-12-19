@@ -5,14 +5,21 @@ app = Flask(__name__)
 
 CORS(app)
 # Exemple de données à renvoyer
-color_FEN = {
+
+@app.route('/new-game')
+def new_game():
+    global color_FEN
+    global board_FEN
+    color_FEN = {
     "threats":    "................................................................",
     "playable":   "................................................................",
     "controlled": "................................................................",
     "toggle4": "Aide"
 }
 
-board_FEN = "..............................................................."
+    board_FEN = "rnbqkbnrpppppppp................................PPPPPPPPRNBQKBNR"
+
+    return "FEN réinitialisées"
 
 @app.route('/')
 def home():
@@ -71,4 +78,4 @@ def get_board_fen():
     
 if __name__ == '__main__':
     app.run(debug=True)
-
+    new_game()
