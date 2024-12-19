@@ -15,7 +15,7 @@ class RoboticMove:
 			self.piece_height = height.pieces_height[piece.type()]
 		
 	def __str__(self):
-		return "Robotic move from " + str(self.take_coord) + " to " + str(self.drop_coord)
+		return "Robotic move from " + str(self.take_coord) + " to " + str(self.drop_coord) + "(Hauteur : " + self.piece_height + " )"
 		
 	
 	

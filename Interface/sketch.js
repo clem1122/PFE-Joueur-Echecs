@@ -56,7 +56,6 @@ function draw() {
 	controlled = localStorage.getItem("controlled");
 	playable = localStorage.getItem("playable");
 	getBoardFEN();
-	console.log(FEN)
 	drawBoard();
 	draw_color_FEN(threats,color(150,0,0,175));
 	draw_color_FEN(controlled,color(0,0,150,100));
@@ -166,3 +165,34 @@ async function getBoardFEN() {
 	FEN = data.board_FEN;
 }
 
+async function refresh_color_FEN() {
+
+	const buttonIds = ['threats', 'controlled', 'playable']; // Liste des IDs connus
+  
+	try {
+	  const response = await fetch(`http://127.0.0.1:5000/set-color-FEN`);
+	  const data = await response.json();
+  
+	  if (response.ok) {
+		if (toggle_button.checked){
+		  localStorage.setItem(`${toggleId}`, data.FEN);
+		  all_toggle_buttons.forEach(button => {
+			if (button.id !== toggleId) {
+			  button.checked = false; // Uncheck other buttons
+			  localStorage.setItem(button.id, '.'.repeat(64)); // Update their storage state
+			}
+		  });
+		}
+		else{
+		  localStorage.setItem(`${toggleId}`, '.'.repeat(64));
+		}
+  
+	  } else {
+		alert(`Erreur: ${data.error}`);
+	  }
+	} catch (error) {
+	  alert("Impossible de récupérer les infos.");
+	  console.error(error);
+	}
+  }
+  

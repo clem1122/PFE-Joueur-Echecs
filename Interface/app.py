@@ -45,7 +45,6 @@ def set_color_FEN():
 @app.route('/set-board-FEN', methods=['POST'])
 def set_board_fen():
     global board_FEN 
-    # Traitez la donnée FEN reçue
     try:
         data = request.get_json()
         if "board_FEN" not in data:
