@@ -12,7 +12,7 @@ def new_game():
     global board_FEN
     color_FEN = {
     "threats":    "................................................................",
-    "playable":   "................................................................",
+    "playable":   "....................1........1..................................",
     "controlled": "................................................................",
     "toggle4": "Aide"
 }
@@ -49,6 +49,11 @@ def set_color_FEN():
     color_FEN["threats"] = data["threats"]
     return jsonify({"status": "success", "received": color_FEN})
 
+@app.route('/get-color-FEN', methods=['GET'])
+def get_color_FEN():
+    print("color FEN envoyée avec succès")
+    return jsonify(color_FEN)
+
 @app.route('/set-board-FEN', methods=['POST'])
 def set_board_fen():
     global board_FEN 
@@ -69,13 +74,13 @@ def get_board_fen():
     global board_FEN
     try:
         if 'board_FEN' not in globals() or board_FEN is None:
-            return jsonify({"error": "No board_FEN available"}), 404
+            return jsonify({"error": "No board_FEN available"}), 501
         
         print("Board reçu avec succès")
         return jsonify({"status": "success", "board_FEN": board_FEN}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-    
+ 
 if __name__ == '__main__':
     new_game()
     app.run(debug=True)

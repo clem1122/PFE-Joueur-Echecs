@@ -1,6 +1,7 @@
 async function getInfo(toggleId) {
 
   const buttonIds = ['threats', 'controlled', 'playable']; // Liste des IDs connus
+  const FEN_to_show = {'threats': false, 'controlled': false, 'playable': false};
   const all_toggle_buttons = buttonIds.map(id => document.getElementById(id));
 
   try {
@@ -10,16 +11,18 @@ async function getInfo(toggleId) {
 
     if (response.ok) {
       if (toggle_button.checked){
-        localStorage.setItem(`${toggleId}`, data.FEN);
+        FEN_to_show[`${toggleId}`] = true;
+        console.log("sending : " + JSON.stringify(FEN_to_show));
+        localStorage.setItem("FEN_to_show", JSON.stringify(FEN_to_show));
         all_toggle_buttons.forEach(button => {
           if (button.id !== toggleId) {
             button.checked = false; // Uncheck other buttons
-            localStorage.setItem(button.id, '.'.repeat(64)); // Update their storage state
           }
         });
       }
-      else{
-        localStorage.setItem(`${toggleId}`, '.'.repeat(64));
+      else {
+        FEN_to_show[`${toggleId}`] = false;
+        localStorage.setItem("FEN_to_show", JSON.stringify(FEN_to_show));
       }
 
     } else {

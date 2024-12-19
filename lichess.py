@@ -27,7 +27,6 @@ def generate_complete_fen(simplified_fen, player_and_castling):
     empty_count = 0
 
     for char in simplified_fen:
-        print(char)
         if char == ".":
             empty_count += 1
         else:

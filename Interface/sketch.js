@@ -52,28 +52,39 @@ function setup() {
 
 function draw() {
 	
-	threats = localStorage.getItem("threats");
-	controlled = localStorage.getItem("controlled");
-	playable = localStorage.getItem("playable");
+	FEN_to_show = JSON.parse(localStorage.getItem("FEN_to_show"));
+
 	if (frameCount % 10 == 0){
-		getBoardFEN();
+		updateFENs();
 	}
 	drawBoard();
-	draw_color_FEN(threats,color(150,0,0,175));
-	draw_color_FEN(controlled,color(0,0,150,100));
-	draw_color_FEN(playable,color(0,150,0,100));
+	console.log(playable);
+	if (FEN_to_show['threats']){draw_color_FEN(threats,color(150,0,0,175));}
+	if (FEN_to_show['controlled']){draw_color_FEN(controlled,color(0,0,150,100));}
+	if(FEN_to_show['playable']){draw_color_FEN(playable,color(0,150,0,100));}
 	drawPieces();
 	
 }
 
-function draw_color_FEN(FEN,couleur) {
+async function updateFENs(){
+	getBoardFEN();
+	color_FEN = await getColorFEN();
+	console.log("col2 : " + color_FEN);
+	if (color_FEN !== undefined) {
+		threats = color_FEN['threats'];
+		controlled = color_FEN['controlled'];
+		playable = color_FEN['playable'];
+	}
 
+}
+
+function draw_color_FEN(FEN,couleur) {
 	for (let i = 0; i < rows; i++) {
 		for (let j = 0; j < cols; j++) {
 			let x = j * squareSize;
 			let y = i * squareSize;
 			fill(couleur);
-			if (FEN[i * 8+ j ] == '1') {
+			if (FEN[i * 8 + j ] == '1') {
 				rect(x, y, squareSize, squareSize);
 			}
 
@@ -116,13 +127,7 @@ function drawPieces() {
 }
 
 
-
-
-
 function mousePressed() {
-
-
-
 	let _col = floor(mouseX / squareSize);
 	let _row = floor(mouseY / squareSize);
 
@@ -160,41 +165,16 @@ function mousePressed() {
 
 
 async function getBoardFEN() {
-
 	const url_board = "http://127.0.0.1:5000/get-board-FEN";
-	const response_board = await fetch(url_board);
-	const data = await response_board.json();
+	const response = await fetch(url_board);
+	const data = await response.json();
 	FEN = data.board_FEN;
 }
 
-async function refresh_color_FEN() {
-
-	const buttonIds = ['threats', 'controlled', 'playable']; // Liste des IDs connus
-  
-	try {
-	  const response = await fetch(`http://127.0.0.1:5000/set-color-FEN`);
-	  const data = await response.json();
-  
-	  if (response.ok) {
-		if (toggle_button.checked){
-		  localStorage.setItem(`${toggleId}`, data.FEN);
-		  all_toggle_buttons.forEach(button => {
-			if (button.id !== toggleId) {
-			  button.checked = false; // Uncheck other buttons
-			  localStorage.setItem(button.id, '.'.repeat(64)); // Update their storage state
-			}
-		  });
-		}
-		else{
-		  localStorage.setItem(`${toggleId}`, '.'.repeat(64));
-		}
-  
-	  } else {
-		alert(`Erreur: ${data.error}`);
-	  }
-	} catch (error) {
-	  alert("Impossible de récupérer les infos.");
-	  console.error(error);
-	}
-  }
-  
+async function getColorFEN() {
+	const url_color_FEN = "http://127.0.0.1:5000/get-color-FEN";
+	const response = await fetch(url_color_FEN);
+	const color_FEN = await response.json();
+	console.log("col1 : " + color_FEN);
+	return color_FEN
+}
