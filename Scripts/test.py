@@ -16,7 +16,7 @@ parser.add_argument("--move-to-square", type=str)
 parser.add_argument("--obs-pose", action="store_true")
 args = parser.parse_args()
 
-b = pc.Board(promotion_FEN)
+b = pc.Board(classic_FEN)
 b.print()
 robot = Robot()
 
