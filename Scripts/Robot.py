@@ -13,9 +13,10 @@ class Robot:
 
 	def authorize_move(self,robotic_move):
 		print(robotic_move)
-		validation = input("\n Le mouvement doit-il être effectué ? [y/n] \n")
-		while validation != "y" or validation != "n":
-			validation = input("\n Le mouvement doit-il être effectué ? [y/n] \n")
+		validation = input("\n Le mouvement doit-il être effectué ? [y/n] ")
+
+		while validation != "y" and validation != "n":
+			validation = input("\n Le mouvement doit-il être effectué ? [y/n] ")
 
 		author_bool = (validation=="y")
 
