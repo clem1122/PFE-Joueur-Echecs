@@ -14,21 +14,23 @@ promotion_FEN = 'r.b.kbnrpPpp.ppp..n.................p.q..P...N....PPPPPPRNBQKB.
 parser = argparse.ArgumentParser()
 parser.add_argument("--move-to-square", type=str)
 parser.add_argument("--obs-pose", action="store_true")
+parser.add_argument("--no-flask", action="store_true")
 args = parser.parse_args()
 
 b = pc.Board(promotion_FEN)
 b.print()
 robot = Robot()
-
+flask = True
 
 def send_board_FEN(board):
 	url = "http://127.0.0.1:5000/send-board-FEN"
 	payload = {"board-FEN": board.FEN()}
-
 	response = requests.post(url, json=payload)
-
 	if response.status_code == 200:
 		print("Board envoyé")
+	else:
+		print(f"Erreur lors de l'envoi du board : {response.status_code}, {response.text}")
+
 		
 
 def robot_play(moveStr):
@@ -48,18 +50,19 @@ def robot_play_test(moveStr, h):
 
 
 def send_color_FEN(board):
-
 	url = "http://127.0.0.1:5000/set-color-FEN"
 	payload = {"threats": board.threats(True), 
 			"playable": "................11.............................................", 
 			"controlled": ".............................................11................"}
-
 	response = requests.post(url, json=payload)
-
 	if response.status_code == 200:
 		print("Color FEN envoyées")
+	else:
+	    print(f"Erreur lors de l'envoi du board : {response.status_code}, {response.text}")
+
 		
-	
+if args.no_flask:
+	flask = False
 if args.move_to_square :
 	robot.move_to_square(args.move_to_square)
 elif args.obs_pose:
@@ -72,10 +75,10 @@ else :
 		moveStr = input("Move :")
 		if isRobotTurn:
 			robot_play(moveStr)
-			send_color_FEN(b)
-			send_board_FEN(b)
 		else:
 			b.play(moveStr)
+		
+		if flask:	
 			send_color_FEN(b)
 			send_board_FEN(b)
 		isRobotTurn = not isRobotTurn
