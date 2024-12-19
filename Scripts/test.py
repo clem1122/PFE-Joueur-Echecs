@@ -15,6 +15,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--move-to-square", type=str)
 parser.add_argument("--obs-pose", action="store_true")
 parser.add_argument("--no-flask", action="store_true")
+parser.add_argument("--cautious", action="store_true")
 args = parser.parse_args()
 
 b = pc.Board(classic_FEN)
@@ -36,12 +37,12 @@ def send_board_FEN(board):
 
 		
 
-def robot_play(moveStr):
+def robot_play(moveStr, cautious = False):
 	if len(moveStr) != 4:
 		raise Exception("Unvalid Move length")
 	
 	m = b.create_move(moveStr)
-	robot.play_move(b,m)
+	robot.play_move(b, m, cautious)
 	b.play(moveStr)
 	
 def robot_play_test(moveStr, h):
@@ -78,14 +79,14 @@ else :
 		moveStr = input("Move :")
 		
 		if isRobotTurn:
-			robot_play(moveStr)
+			robot_play(moveStr, cautious = args.cautious)
 		else:
 			b.play(moveStr)
 		
 		if flask:	
 			send_color_FEN(b)
 			send_board_FEN(b)
-			
+
 		isRobotTurn = not isRobotTurn
 
 robot.close()
