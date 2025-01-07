@@ -1,0 +1,137 @@
+import chess
+
+def create_compact_mapping():
+    """
+    Create a compact mapping of chess moves inspired by LC0's policy map.
+
+    Returns:
+        dict: A mapping from UCI strings to indices.
+    """
+    mapping = {}
+    idx = 0
+
+    # 1. Pawn moves (normal moves, captures, promotions)
+    for file in 'abcdefgh':
+        for rank in ['2', '7']:  # Starting ranks for pawns
+            # Single forward move
+            mapping[f"{file}{rank}{file}{int(rank)+1}"] = idx
+            idx += 1
+            # Double forward move
+            mapping[f"{file}{rank}{file}{int(rank)+2}"] = idx
+            idx += 1
+        # Promotions
+        for rank in ['7']:  # Promotion on 8th rank
+            for promo in ['q', 'r', 'b', 'n']:
+                mapping[f"{file}{rank}{file}8{promo}"] = idx
+                idx += 1
+
+    # 2. Knight moves
+    knight_offsets = [
+        (2, 1), (2, -1), (-2, 1), (-2, -1),
+        (1, 2), (1, -2), (-1, 2), (-1, -2)
+    ]
+    for square in chess.SQUARES:
+        file = chess.square_file(square)
+        rank = chess.square_rank(square)
+        for dx, dy in knight_offsets:
+            target_file = file + dx
+            target_rank = rank + dy
+            if 0 <= target_file < 8 and 0 <= target_rank < 8:  # Inside the board
+                from_square = chess.square(file, rank)
+                to_square = chess.square(target_file, target_rank)
+                mapping[chess.SQUARE_NAMES[from_square] + chess.SQUARE_NAMES[to_square]] = idx
+                idx += 1
+
+    # 3. King moves
+    king_offsets = [
+        (1, 0), (-1, 0), (0, 1), (0, -1),
+        (1, 1), (1, -1), (-1, 1), (-1, -1)
+    ]
+    for square in chess.SQUARES:
+        file = chess.square_file(square)
+        rank = chess.square_rank(square)
+        for dx, dy in king_offsets:
+            target_file = file + dx
+            target_rank = rank + dy
+            if 0 <= target_file < 8 and 0 <= target_rank < 8:  # Inside the board
+                from_square = chess.square(file, rank)
+                to_square = chess.square(target_file, target_rank)
+                mapping[chess.SQUARE_NAMES[from_square] + chess.SQUARE_NAMES[to_square]] = idx
+                idx += 1
+
+    # 4. Castling
+    mapping['e1g1'] = idx  # White kingside
+    idx += 1
+    mapping['e1c1'] = idx  # White queenside
+    idx += 1
+    mapping['e8g8'] = idx  # Black kingside
+    idx += 1
+    mapping['e8c8'] = idx  # Black queenside
+    idx += 1
+
+    # 5. Sliding pieces (rooks, bishops, queens)
+    sliding_offsets = {
+        'rook': [(1, 0), (-1, 0), (0, 1), (0, -1)],
+        'bishop': [(1, 1), (1, -1), (-1, 1), (-1, -1)],
+        'queen': [
+            (1, 0), (-1, 0), (0, 1), (0, -1),
+            (1, 1), (1, -1), (-1, 1), (-1, -1)
+        ],
+    }
+    for piece, offsets in sliding_offsets.items():
+        for square in chess.SQUARES:
+            file = chess.square_file(square)
+            rank = chess.square_rank(square)
+            for dx, dy in offsets:
+                for step in range(1, 8):  # Extend the slide up to the board edge
+                    target_file = file + step * dx
+                    target_rank = rank + step * dy
+                    if 0 <= target_file < 8 and 0 <= target_rank < 8:  # Inside the board
+                        from_square = chess.square(file, rank)
+                        to_square = chess.square(target_file, target_rank)
+                        mapping[chess.SQUARE_NAMES[from_square] + chess.SQUARE_NAMES[to_square]] = idx
+                        idx += 1
+                    else:
+                        break
+
+    return mapping
+
+# Generate the mapping
+compact_mapping = create_compact_mapping()
+print(f"Total moves in the mapping: {len(compact_mapping)}")
+
+# from datasets import load_dataset
+# dataset = load_dataset('angeluriot/chess_games')
+
+absent_moves = set()
+absent_moves = {'e7d8n', 'b2a1b', 'd2c1b', 'f2e1q', 'd7e8b', 'd2d1q', 'c7d8q', 'c7b8q', 'f7g8n', 'b2c1b', 'd2e1b', 'g2f1q', 'c2d1n', 'e7f8q',
+'e2d1r', 'c7d8r', 'f2f1n', 'h2g1q', 'h2g1n', 'h2h1r', 'c2d1r', 'c2c1b', 'f2e1r', 'c2c1r', 'a7b8q', 'c2c1n', 'f7e8q', 'h2g1b', 'd7e8q', 'g2g1q',
+'d2c1q', 'h7g8b', 'c7b8b', 'd2e1n', 'e2e1b', 'c7b8r', 'b7a8r', 'g2h1b', 'b2b1q', 'f2g1b', 'f7e8r', 'e2d1b', 'b7c8n', 'd7c8q', 'b7c8r', 'c2d1b',
+'c2d1q', 'g7f8n', 'd2c1r', 'b7a8n', 'b2b1n', 'd2e1q', 'b2a1q', 'a2a1b', 'b2b1b', 'g7h8n', 'c7b8n', 'c2b1q', 'h2h1b', 'g2f1r', 'e2e1q', 'c7d8n',
+'b2a1n', 'g2g1r', 'e2e1r', 'c2b1r', 'd2e1r', 'e2f1q', 'e2e1n', 'f7e8n', 'g7h8q', 'e2f1r', 'f2g1q', 'g2g1b', 'd2d1r', 'c2b1b', 'f2e1b', 'f2f1r',
+'b2a1r', 'h7g8q', 'd7c8n', 'c2c1q', 'a7b8r', 'f2e1n', 'f7g8q', 'g2h1q', 'd7e8r', 'c2b1n', 'g2h1n', 'f2f1q', 'b7a8q', 'f7e8b', 'h2h1q', 'h7g8n',
+'e7d8q', 'd2d1n', 'd2c1n', 'c7d8b', 'h2g1r', 'e7d8r', 'a2b1b', 'f7g8b', 'a7b8n', 'f7g8r', 'd2d1b', 'a2b1r', 'g2g1n', 'b2c1r', 'b7c8q', 'b7a8b',
+'a2b1n', 'f2f1b', 'e7d8b', 'f2g1n', 'e2d1q', 'h2h1n', 'b2c1q', 'h7g8r', 'g7f8b', 'b7c8b', 'g7f8r', 'a2a1r', 'd7c8b', 'd7c8r', 'g7f8q', 'a2a1n',
+'d7e8n', 'e7f8b', 'a2b1q', 'e2f1b', 'b2c1n', 'a2a1q', 'g7h8b', 'g2f1b', 'e7f8r', 'e2d1n', 'g2f1n', 'e7f8n', 'e2f1n', 'a7b8b', 'b2b1r', 'g2h1r', 'g7h8r', 'f2g1r'}
+# for i, game in enumerate(dataset['train']):
+#     moves_uci = game['moves_uci']
+#     for move in moves_uci:
+#         value = compact_mapping.get(move, -1)
+#         if value == -1:
+#             print(f"WARNING {move} not in mapping")
+#             absent_moves.add(move)
+
+#     print(f'game {i}')
+print(len(absent_moves))
+print("Absent moves:", absent_moves)
+
+
+"""Absent moves: {'e7d8n', 'b2a1b', 'd2c1b', 'f2e1q', 'd7e8b', 'd2d1q', 'c7d8q', 'c7b8q', 'f7g8n', 'b2c1b', 'd2e1b', 'g2f1q', 'c2d1n', 'e7f8q',
+'e2d1r', 'c7d8r', 'f2f1n', 'h2g1q', 'h2g1n', 'h2h1r', 'c2d1r', 'c2c1b', 'f2e1r', 'c2c1r', 'a7b8q', 'c2c1n', 'f7e8q', 'h2g1b', 'd7e8q', 'g2g1q',
+'d2c1q', 'h7g8b', 'c7b8b', 'd2e1n', 'e2e1b', 'c7b8r', 'b7a8r', 'g2h1b', 'b2b1q', 'f2g1b', 'f7e8r', 'e2d1b', 'b7c8n', 'd7c8q', 'b7c8r', 'c2d1b',
+'c2d1q', 'g7f8n', 'd2c1r', 'b7a8n', 'b2b1n', 'd2e1q', 'b2a1q', 'a2a1b', 'b2b1b', 'g7h8n', 'c7b8n', 'c2b1q', 'h2h1b', 'g2f1r', 'e2e1q', 'c7d8n',
+'b2a1n', 'g2g1r', 'e2e1r', 'c2b1r', 'd2e1r', 'e2f1q', 'e2e1n', 'f7e8n', 'g7h8q', 'e2f1r', 'f2g1q', 'g2g1b', 'd2d1r', 'c2b1b', 'f2e1b', 'f2f1r',
+'b2a1r', 'h7g8q', 'd7c8n', 'c2c1q', 'a7b8r', 'f2e1n', 'f7g8q', 'g2h1q', 'd7e8r', 'c2b1n', 'g2h1n', 'f2f1q', 'b7a8q', 'f7e8b', 'h2h1q', 'h7g8n',
+'e7d8q', 'd2d1n', 'd2c1n', 'c7d8b', 'h2g1r', 'e7d8r', 'a2b1b', 'f7g8b', 'a7b8n', 'f7g8r', 'd2d1b', 'a2b1r', 'g2g1n', 'b2c1r', 'b7c8q', 'b7a8b',
+'a2b1n', 'f2f1b', 'e7d8b', 'f2g1n', 'e2d1q', 'h2h1n', 'b2c1q', 'h7g8r', 'g7f8b', 'b7c8b', 'g7f8r', 'a2a1r', 'd7c8b', 'd7c8r', 'g7f8q', 'a2a1n',
+'d7e8n', 'e7f8b', 'a2b1q', 'e2f1b', 'b2c1n', 'a2a1q', 'g7h8b', 'g2f1b', 'e7f8r', 'e2d1n', 'g2f1n', 'e7f8n', 'e2f1n', 'a7b8b', 'b2b1r', 'g2h1r', 'g7h8r', 'f2g1r'}"""

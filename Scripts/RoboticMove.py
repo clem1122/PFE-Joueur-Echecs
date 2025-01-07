@@ -7,6 +7,9 @@ class RoboticMove:
 	def __init__(self,start_coord,end_coord,piece, isEndMove = True):
 		self.take_coord = space.chessboard[start_coord]
 		self.drop_coord = space.chessboard[end_coord]
+		self.start_coord = start_coord
+		self.end_coord = end_coord
+		self.moved_piece = piece.type()
 		self.isEndMove = isEndMove
 		self.orientation = [2.36, 1.57, -3.14]
 		self.take_pose = self.take_coord + self.orientation
@@ -15,7 +18,7 @@ class RoboticMove:
 			self.piece_height = height.pieces_height[piece.type()]
 		
 	def __str__(self):
-		return "Robotic move from " + str(self.take_coord) + " to " + str(self.drop_coord)
+		return "Robotic move from " + str(self.start_coord) + " to " + str(self.end_coord) + " (Piece : " + str(self.moved_piece) +" ; Hauteur : " + str(self.piece_height) + " )"
 		
 	
 	
