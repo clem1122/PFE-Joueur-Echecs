@@ -6,7 +6,7 @@ import numpy as np
 # Difference absolue entre deux images
 def detect_differences(img1, img2, sensitivity_threshold):
     diff = cv2.absdiff(img1, img2)
-    # Filtre pour ignorer les diff en dessous du threshold dchoisi
+    # Filtre pour ignorer les diff en dessous du threshold choisi
     _, filtered_diff = cv2.threshold(diff, sensitivity_threshold, 255, cv2.THRESH_BINARY)
     return filtered_diff
 

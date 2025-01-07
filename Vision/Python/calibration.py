@@ -37,7 +37,7 @@ def calibrate_corners(calibration_file, reference_image_path, output_size):
             print("Pas d'image")
         gray = cv2.cvtColor(reference_image, cv2.COLOR_BGR2GRAY)
 
-        # Créer la fenêtre et configurer le rappel de la souris
+        # Créer lrea fenêtre et configurer le rappel de la souris
         cv2.namedWindow('Calibration')
         cv2.setMouseCallback('Calibration', mouse_callback)
 
