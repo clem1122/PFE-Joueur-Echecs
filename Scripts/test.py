@@ -4,6 +4,7 @@ import sys
 import argparse
 import requests
 import PChess as pc
+from lichess import get_move
 
 classic_FEN = 'rnbqkbnrpppppppp................................PPPPPPPPRNBQKBNR'
 capture_FEN = 'rnbqkbnrppp.pppp...........p........P...........PPPP.PPPRNBQKBNR'
@@ -17,6 +18,7 @@ parser.add_argument("--obs-pose", action="store_true")
 parser.add_argument("--no-flask", action="store_true")
 parser.add_argument("--cautious", action="store_true")
 parser.add_argument("--no-robot", action="store_true")
+parser.add_argument("--lichess",  action="store_true")
 args = parser.parse_args()
 
 b = pc.Board(promotion_FEN)
@@ -83,11 +85,14 @@ elif args.obs_pose:
 	robot.move_to_obs_pose()
 else:
 	robot = Robot()
-	requests.get("http://127.0.0.1:5000/new-game") #Regénère les FEN de la flask
+	send_board_FEN(b)
 	isRobotTurn = True
 
 	while True:
-		moveStr = input("Move :")
+		if args.lichess:
+			moveStr = get_move(b.FEN())
+		else:
+			moveStr = input("Move :")
 		
 		if isRobotTurn:
 			robot_play(moveStr, cautious = args.cautious)
