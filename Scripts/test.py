@@ -16,15 +16,12 @@ parser.add_argument("--move-to-square", type=str)
 parser.add_argument("--obs-pose", action="store_true")
 parser.add_argument("--no-flask", action="store_true")
 parser.add_argument("--cautious", action="store_true")
+parser.add_argument("--no-robot", action="store_true")
 args = parser.parse_args()
 
 b = pc.Board(classic_FEN)
 b.print()
-robot = Robot()
 flask = True
-
-if flask :
-	requests.get("http://127.0.0.1:5000/new-game") #Regénère les FEN de la flask
 
 def send_board_FEN(board):
 	url = "http://127.0.0.1:5000/set-board-FEN"
@@ -65,15 +62,28 @@ def send_color_FEN(board):
 	else:
 	    print(f"Erreur lors de l'envoi du board : {response.status_code}, {response.text}")
 
-		
+
 if args.no_flask:
 	flask = False
-if args.move_to_square :
+
+if args.no_robot:
+	send_color_FEN(b)
+	send_board_FEN(b)
+	while True:
+		moveStr = input("Move :")
+
+		if b.play(moveStr) :
+			send_color_FEN(b)
+			send_board_FEN(b)
+elif args.move_to_square :
+	robot = Robot()
 	robot.move_to_square(args.move_to_square)
 elif args.obs_pose:
-	robot.move_to_obs_pose()	
-else :
-
+	robot = Robot()
+	robot.move_to_obs_pose()
+else:
+	robot = Robot()
+	requests.get("http://127.0.0.1:5000/new-game") #Regénère les FEN de la flask
 	isRobotTurn = True
 
 	while True:
