@@ -19,7 +19,7 @@ parser.add_argument("--cautious", action="store_true")
 parser.add_argument("--no-robot", action="store_true")
 args = parser.parse_args()
 
-b = pc.Board(classic_FEN)
+b = pc.Board(promotion_FEN)
 b.print()
 flask = True
 
