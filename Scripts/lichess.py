@@ -26,18 +26,21 @@ def generate_complete_fen(simplified_fen, player_and_castling):
     # Conversion de la FEN simplifiée en FEN standard
     standard_fen = ""
     empty_count = 0
-
-    for char in simplified_fen:
+    row_count = 0
+    for char in simplified_fen: 
         if char == ".":
-            empty_count += 1
-            if empty_count == 8:
-                standard_fen += '8'
+            if empty_count == 8 or row_count == 8:
+                standard_fen += str(empty_count)
                 empty_count = 0
+                row_count = 0
+            empty_count += 1
         else:
             if empty_count > 0:
                 standard_fen += str(empty_count)
                 empty_count = 0
             standard_fen += char
+        row_count += 1
+
     if empty_count > 0:
         standard_fen += str(empty_count)
 
@@ -77,6 +80,7 @@ fen = generate_complete_fen(simplified_fen, player_and_castling)
 
 def get_move(simplified_FEN, player_and_castling = "wKQkq"):
     fen = generate_complete_fen(simplified_FEN, player_and_castling)
+    print("FEN : ",  fen)
     params = {"fen": fen} #"r1bqkbnr/pppppppp/n7/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
     response = requests.get(url, headers=HEADERS, params=params)

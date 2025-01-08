@@ -21,7 +21,7 @@ parser.add_argument("--no-robot", action="store_true")
 parser.add_argument("--lichess",  action="store_true")
 args = parser.parse_args()
 
-b = pc.Board(promotion_FEN)
+b = pc.Board(classic_FEN)
 b.print()
 flask = True
 
@@ -89,14 +89,18 @@ else:
 	isRobotTurn = True
 
 	while True:
-		if args.lichess:
-			moveStr = get_move(b.FEN())
-		else:
-			moveStr = input("Move :")
+
 		
 		if isRobotTurn:
+			if args.lichess:
+				print(b.FEN())
+				moveStr = get_move(b.FEN())
+			else:
+				moveStr = input("Move :")
+
 			robot_play(moveStr, cautious = args.cautious)
 		else:
+			moveStr = input("Move :")
 			b.play(moveStr)
 		
 		if flask:	
