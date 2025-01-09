@@ -1,67 +1,31 @@
 import os
 from dotenv import load_dotenv
-
-load_dotenv()
-
-API_TOKEN = os.getenv("LICHESS_API_TOKEN")
-
-# Préparer les en-têtes avec le jeton API
-HEADERS = {"Authorization": f"Bearer {API_TOKEN}"}
-
-# Exemple d'utilisation avec une requête
-import requests
-url = "https://lichess.org/api/cloud-eval"
-
+import re
+import chess
+import chess.engine
 
 def separate(chaine, position):
     return chaine[:position] + '/' + chaine[position:]
     
 
-def generate_complete_fen(simplified_fen, player_and_castling):
+def generate_complete_fen(simplified_fen, player_and_castling  = "wKQkq"):
     # Initialisation des informations additionnelles
     en_passant = "-"  # Aucun pion éligible à la prise en passant
     halfmove_clock = "0"  # Pas de demi-coups joués
     fullmove_number = "1"  # Premier coup
+    separated_fen = '/'.join(simplified_fen[i:i+8] for i in range(0, len(simplified_fen), 8))
+    slashed_fen = ''
+    for i in range(len(separated_fen)-8, -1, -9):
+        slashed_fen = re.sub(r"\.+", lambda match: str(len(match.group(0))), separated_fen[i:i+8]) + '/' + slashed_fen
 
-    # Conversion de la FEN simplifiée en FEN standard
-    standard_fen = ""
-    empty_count = 0
-    row_count = 0
-    for char in simplified_fen: 
-        if char == ".":
-            if empty_count == 8 or row_count == 8:
-                standard_fen += str(empty_count)
-                empty_count = 0
-                row_count = 0
-            empty_count += 1
-        else:
-            if empty_count > 0:
-                standard_fen += str(empty_count)
-                empty_count = 0
-            standard_fen += char
-        row_count += 1
-
-    if empty_count > 0:
-        standard_fen += str(empty_count)
-
-    count = 0
-    separated_fen = standard_fen
-    for charIndex in range(len(standard_fen)-1, 0, -1):
-        char = standard_fen[charIndex]
-        if char in "12345678":
-            count += int(char)
-        else:
-            count += 1
-        if count == 8:
-            separated_fen = separate(separated_fen, charIndex)
-            
-            count = 0
-    # Extraction du joueur actif et des droits de roque
-    player = player_and_castling[0]
-    castling = player_and_castling[1:] if len(player_and_castling) > 1 else "-"
+    slashed_fen = slashed_fen[:-1]
 
     # Construction de la FEN complète
-    complete_fen = f"{separated_fen} {player} {castling} {en_passant} {halfmove_clock} {fullmove_number}"
+    player = player_and_castling[0]
+    castling = player_and_castling[1:] if len(player_and_castling) > 1 else "-"
+    complete_fen = f"{slashed_fen} {player} {castling} {en_passant} {halfmove_clock} {fullmove_number}"
+    if complete_fen.count('/') != 7:
+        raise Exception("Not 7 / : ", complete_fen)
     return complete_fen
 
 # Exemple d'utilisation
@@ -79,14 +43,28 @@ fen = generate_complete_fen(simplified_fen, player_and_castling)
 #    print(f"Erreur {response.status_code}: {response.text}")
 
 def get_move(simplified_FEN, player_and_castling = "wKQkq"):
+    print(simplified_FEN)
     fen = generate_complete_fen(simplified_FEN, player_and_castling)
     print("FEN : ",  fen)
-    params = {"fen": fen} #"r1bqkbnr/pppppppp/n7/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+    board = chess.Board(fen)
+    with chess.engine.SimpleEngine.popen_uci("/mnt/d/Programmes/stockfish/stockfish-windows-x86-64-avx2.exe") as engine:
+    # Request an evaluation of the current position
+        result = engine.play(board, chess.engine.Limit(time=2.0))  # Limit the analysis to 2 seconds
+        print("coup :", result.move)
+    return result.move.uci()
 
-    response = requests.get(url, headers=HEADERS, params=params)
+def simplified_FEN(FEN):
+    sFEN = ''
+    for char in FEN:
+        if char in '12345678':
+            for i in range(int(char)):
+                sFEN += '.'
+        elif char == '/':
+            continue
+        else:
+            sFEN += char
+    if len(sFEN) != 64:
+        raise Exception("FEN size not 64")
+    return sFEN
 
-    if response.status_code == 200:
-        return response.json()['pvs'][0]['moves'][:4]
-    else:
-        print(f"Erreur {response.status_code}: {response.text}")
-        return 0
+# print(simplified_FEN('r1bqkbnr/pppppppp/n7/8/8/8/PPPPPPPP/RNBQKBNR'))

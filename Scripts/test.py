@@ -11,6 +11,7 @@ capture_FEN = 'rnbqkbnrppp.pppp...........p........P...........PPPP.PPPRNBQKBNR'
 roque_FEN = 'r...k..rpppq.ppp..npbn....b.p.....B.P.....NPBN..PPPQ.PPPR...K..R'
 prise_en_passant_FEN = 'rnbqkbnrpppppppp....................P...........PPPP.PPPRNBQKBNR'
 promotion_FEN = 'r.b.kbnrpPpp.ppp..n.................p.q..P...N....PPPPPPRNBQKB.R'
+fen =  "r.bq.rk.pppp.p....n..p..b....N.....PP.....N.....PPP..PPPR..QKB.R"
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--move-to-square", type=str)
@@ -93,7 +94,6 @@ else:
 		
 		if isRobotTurn:
 			if args.lichess:
-				print(b.FEN())
 				moveStr = get_move(b.FEN())
 			else:
 				moveStr = input("Move :")
