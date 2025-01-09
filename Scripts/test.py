@@ -1,8 +1,8 @@
 from Space import height 
 from Robot import Robot
-import sys
 import argparse
 import requests
+import sys
 import PChess as pc
 from lichess import get_move
 
@@ -26,7 +26,14 @@ b = pc.Board(classic_FEN)
 b.print()
 flask = True
 
+try:
+	requests.post("http://127.0.0.1:5000")
+except Exception as e:
+	print("Error : Flask is not running")
+	sys.exit(1)
+
 def send_board_FEN(board):
+	if(not flask){return}
 	url = "http://127.0.0.1:5000/set-board-FEN"
 	payload = {"board_FEN": board.FEN()}
 	response = requests.post(url, json=payload)
@@ -34,8 +41,6 @@ def send_board_FEN(board):
 		print("Board envoyé")
 	else:
 		print(f"Erreur lors de l'envoi du board : {response.status_code}, {response.text}")
-
-		
 
 def robot_play(moveStr, cautious = False):
 	if len(moveStr) != 4:
@@ -52,8 +57,8 @@ def robot_play_test(moveStr, h):
 	m = b.create_move(moveStr)
 	robot.play_test_move(m, h)
 
-
 def send_color_FEN(board):
+	if(not flask){return}
 	url = "http://127.0.0.1:5000/set-color-FEN"
 	payload = {"threats": board.threats(True), 
 			"playable": board.playable(True), 
@@ -65,7 +70,6 @@ def send_color_FEN(board):
 	else:
 	    print(f"Erreur lors de l'envoi du board : {response.status_code}, {response.text}")
 
-
 if args.no_flask:
 	flask = False
 
@@ -76,6 +80,7 @@ if args.no_robot:
 		moveStr = input("Move :")
 
 		if b.play(moveStr) :
+			pass
 			send_color_FEN(b)
 			send_board_FEN(b)
 elif args.move_to_square :
@@ -103,11 +108,10 @@ else:
 			moveStr = input("Move :")
 			b.play(moveStr)
 		
-		if flask:	
-			send_color_FEN(b)
-			send_board_FEN(b)
+		send_color_FEN(b)
+		send_board_FEN(b)
 
 		isRobotTurn = not isRobotTurn
 
-robot.close()
+	robot.close()
 
