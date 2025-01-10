@@ -6,6 +6,8 @@ import numpy as np
 from datasets import load_dataset
 from create_targets import create_target_vector
 from mapping import new_mapping
+from model.Model import Model
+
 compact_mapping = new_mapping
 
 dataset = load_dataset('angeluriot/chess_games')
