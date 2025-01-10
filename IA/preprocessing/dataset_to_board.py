@@ -16,13 +16,13 @@ blocks = 10
 
 for game in dataset['train']:
     moves_uci = game['moves_uci']
-    num_moves = len(moves_uci)
-    print(num_moves)
+    total_moves = len(moves_uci)
+    print(total_moves)
     board = chess.Board()
 
     board_tensor = torch.zeros((input_channels, 8, 8), dtype=torch.float32)
     
-    for move_uci in moves_uci:
+    for i, move_uci in enumerate(moves_uci):
         move = chess.Move.from_uci(move_uci)  # Convert UCI move to chess move 
         if move in board.legal_moves:  # Ensure move is legal
             board.push(move)  # Apply the move to the board

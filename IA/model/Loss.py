@@ -18,7 +18,7 @@ class ValueLoss(nn.Module):
         self.gamma = gamma
 
     def forward(self, preds, targets, num_moves):
-        T = targets.size(0)
+        T = targets.size(0) #### ?????? nombre de move total dans notre jeu actuel
         weight = 1 / (1 + torch.exp(-self.gamma * (num_moves - T / 2)))
 
         loss = self.MSE(preds, targets)
