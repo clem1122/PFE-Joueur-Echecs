@@ -23,6 +23,7 @@ with open(cfgs, "r") as f:
 # Training class
 class Training:
     def __init__(self, config, device):
+        config = config["train"]["tune"]
         self.device = device
         self.model = Model(
             input_channels=config["input_channels"], 
@@ -50,7 +51,9 @@ class Training:
             self.model.load_state_dict(torch.load(self.model_path))
 
     def accuracy(self, outputs, targets):
-        _, predicted = torch.max(outputs, 1)
+        predicted = torch.zeros_like(outputs)
+        _, indices = torch.max(outputs, 1)
+        predicted[range(outputs.size(0)), indices] = 1
         correct = (predicted == targets).sum().item()
         total = targets.size(0)
         return correct / total
@@ -68,14 +71,17 @@ class Training:
                 tqdm(train_loader, desc=f"Epoch {epoch}")
             ):
                 # Move data to device
-                board_tensors = board_tensors.to(self.device)
-                target_vectors = target_vectors.to(self.device)
-                value_targets = value_targets.to(self.device)
+                board_tensors = board_tensors.float().to(self.device)
+                target_vectors = target_vectors.float().to(self.device)
+                value_targets = value_targets.float().to(self.device)
 
                 self.optimizer.zero_grad()
                 
                 # Forward pass
                 outputs, value_preds = self.model(board_tensors)
+
+                outputs = outputs.float()
+                value_preds = value_preds.float()
                 
                 # Compute loss
                 loss = self.criterion(outputs, target_vectors, value_preds, value_targets, move_indices, tot_moves)

@@ -43,12 +43,13 @@ class ChessDataset(Dataset):
                 value_targets.append(value_target)
                 move_indices.append(i) 
 
+        total_moves = torch.full((len(move_indices),), len(move_indices), dtype=torch.long)
         return (
             torch.stack(board_tensors),
             torch.stack(target_vectors),
             torch.tensor(value_targets),
             torch.tensor(move_indices),
-            torch.tensor(len(move_indices))
+            total_moves
         )
 
     def _generate_board_tensor(self, board):
@@ -72,18 +73,21 @@ def collate_fn(batch):
     target_vectors = []
     value_targets = []
     move_indices = []
+    total_moves = []
 
-    for boards, targets, values, indices in batch:
+    for boards, targets, values, indices, totals in batch:
         board_tensors.append(boards)
         target_vectors.append(targets)
         value_targets.append(values)
         move_indices.append(indices)
+        total_moves.append(totals)
 
     return (
         torch.cat(board_tensors),
         torch.cat(target_vectors),
         torch.cat(value_targets),
         torch.cat(move_indices),
+        torch.cat(total_moves)
     )
 
 

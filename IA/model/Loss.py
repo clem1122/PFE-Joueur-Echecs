@@ -26,8 +26,9 @@ class ValueLoss(nn.Module):
         
         return weighted_loss.mean()
     
-class Loss():
+class Loss(nn.Module):
     def __init__(self, alpha=1.0, beta=1.0, gamma=1.0):
+        super(Loss, self).__init__()
         self.alpha = alpha
         self.beta = beta
         self.PolicyLoss = PolicyLoss()
