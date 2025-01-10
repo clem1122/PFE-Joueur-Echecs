@@ -1,5 +1,5 @@
 import torch
-import torch as nn
+import torch.nn as nn
 
 class PolicyLoss(nn.Module):
     def __init__(self):

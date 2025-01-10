@@ -3,8 +3,8 @@ import torch
 from torch.utils.data import Dataset, DataLoader
 from datasets import load_dataset
 
-from create_targets import create_target_vector, get_value_target
-from mapping import new_mapping
+from preprocessing.create_targets import create_target_vector, get_value_target
+from preprocessing.mapping import new_mapping
 
 class ChessDataset(Dataset):
     def __init__(self, dataset, compact_mapping):
@@ -93,9 +93,9 @@ compact_mapping = new_mapping
 chess_dataset = ChessDataset(dataset, compact_mapping)
 chess_dataloader = DataLoader(chess_dataset, batch_size=32, collate_fn=collate_fn, shuffle=True)
 
-for board_tensors, target_vectors, value_targets, move_indices in chess_dataloader:
-    print("Board Tensors:", board_tensors.shape)
-    print("Target Vectors:", target_vectors.shape)
-    print("Value Targets:", value_targets.shape)
-    print("Move Indices:", move_indices.shape)
-    break
+# for board_tensors, target_vectors, value_targets, move_indices in chess_dataloader:
+#     print("Board Tensors:", board_tensors.shape)
+#     print("Target Vectors:", target_vectors.shape)
+#     print("Value Targets:", value_targets.shape)
+#     print("Move Indices:", move_indices.shape)
+#     break
