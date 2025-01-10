@@ -330,3 +330,39 @@ mapping = {
     'c7d8q': 3853, 'f2e1n': 3854, 'b2c1n': 3855, 'b7a8n': 3856, 'e7d8n': 3857, 'g7h8q': 3858, 'b7c8q': 3859, 'b7a8b': 3860, 'g7f8n': 3861, 'g2h1b': 3862, 
     'g2f1q': 3863, 'f2e1b': 3864, 'f7g8b': 3865, 'a2a1r': 3866, 'c2d1r': 3867, 'd2c1n': 3868, 'g7h8r': 3869, 'c2b1r': 3870, 'e7d8r': 3871, 'f7g8n': 3872, 
     'g7f8b': 3873, 'b2a1r': 3874, 'f7e8n': 3875, 'd2c1b': 3876, 'c2d1b': 3877, 'd7e8b': 3878, 'f7g8q': 3879}
+
+
+def compact_mapping(original_mapping):
+    """
+    Reassigns values of the original mapping to sequential integers without gaps.
+
+    Args:
+        original_mapping (dict): The current mapping of moves to indices.
+
+    Returns:
+        dict: A new mapping with sequential indices starting from 0.
+    """
+    # Sort the original mapping by its values to maintain order
+    sorted_items = sorted(original_mapping.items(), key=lambda x: x[1])
+
+    # Create a new mapping with sequential indices
+    new_mapping = {}
+    new_index = 0
+
+    for move, _ in sorted_items:
+        new_mapping[move] = new_index
+        new_index += 1
+
+    return new_mapping
+
+
+# Example usage
+original_mapping = {
+    'e2e4': 1,
+    'e7e5': 3,
+    'g1f3': 18,
+    'b8c6': 23,
+}
+
+# Create a compact mapping
+new_mapping = compact_mapping(mapping)
