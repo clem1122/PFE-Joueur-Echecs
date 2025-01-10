@@ -17,9 +17,8 @@ class ValueLoss(nn.Module):
         self.MSE = nn.MSELoss()
         self.gamma = gamma
 
-    def forward(self, preds, targets, num_moves):
-        T = targets.size(0) #### ?????? nombre de move total dans notre jeu actuel
-        weight = 1 / (1 + torch.exp(-self.gamma * (num_moves - T / 2)))
+    def forward(self, preds, targets, num_moves, total_moves):
+        weight = 1 / (1 + torch.exp(-self.gamma * (num_moves - total_moves/ 2)))
 
         loss = self.MSE(preds, targets)
 
@@ -34,8 +33,8 @@ class Loss():
         self.PolicyLoss = PolicyLoss()
         self.ValueLoss = ValueLoss(gamma)
 
-    def forward(self, preds_pol, targets_pol, preds_val, targets_val, num_moves):
+    def forward(self, preds_pol, targets_pol, preds_val, targets_val, num_moves, tot_moves):
         pol_loss = self.PolicyLoss(preds_pol, targets_pol)
-        val_loss = self.ValueLoss(preds_val, targets_val, num_moves)
+        val_loss = self.ValueLoss(preds_val, targets_val, num_moves, tot_moves)
 
         return self.alpha * pol_loss + self.beta * val_loss
