@@ -5,7 +5,7 @@ from policy_head import PolicyHead
 from value_head import ValueHead
 
 class Model(nn.Module):
-    def __init__(self, input_channels, filters, blocks, se_channels=32, bias=True, kernel_size=3, stride=1, padding=1, output_dim=80, mapping_dim=1858, valout1=32, valout2=128):
+    def __init__(self, input_channels, filters, blocks, se_channels=32, bias=True, kernel_size=3, stride=1, padding=1, output_dim=80, mapping_dim=1976, valout1=32, valout2=128):
         super(Model, self).__init__()
         self.body = Body(input_channels, filters, blocks, se_channels=se_channels, bias=bias, kernel_size=kernel_size, stride=stride, padding=padding)
         self.policy_head = PolicyHead(filters, output_dim=output_dim, mapping_dim=mapping_dim, bias=bias, kernel_size=kernel_size, stride=stride, padding=padding)
