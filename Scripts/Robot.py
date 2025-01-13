@@ -23,13 +23,13 @@ class Robot:
 		return author_bool
 	
 	def move_to_obs_pose(self):
-		self.niryo.move_joints(space.observation_joints)	
+		self.niryo.move_joints(space.observation_joints)
 		
 	def move_to_square(self, square):
 		if len(square) != 2:
 			raise Exception("Uncorrect Move argument")
 		list_coord = space.chessboard[square] + [2.36, 1.57, -3.14]
-		self.niryo.move_pose(self.get_pose(list_coord, height.HIGH))
+		self.niryo.move_pose(self.get_pose(list_coord, height.ABOVE))
 	
 
 	def get_pose(self, coord_list, h):

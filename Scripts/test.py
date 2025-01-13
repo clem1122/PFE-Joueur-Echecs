@@ -13,8 +13,7 @@ capture_FEN = 'rnbqkbnrppp.pppp...........p........P...........PPPP.PPPRNBQKBNR'
 roque_FEN = 'r...k..rpppq.ppp..npbn....b.p.....B.P.....NPBN..PPPQ.PPPR...K..R'
 prise_en_passant_FEN = 'rnbqkbnrpppppppp....................P...........PPPP.PPPRNBQKBNR'
 promotion_FEN = 'r.b.kbnrpPpp.ppp..n.................p.q..P...N....PPPPPPRNBQKB.R'
-fen =  "r.bq.rk.pppp.p....n..p..b....N.....PP.....N.....PPP..PPPR..QKB.R"
-
+fen = 'r.....k.pQpb..p...nbpq.p.....r.....P.p..P..B.N...PPN.PPPR.B..RK.'
 parser = argparse.ArgumentParser()
 parser.add_argument("--move-to-square", type=str)
 parser.add_argument("--obs-pose", action="store_true")
@@ -24,18 +23,21 @@ parser.add_argument("--no-robot", action="store_true")
 parser.add_argument("--lichess",  action="store_true")
 args = parser.parse_args()
 
-b = pc.Board(classic_FEN)
+b = pc.Board(fen)
 b.print()
-flask = True
-
-try:
-	requests.post("http://127.0.0.1:5000")
-except Exception as e:
-	print("Error : Flask is not running")
-	sys.exit(1)
+flask = not args.no_flask
+	
+if flask:
+	try:
+		requests.post("http://127.0.0.1:5000")
+	except Exception as e:
+		print("Error : Flask is not running")
+		sys.exit(1)
 
 def send_board_FEN(board):
-	if not flask  : return
+	if(not flask):
+		return
+	
 	url = "http://127.0.0.1:5000/set-board-FEN"
 	payload = {"board_FEN": board.FEN()}
 	response = requests.post(url, json=payload)
@@ -81,7 +83,8 @@ def robot_play_test(moveStr, h):
 	robot.play_test_move(m, h)
 
 def send_color_FEN(board):
-	if not flask : return
+	if(not flask):
+		return
 	url = "http://127.0.0.1:5000/set-color-FEN"
 	payload = {"threats": board.threats(True), 
 			"playable": board.playable(True), 
@@ -93,8 +96,7 @@ def send_color_FEN(board):
 	else:
 	    print(f"Erreur lors de l'envoi du board : {response.status_code}, {response.text}")
 
-if args.no_flask:
-	flask = False
+
 
 if args.no_robot:
 	send_color_FEN(b)
