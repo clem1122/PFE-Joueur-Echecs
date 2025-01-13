@@ -12,6 +12,9 @@ from preprocessing.dataloader import ChessDataset, collate_fn
 from datasets import load_dataset
 from preprocessing.mapping import new_mapping
 
+from torch.utils.data import Subset
+import random
+
 # Load configuration
 CONFIGROOT = "cfg"
 learning_configs = 'config.yaml'
@@ -59,7 +62,7 @@ class Training:
         return correct / total
     
     def train(self, dataset, mapping):
-        chess_dataset = ChessDataset(dataset, mapping)
+        chess_dataset = ChessDataset(dataset, mapping, fraction=0.25)
         train_loader = DataLoader(chess_dataset, batch_size=self.batch_size, collate_fn=collate_fn, shuffle=True)
 
         for epoch in range(1, self.num_epochs + 1):

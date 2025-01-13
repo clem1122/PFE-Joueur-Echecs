@@ -2,26 +2,39 @@ import chess
 import torch
 from torch.utils.data import Dataset, DataLoader
 from datasets import load_dataset
+from torch.utils.data import Subset
+import random
 
 from preprocessing.create_targets import create_target_vector, get_value_target
 from preprocessing.mapping import new_mapping
 
 class ChessDataset(Dataset):
-    def __init__(self, dataset, compact_mapping):
-        self.dataset = dataset['train']
+    def __init__(self, dataset, compact_mapping, fraction=0.25):
+        # Longueur totale de dataset['train']
+        train_length = len(dataset['train'])
+
+        # Nombre d'échantillons dans le sous-ensemble
+        subset_length = int(train_length * fraction)
+
+        # Indices aléatoires pour le sous-ensemble
+        subset_indices = random.sample(range(train_length), subset_length)
+
+        # Création du sous-ensemble
+        self.dataset = Subset(dataset['train'], subset_indices)
         self.compact_mapping = compact_mapping
 
     def __len__(self):
         return len(self.dataset)
 
     def __getitem__(self, idx):
-        game = self.dataset[idx] #un jeu dans le dataset train
-        moves_uci = game['moves_uci'] #on extrait les moves
-        winner = game['winner']  #on extrait le gagnant
+        # Accéder directement au jeu correspondant dans le sous-ensemble
+        game = self.dataset[idx]  # Subset gère l'indexation vers dataset['train']
+        moves_uci = game['moves_uci']  # On extrait les moves
+        winner = game['winner']  # On extrait le gagnant
 
-        value_target = get_value_target(winner) #on tansforme le gagnant pour la loss
+        value_target = get_value_target(winner)  # On transforme le gagnant pour la loss
 
-        #Initialisations
+        # Initialisations
         board = chess.Board() 
         board_tensors = []
         target_vectors = []
@@ -29,14 +42,14 @@ class ChessDataset(Dataset):
         move_indices = []  
 
         for i, move_uci in enumerate(moves_uci):
-            move = chess.Move.from_uci(move_uci) #On transforme le move 
+            move = chess.Move.from_uci(move_uci)  # On transforme le move 
 
             if move in board.legal_moves:
-                board_tensor = self._generate_board_tensor(board)  #on génère notre vecteur
+                board_tensor = self._generate_board_tensor(board)  # On génère notre vecteur
 
                 board.push(move)  # On joue le prochain coup
                 
-                target_vector = create_target_vector(move, self.compact_mapping) #on génère nos targets grâce au prochain coup
+                target_vector = create_target_vector(move, self.compact_mapping)  # On génère nos targets grâce au prochain coup
 
                 board_tensors.append(board_tensor)
                 target_vectors.append(target_vector)
@@ -66,6 +79,7 @@ class ChessDataset(Dataset):
                 board_tensor[channel, row, col] = 1
 
         return board_tensor
+
 
 
 def collate_fn(batch):

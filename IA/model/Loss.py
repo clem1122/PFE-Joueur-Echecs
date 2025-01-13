@@ -18,7 +18,9 @@ class ValueLoss(nn.Module):
         self.gamma = gamma
 
     def forward(self, preds, targets, num_moves, total_moves):
-        weight = 1 / (1 + torch.exp(-self.gamma * (num_moves - total_moves/ 2)))
+        device = preds.device 
+
+        weight = 1 / (1 + torch.exp(-self.gamma * (num_moves - total_moves/ 2))).to(device)
 
         loss = self.MSE(preds, targets)
 
