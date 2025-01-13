@@ -6,7 +6,6 @@ import argparse
 import requests
 import sys
 import PChess as pc
-from lichess import get_move
 
 pieces_list = ['p','P','n','N','b','B','r','R','q','Q','k','K']
 classic_FEN = 'rnbqkbnrpppppppp................................PPPPPPPPRNBQKBNR'
