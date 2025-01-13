@@ -1,5 +1,3 @@
-import os
-from dotenv import load_dotenv
 import re
 import chess
 import chess.engine

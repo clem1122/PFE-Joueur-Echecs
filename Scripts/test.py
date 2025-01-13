@@ -6,6 +6,7 @@ import argparse
 import requests
 import sys
 import PChess as pc
+from lichess import get_move
 
 pieces_list = ['p','P','n','N','b','B','r','R','q','Q','k','K']
 classic_FEN = 'rnbqkbnrpppppppp................................PPPPPPPPRNBQKBNR'
@@ -22,8 +23,9 @@ parser.add_argument("--cautious", action="store_true")
 parser.add_argument("--no-robot", action="store_true")
 parser.add_argument("--lichess",  action="store_true")
 args = parser.parse_args()
+isWhite = False
 
-b = pc.Board(fen)
+b = pc.Board(classic_FEN)
 b.print()
 flask = not args.no_flask
 	
@@ -86,9 +88,9 @@ def send_color_FEN(board):
 	if(not flask):
 		return
 	url = "http://127.0.0.1:5000/set-color-FEN"
-	payload = {"threats": board.threats(True), 
-			"playable": board.playable(True), 
-			"controlled": board.controlled(True)}
+	payload = {"threats": board.threats(isWhite), 
+			"playable": board.playable(isWhite), 
+			"controlled": board.controlled(isWhite)}
 	
 	response = requests.post(url, json=payload)
 	if response.status_code == 200:

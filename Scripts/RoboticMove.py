@@ -101,7 +101,7 @@ def choose_promoted_piece(board,isPlayerWhite):
 def valhalla_free_space(board,killed_piece):
 
 	colour = 'V' if killed_piece.isWhite() else 'v'
-	string = board.valhalla_FEN()[0:20] if killed_piece.isWhite() else board.valhalla_FEN()[20:]
+	string = board.valhalla_FEN()[0:19] if killed_piece.isWhite() else board.valhalla_FEN()[19:]
 	index = string.index('.') + 1
 
 	return colour+str(index)
