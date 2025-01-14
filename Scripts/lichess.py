@@ -1,5 +1,3 @@
-import os
-from dotenv import load_dotenv
 import re
 import chess
 import chess.engine
@@ -8,9 +6,8 @@ def separate(chaine, position):
     return chaine[:position] + '/' + chaine[position:]
     
 
-def generate_complete_fen(simplified_fen, player_and_castling  = "wKQkq"):
+def generate_complete_fen(simplified_fen, player_and_castling  = "wKQkq", en_passant = '-'):
     # Initialisation des informations additionnelles
-    en_passant = "-"  # Aucun pion éligible à la prise en passant
     halfmove_clock = "0"  # Pas de demi-coups joués
     fullmove_number = "1"  # Premier coup
     separated_fen = '/'.join(simplified_fen[i:i+8] for i in range(0, len(simplified_fen), 8))
@@ -42,9 +39,9 @@ fen = generate_complete_fen(simplified_fen, player_and_castling)
 #else:
 #    print(f"Erreur {response.status_code}: {response.text}")
 
-def get_move(simplified_FEN, player_and_castling = "wKQkq"):
+def get_move(simplified_FEN, player_and_castling = "wKQkq", en_passant = '-'):
     print(simplified_FEN)
-    fen = generate_complete_fen(simplified_FEN, player_and_castling)
+    fen = generate_complete_fen(simplified_FEN, player_and_castling, en_passant)
     print("FEN : ",  fen)
     board = chess.Board(fen)
     with chess.engine.SimpleEngine.popen_uci("/mnt/d/Programmes/stockfish/stockfish-windows-x86-64-avx2.exe") as engine:

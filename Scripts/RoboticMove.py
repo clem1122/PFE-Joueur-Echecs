@@ -27,18 +27,20 @@ def create_robotic_move(move):
 	return RoboticMove(move.start(), move.end())
 		
 
-def create_complex_robotic_move(board,PChess_move):
+def create_complex_robotic_move(board, PChess_move, promotion = None):
 	A = PChess_move.start()
 	B = PChess_move.end()
 	played_piece = board.piece_on_square(A)
 	
 	if(PChess_move.isCapture() and PChess_move.isPromoting()):
+
+		if promotion == None : raise Exception("It is a promotion but no piece type was given")
+
 		killed_piece = board.piece_on_square(B)
 		promoted_piece = board.piece_on_square(A)
-		new_type = choose_promoted_piece(board,PChess_move.moving_piece().isWhite())
 		V_opponent = valhalla_free_space(board,killed_piece)
 		V_self = valhalla_free_space(board,promoted_piece)
-		F = get_valhalla_coord(new_type,board)
+		F = get_valhalla_coord(promotion, board)
 		resurrected_piece = board.piece_on_square(F)
 
 		return [RoboticMove(B, V_opponent, killed_piece, False), RoboticMove(A, B, played_piece, False), RoboticMove(B, V_self, played_piece, False), RoboticMove(F, B, resurrected_piece)]
@@ -64,10 +66,11 @@ def create_complex_robotic_move(board,PChess_move):
 		return [RoboticMove(A, B, played_piece, False), RoboticMove(rook_coord, new_rook_coord, rook)]
 		
 	elif(PChess_move.isPromoting()):
+
+		if promotion == None : raise Exception("It is a promotion but no piece type was given")
 		
-		new_type = choose_promoted_piece(board,PChess_move.moving_piece().isWhite())
 		V = valhalla_free_space(board,PChess_move.moving_piece())
-		F = get_valhalla_coord(new_type,board)
+		F = get_valhalla_coord(promotion,board)
 
 		return [RoboticMove(A, B, played_piece, False), RoboticMove(B, V, played_piece, False), RoboticMove(F, B, board.piece_on_square(F))]
 		
@@ -98,8 +101,8 @@ def choose_promoted_piece(board,isPlayerWhite):
 def valhalla_free_space(board,killed_piece):
 
 	colour = 'V' if killed_piece.isWhite() else 'v'
-	string = board.valhalla_FEN()[0:16] if killed_piece.isWhite() else board.valhalla_FEN()[16:]
-	index = string.index('.') +1
+	string = board.valhalla_FEN()[0:19] if killed_piece.isWhite() else board.valhalla_FEN()[19:]
+	index = string.index('.') + 1
 
 	return colour+str(index)
 	
