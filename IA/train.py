@@ -53,16 +53,24 @@ class Training:
         if os.path.exists(self.model_path):
             self.model.load_state_dict(torch.load(self.model_path))
 
-    def accuracy(self, outputs, targets):
-        predicted = torch.zeros_like(outputs)
-        _, indices = torch.max(outputs, 1)
-        predicted[range(outputs.size(0)), indices] = 1
-        correct = (predicted == targets).sum().item()
+    def accuracy(self, outputs, targets, value_preds, value_targets):
+
+        _, predicted_indices = torch.max(outputs, 1)  # Shape: [batch_size]
+        _, predicted_values = torch.max(value_preds, 1)
+    
+        true_indices = torch.argmax(targets, 1)  # Shape: [batch_size]
+        true_values = torch.argmax(value_targets, 1) 
+        
+        correct = (predicted_indices == true_indices).sum().item()
+        correct_values = (predicted_values == true_values).sum().item()
+        
         total = targets.size(0)
-        return correct / total
+        total_values = value_targets.size(0)
+       
+        return correct / total, correct_values / total_values
     
     def train(self, dataset, mapping):
-        chess_dataset = ChessDataset(dataset, mapping, fraction=0.25)
+        chess_dataset = ChessDataset(dataset, mapping, fraction=0.05)
         train_loader = DataLoader(chess_dataset, batch_size=self.batch_size, collate_fn=collate_fn, shuffle=True)
 
         for epoch in range(1, self.num_epochs + 1):
@@ -93,7 +101,7 @@ class Training:
 
                 # Update running metrics
                 running_loss += loss.item()
-                running_accuracy += self.accuracy(outputs, target_vectors)
+                running_accuracy += self.accuracy(outputs, target_vectors, value_preds, value_targets)[0]
 
             print(f"[Epoch {epoch}] Loss: {running_loss:.4f}, Accuracy: {running_accuracy:.4f}")
 

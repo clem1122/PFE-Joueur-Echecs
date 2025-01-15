@@ -12,7 +12,7 @@ pieces_list = ['p','P','n','N','b','B','r','R','q','Q','k','K']
 classic_FEN = 'rnbqkbnrpppppppp................................PPPPPPPPRNBQKBNR'
 capture_FEN = 'rnbqkbnrppp.pppp...........p........P...........PPPP.PPPRNBQKBNR'
 roque_FEN = 'r...k..rpppq.ppp..npbn....b.p.....B.P.....NPBN..PPPQ.PPPR...K..R'
-prise_en_passant_FEN = 'R..........k....R....P..B...pP..........................K.......'
+prise_en_passant_FEN = 'R..........k....R...pP..B....P...................b......K.......'
 promotion_FEN = 'r.b.kbnrpPpp.ppp..n.................p.q..P...N....PPPPPPRNBQKB.R'
 fen = 'r.....k.pQpb..p...nbpq.p.....r.....P.p..P..B.N...PPN.PPPR.B..RK.'
 
@@ -26,7 +26,8 @@ parser.add_argument("--lichess",  action="store_true")
 args = parser.parse_args()
 isWhite = False
 
-b = pc.Board(prise_en_passant_FEN,20)
+g = pc.Game(classic_FEN)
+b = g.board()
 b.print()
 flask = not args.no_flask
 	
@@ -75,7 +76,7 @@ def robot_play(moveStr, cautious = False):
 	
 	m = b.create_move(moveStr)
 	robot.play_move(b, m, cautious, promotion)
-	b.play(moveStr)
+	g.play(moveStr)
 	if m.isPromoting() : manage_promotion(promotion, m)
 	
 def robot_play_test(moveStr, h):
@@ -106,7 +107,8 @@ if args.no_robot:
 	send_board_FEN(b)
 	while True:
 		moveStr = input("Move :")
-
+		g.print_history()
+		b = g.board()
 		promotion = None
 		if len(moveStr) != 4 and len(moveStr) !=5:
 			raise Exception(moveStr + " has an unvalid Move length")
@@ -118,25 +120,27 @@ if args.no_robot:
 			else : raise Exception(moveStr + " is not a valid 5-length move")
 
 		m = b.create_move(moveStr)
-		if b.play(moveStr) :
-			if m.isPromoting() : manage_promotion(promotion, m)
+		if g.play(moveStr):
+			if m.isPromoting(): manage_promotion(promotion, m)
+
 			send_color_FEN(b)
 			send_board_FEN(b)
 
 elif args.move_to_square :
 	robot = Robot()
 	robot.move_to_square(args.move_to_square)
+
 elif args.obs_pose:
 	robot = Robot()
 	robot.move_to_obs_pose()
+
 else:
 	robot = Robot()
 	send_board_FEN(b)
 	isRobotTurn = True
 
-	while True:
-
-		
+	while True:	
+		b = g.board()
 		if isRobotTurn:
 			if args.lichess:
 				moveStr = get_move(b.FEN())
@@ -146,7 +150,7 @@ else:
 			robot_play(moveStr, cautious = args.cautious)
 		else:
 			moveStr = input("Move :")
-			b.play(moveStr)
+			g.play(moveStr)
 		
 		send_color_FEN(b)
 		send_board_FEN(b)
