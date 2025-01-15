@@ -15,7 +15,7 @@ class PolicyHead(nn.Module):
         batch_size, _, _, _ = x.shape 
         x = x.view(batch_size, -1)   # flatten x pour obtenir un tenseur de 80*8*8
 
-        x = x[:, :self.mapping_dim]    # on ne prend que les 1858e premières valeurs --> moves pertinents/légaux
+        x = x[:, :self.mapping_dim]    # on ne prend que les 1976e premières valeurs --> moves pertinents/légaux
  
         return x
               

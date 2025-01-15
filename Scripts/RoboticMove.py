@@ -14,8 +14,7 @@ class RoboticMove:
 		self.orientation = [2.36, 1.57, -3.14]
 		self.take_pose = self.take_coord + self.orientation
 		self.drop_pose = self.drop_coord + self.orientation
-		if piece.type() != '.':
-			self.piece_height = height.pieces_height[piece.type()]
+		self.piece_height = height.pieces_height[piece.type()] if piece.type() != '.' else 0
 		
 	def __str__(self):
 		return "Robotic move from " + str(self.start_coord) + " to " + str(self.end_coord) + " (Piece : " + str(self.moved_piece) +" ; Hauteur : " + str(self.piece_height) + " )"
@@ -28,13 +27,23 @@ def create_robotic_move(move):
 	return RoboticMove(move.start(), move.end())
 		
 
-def create_complex_robotic_move(board,PChess_move):
+def create_complex_robotic_move(board, PChess_move, promotion = None):
 	A = PChess_move.start()
 	B = PChess_move.end()
 	played_piece = board.piece_on_square(A)
 	
 	if(PChess_move.isCapture() and PChess_move.isPromoting()):
-		raise Exception("Promotin + Capture")
+
+		if promotion == None : raise Exception("It is a promotion but no piece type was given")
+
+		killed_piece = board.piece_on_square(B)
+		promoted_piece = board.piece_on_square(A)
+		V_opponent = valhalla_free_space(board,killed_piece)
+		V_self = valhalla_free_space(board,promoted_piece)
+		F = get_valhalla_coord(promotion, board)
+		resurrected_piece = board.piece_on_square(F)
+
+		return [RoboticMove(B, V_opponent, killed_piece, False), RoboticMove(A, B, played_piece, False), RoboticMove(B, V_self, played_piece, False), RoboticMove(F, B, resurrected_piece)]
 		
 	if(PChess_move.isCapture()):
 		killed_piece = board.piece_on_square(B)
@@ -57,13 +66,11 @@ def create_complex_robotic_move(board,PChess_move):
 		return [RoboticMove(A, B, played_piece, False), RoboticMove(rook_coord, new_rook_coord, rook)]
 		
 	elif(PChess_move.isPromoting()):
-		
-		type_list = get_valhalla_types(board.valhalla_FEN(),PChess_move.moving_piece().isWhite())
-		new_type = None
-		while new_type not in type_list : new_type = input("Choisissez votre nouvelle pièce parmi : " + " ".join(type_list) + "\n")
+
+		if promotion == None : raise Exception("It is a promotion but no piece type was given")
 		
 		V = valhalla_free_space(board,PChess_move.moving_piece())
-		F = get_valhalla_coord(new_type,board)
+		F = get_valhalla_coord(promotion,board)
 
 		return [RoboticMove(A, B, played_piece, False), RoboticMove(B, V, played_piece, False), RoboticMove(F, B, board.piece_on_square(F))]
 		
@@ -83,12 +90,19 @@ def create_complex_robotic_move(board,PChess_move):
 		
 	else:
 		raise Exception("Move is not complex")
+	
+def choose_promoted_piece(board,isPlayerWhite):
+	type_list = get_valhalla_types(board.valhalla_FEN(),isPlayerWhite)
+	new_type = None
+	while new_type not in type_list : new_type = input("Choisissez votre nouvelle pièce parmi : " + " ".join(type_list) + "\n")
+
+	return new_type
 
 def valhalla_free_space(board,killed_piece):
 
 	colour = 'V' if killed_piece.isWhite() else 'v'
-	string = board.valhalla_FEN()[0:16] if killed_piece.isWhite() else board.valhalla_FEN()[16:]
-	index = string.index('.') +1
+	string = board.valhalla_FEN()[0:19] if killed_piece.isWhite() else board.valhalla_FEN()[19:]
+	index = string.index('.') + 1
 
 	return colour+str(index)
 	

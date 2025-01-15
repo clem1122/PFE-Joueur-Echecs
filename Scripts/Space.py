@@ -1,7 +1,11 @@
+import PChess as pc
+b = pc.Board()
+
 class Space:
 	def __init__(self):
 		self.a1_pose = [0.146, 0.129, 0.102]
 		self.square_size = 0.04
+		self.valhalla_square_size = 0.04
 		self.chessboard = self.generate()
 		self.observation_joints = [0.022, 0.327, -0.392, -0.026, -1.651, -0.011]
 		
@@ -18,16 +22,16 @@ class Space:
 				z = self.a1_pose[2]
 				chessboard[square_name] = [x, y, z]
 				
-		valhalla_offset_y = 1.3  #square
+		valhalla_offset_y = 0.7  #square
 		valhalla_offset_z = 0.00 #m
 		for i in range(0, 4):
-			for j in range(1,5):
-				b_square_name = "v" + format((i*4)+j, 'x')
-				w_square_name = "V" + format((i*4)+j, 'x')
+			for j in range(1,6):
+				b_square_name = "v" + b.to_base((i*5)+j, 20)
+				w_square_name = "V" + b.to_base((i*5)+j, 20)
 				
 
-				chessboard[b_square_name] = [self.a1_pose[0] + i*self.square_size, self.a1_pose[1] + (j + valhalla_offset_y) * self.square_size, self.a1_pose[2]-valhalla_offset_z]
-				chessboard[w_square_name] = [self.a1_pose[0] + i*self.square_size, self.a1_pose[1] + (j-12 - valhalla_offset_y) * self.square_size, self.a1_pose[2] - valhalla_offset_z]
+				chessboard[b_square_name] = [self.a1_pose[0] + i*self.valhalla_square_size, self.a1_pose[1] + (j + valhalla_offset_y) * self.valhalla_square_size, self.a1_pose[2]-valhalla_offset_z]
+				chessboard[w_square_name] = [self.a1_pose[0] + i*self.valhalla_square_size, self.a1_pose[1] + (j-13 - valhalla_offset_y) * self.valhalla_square_size, self.a1_pose[2] - valhalla_offset_z]
 					
 				
 		return chessboard
@@ -36,10 +40,10 @@ class Space:
 		
 class Height:
 	def __init__(self):
-		self.LOW = 0
+		self.LOW = 0.01
 		self.MID = 0.025
 		self.HIGH = 0.035
-		self.ABOVE = 0.175
+		self.ABOVE = 0.155
 		self.pieces_height = self.generate_height_dictionary()
 		
 	def generate_height_dictionary(self):
