@@ -64,4 +64,5 @@ def simplified_FEN(FEN):
         raise Exception("FEN size not 64")
     return sFEN
 
+print(simplified_FEN('R7/3k4/R4P2/B3pP2/8/8/8/K7'))
 # print(simplified_FEN('r1bqkbnr/pppppppp/n7/8/8/8/PPPPPPPP/RNBQKBNR'))

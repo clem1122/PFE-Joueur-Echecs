@@ -12,9 +12,10 @@ pieces_list = ['p','P','n','N','b','B','r','R','q','Q','k','K']
 classic_FEN = 'rnbqkbnrpppppppp................................PPPPPPPPRNBQKBNR'
 capture_FEN = 'rnbqkbnrppp.pppp...........p........P...........PPPP.PPPRNBQKBNR'
 roque_FEN = 'r...k..rpppq.ppp..npbn....b.p.....B.P.....NPBN..PPPQ.PPPR...K..R'
-prise_en_passant_FEN = 'rnbqkbnrpppppppp....................P...........PPPP.PPPRNBQKBNR'
+prise_en_passant_FEN = 'R..........k....R....P..B...pP..........................K.......'
 promotion_FEN = 'r.b.kbnrpPpp.ppp..n.................p.q..P...N....PPPPPPRNBQKB.R'
 fen = 'r.....k.pQpb..p...nbpq.p.....r.....P.p..P..B.N...PPN.PPPR.B..RK.'
+
 parser = argparse.ArgumentParser()
 parser.add_argument("--move-to-square", type=str)
 parser.add_argument("--obs-pose", action="store_true")
@@ -25,7 +26,7 @@ parser.add_argument("--lichess",  action="store_true")
 args = parser.parse_args()
 isWhite = False
 
-b = pc.Board(classic_FEN)
+b = pc.Board(prise_en_passant_FEN,20)
 b.print()
 flask = not args.no_flask
 	
