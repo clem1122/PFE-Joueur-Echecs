@@ -14,6 +14,7 @@ capture_FEN = 'rnbqkbnrppp.pppp...........p........P...........PPPP.PPPRNBQKBNR'
 roque_FEN = 'r...k..rpppq.ppp..npbn....b.p.....B.P.....NPBN..PPPQ.PPPR...K..R'
 prise_en_passant_FEN = '............p........p.......P...................q......K......k'
 promotion_FEN = 'r.b.kbnrpPpp.ppp..n.................p.q..P...N....PPPPPPRNBQKB.R'
+promotion_FEN2 = '............P........................p...........K.............k'
 fen = 'r.....k.pQpb..p...nbpq.p.....r.....P.p..P..B.N...PPN.PPPR.B..RK.'
 
 parser = argparse.ArgumentParser()
@@ -26,7 +27,7 @@ parser.add_argument("--stockfish", "-s", action="store_true")
 args = parser.parse_args()
 isWhite = False
 
-g = pc.Game(prise_en_passant_FEN)
+g = pc.Game(promotion_FEN2)
 b = g.board()
 b.print()
 flask = not args.no_flask
@@ -68,14 +69,15 @@ def robot_play(moveStr, cautious = False):
 		raise Exception(moveStr + " has an unvalid Move length")
 	
 	if len(moveStr) == 5:
-		if moveStr[5] in pieces_list :
-			promotion = moveStr[5]
-			moveStr = moveStr[:5]
+		if moveStr[4] in pieces_list :
+			promotion = moveStr[4] if moveStr[3] == '1' else moveStr[4].upper()
+			moveStr = moveStr[:4] + promotion
 		else : raise Exception(moveStr + " is not a valid 5-length move")
 	
 	
-	m = b.create_move(moveStr)
+	m = b.create_move(moveStr[:4])
 	robot.play_move(b, m, cautious, promotion)
+	print("move : <" + moveStr + ">")
 	result = g.play(moveStr)
 	if m.isPromoting() : manage_promotion(promotion, m)
 	return result
@@ -100,7 +102,6 @@ def send_color_FEN(board):
 		print("Color FEN envoyées")
 	else:
 	    print(f"Erreur lors de l'envoi du board : {response.status_code}, {response.text}")
-
 
 
 if args.no_robot:
@@ -143,7 +144,7 @@ else:
 	while True:	
 		b = g.board()
 		if isRobotTurn:
-			if args.lichess:
+			if args.stockfish:
 				moveStr = get_move(b.FEN(), b.special_rules(), b.en_passant_coord())
 			else:
 				moveStr = input("Move :")

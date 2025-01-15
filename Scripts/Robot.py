@@ -46,7 +46,7 @@ class Robot:
 			else : self.execute_move(rob_move)
 			
 		else :
-			complex_move_list = create_complex_robotic_move(board, PChess_move, promotion = None)
+			complex_move_list = create_complex_robotic_move(board, PChess_move, promotion)
 			
 			for robotic_move in complex_move_list :
 				if cautious :
