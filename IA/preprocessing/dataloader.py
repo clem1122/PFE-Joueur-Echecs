@@ -105,11 +105,11 @@ def collate_fn(batch):
     )
 
 
-# Dataset and DataLoader
-dataset = load_dataset('angeluriot/chess_games')
-compact_mapping = new_mapping
-chess_dataset = ChessDataset(dataset, compact_mapping)
-chess_dataloader = DataLoader(chess_dataset, batch_size=32, collate_fn=collate_fn, shuffle=True)
+# # Dataset and DataLoader
+# dataset = load_dataset('angeluriot/chess_games')
+# compact_mapping = new_mapping
+# chess_dataset = ChessDataset(dataset, compact_mapping)
+# chess_dataloader = DataLoader(chess_dataset, batch_size=32, collate_fn=collate_fn, shuffle=True)
 
 # for board_tensors, target_vectors, value_targets, move_indices in chess_dataloader:
 #     print("Board Tensors:", board_tensors.shape)
