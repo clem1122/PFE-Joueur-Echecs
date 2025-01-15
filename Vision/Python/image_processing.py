@@ -11,7 +11,7 @@ def detect_differences(img1, img2, sensitivity_threshold):
     return filtered_diff
 
 # Analyse repere cases modifiees
-def analyze_squares(filtered_diff, cases, percentage_threshold, square_size):
+def analyze_squares(filtered_diff, cases, square_size):
 
     modified_cases = [] # Liste vide
 
@@ -24,12 +24,14 @@ def analyze_squares(filtered_diff, cases, percentage_threshold, square_size):
         # Calculer les pourcentages de pixels differents
         diff_pixels = np.sum(square_diff > 0)
         total_pixels = square_size ** 2
-        percentage_diff = (diff_pixels / total_pixels) * 100
+        percentage_diff = int((diff_pixels / total_pixels) * 100)
 
         # Application du seuil de difference pour considerer la case modifiee
-        if percentage_diff > percentage_threshold:
-            modified_cases.append(case_name)
-    return modified_cases
+        modified_cases.append((case_name, percentage_diff))
+
+    modified_cases.sort(key=lambda x: x[1], reverse=True)
+
+    return modified_cases[:2]
 
 # Determiner le mouvement effectue
 def determine_movement(modified_cases, rectified_img1, rectified_img2, rectified_reference, cases, sensitivity_threshold):
@@ -79,3 +81,7 @@ def determine_movement(modified_cases, rectified_img1, rectified_img2, rectified
     else:
         move_type = "error"
         #print("Aucun mouvement détecté.")
+
+
+# New structure ##
+

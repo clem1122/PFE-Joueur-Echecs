@@ -4,19 +4,20 @@ import os
 import numpy as np
 
 from calibration import calibrate_corners, compute_transformation, rectify_image
-from image_processing import detect_differences, analyze_squares, determine_movement
+#from image_processing import detect_differences, analyze_squares, determine_movement
+from processing import detect_differences, analyze_squares, determine_movement
 
-# Paramètres
+# --- Paramètres 
 calibration_file = "chessboard_calibration.pkl"
 reference_image_path = "img0.png"
 output_size = (800, 800)
 square_size = output_size[0] // 8
-sensitivity_threshold = 40 # Seuil pour la diff de pixels 
-percentage_threshold = 22 # Seuil de pourcentage de diff pour considerer une case comme modifiee
+sensitivity_threshold = 20 # Seuil pour la diff de pixels 
+percentage_threshold = 20 # Seuil de pourcentage de diff pour considerer une case comme modifiee
 
-reference_image = cv2.imread("img0.png")
-print(reference_image.height, reference_image.width)
-cv2.imshow('reference_image', reference_image)
+reference_image = cv2.imread(reference_image_path)
+#print(reference_image.height, reference_image.width)
+# cv2.imshow('reference_image', reference_image)
 
 ## Redressement de l'image de ref
 # Utilisation des fonctions de calibration
@@ -24,6 +25,7 @@ input_points = calibrate_corners(calibration_file, reference_image_path, output_
 tform = compute_transformation(input_points, output_size)
 # Redresser l'image de référence
 rectified_reference = rectify_image(reference_image, tform, output_size)
+cv2.imshow('reference_image', rectified_reference)
 
 # Dictionnaire des coordonnées des cases
 cases = {}
@@ -55,8 +57,22 @@ for i in range(len(image_files) - 1):
 
     # Calculer les diff en utilisant la fonction de image_processing
     filtered_diff = detect_differences(rectified_img1, rectified_img2, sensitivity_threshold)
-    modified_cases = analyze_squares(filtered_diff, cases, percentage_threshold, square_size)
-    print('Detected modified cases', modified_cases)
+    modified_cases = analyze_squares(filtered_diff, cases, square_size)
+    print(f"\nTop 2 modified cases between {image_files[i]} and {image_files[i+1]}: {modified_cases}")
+        # Affichage des pourcentages pour plus de détails
+    for case, percentage_diff in modified_cases:
+        print(f"{case} : {percentage_diff:.2f}% difference ")
+
+    if len(modified_cases) >= 2:
+        # Déterminer le mouvement
+        movement_info = determine_movement(modified_cases, rectified_img1, rectified_img2, rectified_reference, cases, sensitivity_threshold)
+        if "error" not in movement_info:
+            print(f"Déplacement détecté : {movement_info['direction']} - Type : {movement_info['move_type']}")
+            print(f"De {movement_info['start']} à {movement_info['end']}")
+        else:
+            print("Erreur : Pas assez de cases pour un mouvement valide.")
+    else:
+        print("Aucun mouvement significatif détecté.")
 
 '''
     # Print diff entre les cases

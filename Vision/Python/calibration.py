@@ -12,7 +12,7 @@ def mouse_callback(event, x, y, flags, param):
     global clicked_points
     if event == cv2.EVENT_LBUTTONDOWN:  # Clic gauche
         clicked_points.append([x, y])  # Ajouter les coordonnées du clic
-        print(f"Point sélectionné : {(x, y)}")
+        print(f"Point selectee : {(x, y)}")
         if len(clicked_points) == 4:
             print("4 coins sélectionnés !")
 
@@ -54,7 +54,7 @@ def calibrate_corners(calibration_file, reference_image_path, output_size):
                 cv2.destroyAllWindows()
                 break
 
-            # Touche "Échap" pour quitter
+            # Toucher "Échap" pour quitter
             if cv2.waitKey(1) & 0xFF == 27:
                 print("Calibration annulée.")
                 cv2.destroyAllWindows()
@@ -63,7 +63,7 @@ def calibrate_corners(calibration_file, reference_image_path, output_size):
         # Sauvegarder les points de calibration
         with open(calibration_file, 'wb') as file:
             pickle.dump(input_points, file)
-        print("Calibration enregistrée.")
+        print("Calibration done .")
 
     return input_points
 
