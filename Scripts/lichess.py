@@ -19,7 +19,7 @@ def generate_complete_fen(simplified_fen, player_and_castling  = "wKQkq", en_pas
 
     # Construction de la FEN complète
     player = player_and_castling[0]
-    castling = player_and_castling[1:] if len(player_and_castling) > 1 else "-"
+    castling = '-' if player_and_castling[1:].count('-') == 4 else player_and_castling[1:].replace('-', '')
     complete_fen = f"{slashed_fen} {player} {castling} {en_passant} {halfmove_clock} {fullmove_number}"
     if complete_fen.count('/') != 7:
         raise Exception("Not 7 / : ", complete_fen)

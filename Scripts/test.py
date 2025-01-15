@@ -12,21 +12,21 @@ pieces_list = ['p','P','n','N','b','B','r','R','q','Q','k','K']
 classic_FEN = 'rnbqkbnrpppppppp................................PPPPPPPPRNBQKBNR'
 capture_FEN = 'rnbqkbnrppp.pppp...........p........P...........PPPP.PPPRNBQKBNR'
 roque_FEN = 'r...k..rpppq.ppp..npbn....b.p.....B.P.....NPBN..PPPQ.PPPR...K..R'
-prise_en_passant_FEN = 'R..........k....R...pP..B....P...................b......K.......'
+prise_en_passant_FEN = '............p........p.......P...................q......K......k'
 promotion_FEN = 'r.b.kbnrpPpp.ppp..n.................p.q..P...N....PPPPPPRNBQKB.R'
 fen = 'r.....k.pQpb..p...nbpq.p.....r.....P.p..P..B.N...PPN.PPPR.B..RK.'
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--move-to-square", type=str)
-parser.add_argument("--obs-pose", action="store_true")
-parser.add_argument("--no-flask", action="store_true")
-parser.add_argument("--cautious", action="store_true")
-parser.add_argument("--no-robot", action="store_true")
-parser.add_argument("--lichess",  action="store_true")
+parser.add_argument("--move-to-square", "-m", type=str)
+parser.add_argument("--obs-pose", "-o", action="store_true")
+parser.add_argument("--no-flask", "--nf", action="store_true")
+parser.add_argument("--cautious", "-c", action="store_true")
+parser.add_argument("--no-robot", "--nr", action="store_true")
+parser.add_argument("--stockfish", "-s", action="store_true")
 args = parser.parse_args()
 isWhite = False
 
-g = pc.Game(classic_FEN)
+g = pc.Game(prise_en_passant_FEN)
 b = g.board()
 b.print()
 flask = not args.no_flask
@@ -76,8 +76,9 @@ def robot_play(moveStr, cautious = False):
 	
 	m = b.create_move(moveStr)
 	robot.play_move(b, m, cautious, promotion)
-	g.play(moveStr)
+	result = g.play(moveStr)
 	if m.isPromoting() : manage_promotion(promotion, m)
+	return result
 	
 def robot_play_test(moveStr, h):
 	if len(moveStr) != 4:
@@ -143,19 +144,19 @@ else:
 		b = g.board()
 		if isRobotTurn:
 			if args.lichess:
-				moveStr = get_move(b.FEN())
+				moveStr = get_move(b.FEN(), b.special_rules(), b.en_passant_coord())
 			else:
 				moveStr = input("Move :")
 
-			robot_play(moveStr, cautious = args.cautious)
+			if robot_play(moveStr, cautious = args.cautious):
+				isRobotTurn = not isRobotTurn
 		else:
 			moveStr = input("Move :")
-			g.play(moveStr)
+			if g.play(moveStr):
+				isRobotTurn = not isRobotTurn
 		
 		send_color_FEN(b)
 		send_board_FEN(b)
-
-		isRobotTurn = not isRobotTurn
 
 	robot.close()
 
