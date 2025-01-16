@@ -27,8 +27,8 @@ parser.add_argument("--stockfish", "-s", action="store_true")
 args = parser.parse_args()
 isWhite = False
 
-g = pc.Game(promotion_FEN2)
-b = g.board()
+g = pc.Game('k............q...........pQp.....P......P...P......K............')
+b = g.board
 b.print()
 flask = not args.no_flask
 	
@@ -58,6 +58,7 @@ def manage_promotion(promotion_piece, move):
 	print("Demande de promotion sur la case " + move.end() + " en " + promotion_piece)
 	b.modify_piece(move.end(), promotion_piece)
 	valhalla_coord = get_valhalla_coord(promotion_piece, b)
+	print("valhalla coord : " + valhalla_coord)
 	b.modify_piece(valhalla_coord, '.')
 	# Quand c'est le robot qui joue, l'IA donne le mouvement avec le caractère de la nouvelle pièce
 	# Quand c'est le joueur qui joue, la vision donne le coup, PChess voit que c'est une promotion, il photographie le valhalla, connait la pièce partie et voit le nouveau trou
@@ -71,7 +72,6 @@ def robot_play(moveStr, cautious = False):
 	if len(moveStr) == 5:
 		if moveStr[4] in pieces_list :
 			promotion = moveStr[4] if moveStr[3] == '1' else moveStr[4].upper()
-			moveStr = moveStr[:4] + promotion
 		else : raise Exception(moveStr + " is not a valid 5-length move")
 	
 	
@@ -104,31 +104,9 @@ def send_color_FEN(board):
 	    print(f"Erreur lors de l'envoi du board : {response.status_code}, {response.text}")
 
 
-if args.no_robot:
-	send_color_FEN(b)
-	send_board_FEN(b)
-	while True:
-		moveStr = input("Move :")
-		g.print_history()
-		b = g.board()
-		promotion = None
-		if len(moveStr) != 4 and len(moveStr) !=5:
-			raise Exception(moveStr + " has an unvalid Move length")
-		
-		if len(moveStr) == 5:
-			if moveStr[4] in pieces_list :
-				promotion = moveStr[4]
-				moveStr = moveStr[:4]
-			else : raise Exception(moveStr + " is not a valid 5-length move")
 
-		m = b.create_move(moveStr)
-		if g.play(moveStr):
-			if m.isPromoting(): manage_promotion(promotion, m)
 
-			send_color_FEN(b)
-			send_board_FEN(b)
-
-elif args.move_to_square :
+if args.move_to_square :
 	robot = Robot()
 	robot.move_to_square(args.move_to_square)
 
@@ -137,19 +115,22 @@ elif args.obs_pose:
 	robot.move_to_obs_pose()
 
 else:
-	robot = Robot()
+	if not args.no_robot: robot = Robot()
 	send_board_FEN(b)
+	send_color_FEN(b)
 	isRobotTurn = True
 
 	while True:	
-		b = g.board()
 		if isRobotTurn:
 			if args.stockfish:
 				moveStr = get_move(b.FEN(), b.special_rules(), b.en_passant_coord())
 			else:
 				moveStr = input("Move :")
 
-			if robot_play(moveStr, cautious = args.cautious):
+			if args.no_robot:
+				if g.play(moveStr):
+					isRobotTurn = not isRobotTurn
+			elif robot_play(moveStr, cautious = args.cautious):
 				isRobotTurn = not isRobotTurn
 		else:
 			moveStr = input("Move :")
@@ -160,4 +141,3 @@ else:
 		send_board_FEN(b)
 
 	robot.close()
-
