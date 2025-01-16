@@ -357,3 +357,10 @@ def compact_mapping(original_mapping):
 
 
 new_mapping = compact_mapping(mapping)
+
+import json
+
+with open("mapping.json", "w") as json_file:
+    json.dump(new_mapping, json_file, indent=4, ensure_ascii=False)
+
+print("Fichier JSON créé : mapping.json")

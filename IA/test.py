@@ -1,6 +1,8 @@
 import torch
 from model.Model import Model
-from preprocessing.mapping import new_mapping
+import json
+with open("mapping.json", "r") as json_file:
+    new_mapping = json.load(json_file)
 from preprocessing.dataloader import ChessDataset, collate_fn
 from torch.utils.data import DataLoader
 import os

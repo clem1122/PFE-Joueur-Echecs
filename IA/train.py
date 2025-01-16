@@ -10,8 +10,9 @@ from model.Model import Model
 from model.Loss import Loss
 from preprocessing.dataloader import ChessDataset, collate_fn
 from datasets import load_dataset
-from preprocessing.mapping import new_mapping
-
+import json
+with open("mapping.json", "r") as json_file:
+    new_mapping = json.load(json_file)
 from torch.utils.data import Subset
 import random
 
@@ -78,7 +79,7 @@ class Training:
             running_loss = 0.0
             running_accuracy = 0.0
 
-            for i, (board_tensors, target_vectors, value_targets, move_indices, tot_moves) in enumerate(
+            for i, (board_tensors, target_vectors, value_targets, move_indices, tot_moves, board_fens) in enumerate(
                 tqdm(train_loader, desc=f"Epoch {epoch}")
             ):
                 # Move data to device
@@ -95,7 +96,7 @@ class Training:
                 value_preds = value_preds.float()
                 
                 # Compute loss
-                loss = self.criterion(outputs, target_vectors, value_preds, value_targets, move_indices, tot_moves)
+                loss = self.criterion(board_fens, outputs, target_vectors, value_preds, value_targets, move_indices, tot_moves)
                 loss.backward()
                 self.optimizer.step()
 
