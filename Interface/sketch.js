@@ -162,8 +162,6 @@ function mousePressed() {
 	}
 }
 
-
-
 async function getBoardFEN() {
 	const url_board = "http://127.0.0.1:5000/get-board-FEN";
 	const response = await fetch(url_board);
