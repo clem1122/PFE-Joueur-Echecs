@@ -10,8 +10,10 @@ from model.Model import Model
 from model.Loss import Loss
 from preprocessing.dataloader import ChessDataset, collate_fn
 from datasets import load_dataset
-from preprocessing.mapping import new_mapping
 
+import json
+with open("mapping.json", "r") as json_file:
+    new_mapping = json.load(json_file)
 from torch.utils.data import Subset
 import random
 
@@ -69,8 +71,8 @@ class Training:
        
         return correct / total, correct_values / total_values
     
-    def train(self, dataset, mapping):
-        chess_dataset = ChessDataset(dataset, mapping, fraction=0.05)
+    def train(self, dataset, mapping, fraction=0.05):
+        chess_dataset = ChessDataset(dataset, mapping, fraction=fraction)
         train_loader = DataLoader(chess_dataset, batch_size=self.batch_size, collate_fn=collate_fn, shuffle=True)
 
         for epoch in range(1, self.num_epochs + 1):
@@ -78,7 +80,7 @@ class Training:
             running_loss = 0.0
             running_accuracy = 0.0
 
-            for i, (board_tensors, target_vectors, value_targets, move_indices, tot_moves) in enumerate(
+            for i, (board_tensors, target_vectors, value_targets, move_indices, tot_moves, board_fens) in enumerate(
                 tqdm(train_loader, desc=f"Epoch {epoch}")
             ):
                 # Move data to device
@@ -89,14 +91,14 @@ class Training:
                 self.optimizer.zero_grad()
                 
                 # Forward pass
-                outputs, value_preds = self.model(board_tensors)
+                outputs, value_preds = self.model(board_tensors) #0.9s
 
                 outputs = outputs.float()
                 value_preds = value_preds.float()
                 
                 # Compute loss
-                loss = self.criterion(outputs, target_vectors, value_preds, value_targets, move_indices, tot_moves)
-                loss.backward()
+                loss = self.criterion(board_fens, outputs, target_vectors, value_preds, value_targets, move_indices, tot_moves) #2s
+                loss.backward() #1.5s
                 self.optimizer.step()
 
                 # Update running metrics
@@ -119,7 +121,7 @@ def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     trainer = Training(config, device)
     
-    trainer.train(dataset, new_mapping)
+    trainer.train(dataset, new_mapping, fraction=0.05)
 
 if __name__ == "__main__":
     main()

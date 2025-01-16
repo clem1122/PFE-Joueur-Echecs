@@ -5,8 +5,11 @@ import numpy as np
 
 from datasets import load_dataset
 from preprocessing.create_targets import create_target_vector
-from preprocessing.mapping import new_mapping
+import json
 from model.Model import Model
+
+with open("mapping.json", "r") as json_file:
+    new_mapping = json.load(json_file)
 
 compact_mapping = new_mapping
 

@@ -6,7 +6,10 @@ from torch.utils.data import Subset
 import random
 
 from preprocessing.create_targets import create_target_vector, get_value_target
-from preprocessing.mapping import new_mapping
+
+import json
+with open("mapping.json", "r") as json_file:
+    new_mapping = json.load(json_file)
 
 class ChessDataset(Dataset):
     def __init__(self, dataset, compact_mapping, fraction=0.25):
@@ -40,13 +43,14 @@ class ChessDataset(Dataset):
         target_vectors = []
         value_targets = []
         move_indices = []  
+        board_fens = []
 
         for i, move_uci in enumerate(moves_uci):
             move = chess.Move.from_uci(move_uci)  # On transforme le move 
 
             if move in board.legal_moves:
                 board_tensor = self._generate_board_tensor(board)  # On génère notre vecteur
-
+                board_fens.append(board.fen())
                 board.push(move)  # On joue le prochain coup
                 
                 target_vector = create_target_vector(move, self.compact_mapping)  # On génère nos targets grâce au prochain coup
@@ -62,7 +66,8 @@ class ChessDataset(Dataset):
             torch.stack(target_vectors),
             torch.tensor(value_targets),
             torch.tensor(move_indices),
-            total_moves
+            total_moves,
+            board_fens
         )
 
     def _generate_board_tensor(self, board):
@@ -88,20 +93,23 @@ def collate_fn(batch):
     value_targets = []
     move_indices = []
     total_moves = []
+    fens = []
 
-    for boards, targets, values, indices, totals in batch:
+    for boards, targets, values, indices, totals, fen in batch:
         board_tensors.append(boards)
         target_vectors.append(targets)
         value_targets.append(values)
         move_indices.append(indices)
         total_moves.append(totals)
+        fens.extend(fen)
 
     return (
         torch.cat(board_tensors),
         torch.cat(target_vectors),
         torch.cat(value_targets),
         torch.cat(move_indices),
-        torch.cat(total_moves)
+        torch.cat(total_moves),
+        fens
     )
 
 
