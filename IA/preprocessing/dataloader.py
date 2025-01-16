@@ -6,7 +6,10 @@ from torch.utils.data import Subset
 import random
 
 from preprocessing.create_targets import create_target_vector, get_value_target
-from preprocessing.mapping import new_mapping
+
+import json
+with open("mapping.json", "r") as json_file:
+    new_mapping = json.load(json_file)
 
 class ChessDataset(Dataset):
     def __init__(self, dataset, compact_mapping, fraction=0.25):

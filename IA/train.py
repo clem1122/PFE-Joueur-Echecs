@@ -10,8 +10,9 @@ from model.Model import Model
 from model.Loss import Loss
 from preprocessing.dataloader import ChessDataset, collate_fn
 from datasets import load_dataset
-from preprocessing.mapping import new_mapping
-
+import json
+with open("mapping.json", "r") as json_file:
+    new_mapping = json.load(json_file)
 from torch.utils.data import Subset
 import random
 

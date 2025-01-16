@@ -1,8 +1,9 @@
 import torch
 import torch.nn as nn
 import chess
-from preprocessing.mapping import new_mapping
-
+import json
+with open("mapping.json", "r") as json_file:
+    new_mapping = json.load(json_file)
 class PolicyLoss(nn.Module):
     def __init__(self):
         super(PolicyLoss, self).__init__()
