@@ -27,9 +27,7 @@ class ValueLoss(nn.Module):
 
         loss = self.MSE(preds, targets)
 
-        weighted_loss = weight * loss
-        
-        return weighted_loss.mean()
+        return (weight * loss).mean()
     
 class Loss(nn.Module):
     def __init__(self, alpha=1.0, beta=1.0, gamma=1.0):
@@ -50,7 +48,6 @@ class Loss(nn.Module):
         if move:  # Si un mouvement est trouvé
             move = chess.Move.from_uci(move[0])
             if not board.is_legal(move):
-                print(move, "IS ILLEGAL")
                 return (self.alpha * pol_loss + self.beta * val_loss) + 500  # Pénalisation
 
         return self.alpha * pol_loss + self.beta * val_loss
