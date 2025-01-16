@@ -99,12 +99,12 @@ def choose_promoted_piece(board,isPlayerWhite):
 	return new_type
 
 def valhalla_free_space(board,killed_piece):
-
 	colour = 'V' if killed_piece.isWhite() else 'v'
 	string = board.valhalla_FEN()[0:19] if killed_piece.isWhite() else board.valhalla_FEN()[19:]
-	index = string.index('.') + 1
+	index_base_10 = string.index('.') +1
+	index_base_20 = board.to_base(index_base_10, 20)
 
-	return colour+str(index)
+	return colour+str(index_base_20)
 	
 def get_castling_rook_coord(board,PChess_move):
 	if abs(ord(PChess_move.start()[0]) - ord(PChess_move.start()[0])) == 3:
