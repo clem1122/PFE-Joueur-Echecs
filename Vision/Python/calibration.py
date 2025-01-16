@@ -18,7 +18,7 @@ def mouse_callback(event, x, y, flags, param):
 
 # Fonction Calibration
 # INPUT: fichier pour enregistrer, chemin de l'image ref, taille image out
-def calibrate_corners(calibration_file, reference_image_path, output_size):
+def calibrate_corners(calibration_file, reference_image, output_size):
     global clicked_points
     clicked_points = []
 
@@ -31,7 +31,6 @@ def calibrate_corners(calibration_file, reference_image_path, output_size):
     # Si il n'y a pas de calibration faite
     else:
         # Charger image ref et convertir en niveau de gris
-        reference_image = cv2.imread(reference_image_path)
         cv2.imshow("reference_image", reference_image)
         if reference_image is None:
             print("Pas d'image")

@@ -9,13 +9,9 @@ from processing import (
 )
 
 
-def oracle(img1,img2):
+def oracle(img1,img2, reference_image):
 
-    # --------------------------------------------
     # ------------- PARAMETERS -------------------
-    # --------------------------------------------
-    reference_image_path = "empty.png" # Empty checkboard image
-    image_folder = "photos4"
     sensitivity_threshold = 20 # Seuil pour la diff de pixels 
     percentage_threshold = 20 # Seuil de pourcentage de diff pour considerer une case comme modifiee
 
@@ -23,7 +19,6 @@ def oracle(img1,img2):
     calibration_file = "chessboard_calibration.pkl"
     output_size = (800, 800) # A
     square_size = output_size[0] // 8
-
 
     # Dictionnaire des coordonnées des cases
     cases = {}
@@ -36,10 +31,9 @@ def oracle(img1,img2):
             case_name = f"{chr(65 + col)}{row + 1}"
             cases[case_name] = (x_start, x_end, y_start, y_end)
 
-
     # Calibration de l'echiquier
-    reference_image = cv2.imread(reference_image_path)
-    input_points = calibrate_corners(calibration_file, reference_image_path, output_size)
+    #reference_image = cv2.imread(reference_image)
+    input_points = calibrate_corners(calibration_file, reference_image, output_size)
     tform = compute_transformation(input_points, output_size)
 
     # Redresser l'image de référence
@@ -57,11 +51,6 @@ def oracle(img1,img2):
     # Calculer les diff en utilisant la fonction de image_processing
     filtered_diff = detect_differences(rectified_img1, rectified_img2, sensitivity_threshold)
     modified_cases = analyze_squares(filtered_diff, cases, square_size)
-
-    #print("------------------------------")
-    #print("The two modified cases are: ")
-    #print("-", modified_cases[0][0], ",", modified_cases[0][1], "%")
-    #print("-", modified_cases[1][0], ",",  modified_cases[1][1], "%")
 
     # ---------------------------------------------------------------------
     # Déterminer le sens du mouvement
@@ -90,23 +79,23 @@ def oracle(img1,img2):
     piece_color = determine_piece_color(circle_mean_intensity)
     #print(f"\nThe piece is {piece_color}.")
 
-    #print("------------------------------")
+    print("-------------------------------------------------------------------")
+    print(f"Origin: {origin}, Destination: {destination}, Move Type: {move_type}, Piece Color: {piece_color}")
+    print("-------------------------------------------------------------------")
 
     return origin, destination, move_type, piece_color
 
 # Example usage:
 def main():
+
+    #Load empty checkboard
+    reference_image = cv2.imread("photos3\img0.png", cv2.IMREAD_COLOR)
     # Load example images
     img1 = cv2.imread("photos3\pose2.png", cv2.IMREAD_COLOR)
     img2 = cv2.imread("photos3\pose3.png", cv2.IMREAD_COLOR)
 
     # Process the move
-    origin, destination, move_type, piece_color = oracle(img1, img2)
-
-    print("-------------------------------------------------------------------")
-    print(f"Origin: {origin}, Destination: {destination}, Move Type: {move_type}, Piece Color: {piece_color}")
-    print("-------------------------------------------------------------------")
-
+    origin, destination, move_type, piece_color = oracle(img1, img2, reference_image)
 
 if __name__ == "__main__":
     main()
