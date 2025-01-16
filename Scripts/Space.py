@@ -40,7 +40,7 @@ class Space:
 		
 class Height:
 	def __init__(self):
-		self.LOW = 0
+		self.LOW = 0.01
 		self.MID = 0.025
 		self.HIGH = 0.035
 		self.ABOVE = 0.155
