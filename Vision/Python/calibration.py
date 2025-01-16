@@ -26,7 +26,7 @@ def calibrate_corners(calibration_file, reference_image_path, output_size):
     if os.path.exists(calibration_file):
         with open(calibration_file, 'rb') as file:
             input_points = pickle.load(file) #Load input_points depuis le fichier
-        print("Calibration chargée depuis le fichier.")
+        #print("Calibration chargée depuis le fichier.")
     
     # Si il n'y a pas de calibration faite
     else:

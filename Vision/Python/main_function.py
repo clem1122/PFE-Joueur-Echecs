@@ -58,18 +58,17 @@ def oracle(img1,img2):
     filtered_diff = detect_differences(rectified_img1, rectified_img2, sensitivity_threshold)
     modified_cases = analyze_squares(filtered_diff, cases, square_size)
 
-    print("\n")
-    print("------------------------------")
-    print("The two modified cases are: ")
-    print("-", modified_cases[0][0], ",", modified_cases[0][1], "%")
-    print("-", modified_cases[1][0], ",",  modified_cases[1][1], "%")
+    #print("------------------------------")
+    #print("The two modified cases are: ")
+    #print("-", modified_cases[0][0], ",", modified_cases[0][1], "%")
+    #print("-", modified_cases[1][0], ",",  modified_cases[1][1], "%")
 
     # ---------------------------------------------------------------------
     # Déterminer le sens du mouvement
     if len(modified_cases) == 2:
         top_cases = [modified_cases[0], modified_cases[1]]
         origin, destination = determine_movement_direction(rectified_img1, rectified_img2, rectified_reference_gray, cases, top_cases)
-        print(f"\nDetected movement: {origin} -> {destination}")
+        #print(f"\nDetected movement: {origin} -> {destination}")
     else:
         print("Errror determining movment: not enough modified cases.")
 
@@ -79,19 +78,19 @@ def oracle(img1,img2):
     capture_detected = is_capture(rectified_img1, rectified_reference_gray, destination_coords, sensitivity_threshold)
     if capture_detected:
         move_type = "CAPTURE"
-        print(f"The move is a : CAPTURE")
+        #print(f"The move is a : CAPTURE")
     else:
         move_type = "SIMPLE"
-        print(f"The move is a : SIMPLE MOVE")
+        #print(f"The move is a : SIMPLE MOVE")
 
     # ----------------------------------------------------------------------
     # Determiner la couleur de la piece bougee
     origin_coords = cases[origin]
     circle_mean_intensity = check_color(rectified_img1, origin_coords)
     piece_color = determine_piece_color(circle_mean_intensity)
-    print(f"\nThe piece is {piece_color}.")
+    #print(f"\nThe piece is {piece_color}.")
 
-    print("------------------------------")
+    #print("------------------------------")
 
     return origin, destination, move_type, piece_color
 
@@ -104,7 +103,10 @@ def main():
     # Process the move
     origin, destination, move_type, piece_color = oracle(img1, img2)
 
+    print("-------------------------------------------------------------------")
     print(f"Origin: {origin}, Destination: {destination}, Move Type: {move_type}, Piece Color: {piece_color}")
+    print("-------------------------------------------------------------------")
+
 
 if __name__ == "__main__":
     main()
