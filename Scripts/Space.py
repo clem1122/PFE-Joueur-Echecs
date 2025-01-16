@@ -3,7 +3,7 @@ b = pc.Board()
 
 class Space:
 	def __init__(self):
-		self.a1_pose = [0.146, 0.129, 0.102]
+		self.a1_pose = [0.136, 0.129, 0.114]
 		self.square_size = 0.04
 		self.valhalla_square_size = 0.04
 		self.chessboard = self.generate()
@@ -23,7 +23,7 @@ class Space:
 				chessboard[square_name] = [x, y, z]
 				
 		valhalla_offset_y = 0.7  #square
-		valhalla_offset_z = 0.00 #m
+		valhalla_offset_z = 0.012 #m
 		for i in range(0, 4):
 			for j in range(1,6):
 				b_square_name = "v" + b.to_base((i*5)+j, 20)

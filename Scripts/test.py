@@ -6,6 +6,7 @@ import argparse
 import requests
 import sys
 import PChess as pc
+from camera_control import take_picture
 from lichess import get_move
 
 pieces_list = ['p','P','n','N','b','B','r','R','q','Q','k','K']
@@ -15,7 +16,7 @@ roque_FEN = 'r...k..rpppq.ppp..npbn....b.p.....B.P.....NPBN..PPPQ.PPPR...K..R'
 prise_en_passant_FEN = '............p........p.......P...................q......K......k'
 promotion_FEN = 'r.b.kbnrpPpp.ppp..n.................p.q..P...N....PPPPPPRNBQKB.R'
 promotion_FEN2 = '............P........................p...........K.............k'
-fen = 'r.....k.pQpb..p...nbpq.p.....r.....P.p..P..B.N...PPN.PPPR.B..RK.'
+fen = 'r....bnrp.pk..pp......p...p.P.B....p.P.......Q..PPP...PPR....RK.'
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--move-to-square", "-m", type=str)
@@ -27,7 +28,7 @@ parser.add_argument("--stockfish", "-s", action="store_true")
 args = parser.parse_args()
 isWhite = False
 
-g = pc.Game('k............q...........pQp.....P......P...P......K............')
+g = pc.Game(fen)
 b = g.board
 b.print()
 flask = not args.no_flask
@@ -115,12 +116,18 @@ elif args.obs_pose:
 	robot.move_to_obs_pose()
 
 else:
-	if not args.no_robot: robot = Robot()
+	playCount = g.play_count()
+	if not args.no_robot: 
+		robot = Robot()
+		robot.move_to_obs_pose()
+		#take_picture(0)
+		
 	send_board_FEN(b)
 	send_color_FEN(b)
 	isRobotTurn = True
 
 	while True:	
+		playCount = g.play_count()
 		if isRobotTurn:
 			if args.stockfish:
 				moveStr = get_move(b.FEN(), b.special_rules(), b.en_passant_coord())
@@ -131,10 +138,12 @@ else:
 				if g.play(moveStr):
 					isRobotTurn = not isRobotTurn
 			elif robot_play(moveStr, cautious = args.cautious):
+				#take_picture(robot, playCount)
 				isRobotTurn = not isRobotTurn
 		else:
 			moveStr = input("Move :")
 			if g.play(moveStr):
+
 				isRobotTurn = not isRobotTurn
 		
 		send_color_FEN(b)
