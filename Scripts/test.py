@@ -8,7 +8,9 @@ import sys
 import PChess as pc
 from camera_control import take_picture
 from lichess import get_move
-
+from Vision.Python import *
+from Vision.Python.oracle_function import oracle
+import cv2
 pieces_list = ['p','P','n','N','b','B','r','R','q','Q','k','K']
 classic_FEN = 'rnbqkbnrpppppppp................................PPPPPPPPRNBQKBNR'
 capture_FEN = 'rnbqkbnrppp.pppp...........p........P...........PPPP.PPPRNBQKBNR'
@@ -28,10 +30,11 @@ parser.add_argument("--stockfish", "-s", action="store_true")
 args = parser.parse_args()
 isWhite = False
 
-g = pc.Game(fen)
+g = pc.Game(classic_FEN)
 b = g.board
 b.print()
 flask = not args.no_flask
+imVide = cv2.imread("Vision/Python/photos3/img0.png")
 	
 if flask:
 	try:
@@ -120,7 +123,7 @@ else:
 	if not args.no_robot: 
 		robot = Robot()
 		robot.move_to_obs_pose()
-		#take_picture(0)
+		im1 = take_picture(robot, 0)
 		
 	send_board_FEN(b)
 	send_color_FEN(b)
@@ -138,12 +141,16 @@ else:
 				if g.play(moveStr):
 					isRobotTurn = not isRobotTurn
 			elif robot_play(moveStr, cautious = args.cautious):
-				#take_picture(robot, playCount)
+				im2 = take_picture(robot, playCount)
+				cv2.imshow("im1", im1)
+				cv2.imshow("im2", im2)
+				oracle(im1, im2, imVide)
 				isRobotTurn = not isRobotTurn
 		else:
 			moveStr = input("Move :")
 			if g.play(moveStr):
-
+				im1 = take_picture(robot, playCount)
+				oracle(im2, im1, imVide)
 				isRobotTurn = not isRobotTurn
 		
 		send_color_FEN(b)
