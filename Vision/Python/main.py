@@ -5,7 +5,7 @@ import numpy as np
 
 from calibration import calibrate_corners, compute_transformation, rectify_image
 #from image_processing import detect_differences, analyze_squares, determine_movement
-from processing import detect_differences, analyze_squares, determine_movement
+from processing import detect_differences, analyze_squares, determine_movement_direction, is_capture, is_capture_2
 
 # --- Paramètres 
 calibration_file = "chessboard_calibration.pkl"
@@ -25,7 +25,9 @@ input_points = calibrate_corners(calibration_file, reference_image_path, output_
 tform = compute_transformation(input_points, output_size)
 # Redresser l'image de référence
 rectified_reference = rectify_image(reference_image, tform, output_size)
-cv2.imshow('reference_image', rectified_reference)
+rectified_reference_gray = cv2.cvtColor(rectified_reference, cv2.COLOR_BGR2GRAY)
+
+#cv2.imshow('reference_image', rectified_reference)
 
 # Dictionnaire des coordonnées des cases
 cases = {}
@@ -47,9 +49,13 @@ image_files = sorted([f for f in os.listdir(image_folder) if f.endswith(".png")]
 ### MAIN LOOP 
 ###############################################################################################
 for i in range(len(image_files) - 1):
-    # Charger les images en niveau de gris
-    img1 = cv2.imread(os.path.join(image_folder, image_files[i]), cv2.IMREAD_GRAYSCALE)
-    img2 = cv2.imread(os.path.join(image_folder, image_files[i + 1]), cv2.IMREAD_GRAYSCALE)
+    # Charger les images en couleur
+    img1_color = cv2.imread(os.path.join(image_folder, image_files[i]))
+    img2_color = cv2.imread(os.path.join(image_folder, image_files[i + 1]))
+
+    # Convertir les images en niveaux de gris
+    img1 = cv2.cvtColor(img1_color, cv2.COLOR_BGR2GRAY)
+    img2 = cv2.cvtColor(img2_color, cv2.COLOR_BGR2GRAY)
 
     #Redresser les images en utilisant l'image ref
     rectified_img1 = rectify_image(img1, tform, output_size)
@@ -63,6 +69,37 @@ for i in range(len(image_files) - 1):
     for case, percentage_diff in modified_cases:
         print(f"{case} : {percentage_diff:.2f}% difference ")
 
+    # Déterminer le sens du mouvement
+    if len(modified_cases) == 2:
+        top_cases = [modified_cases[0], modified_cases[1]]
+        origin, destination = determine_movement_direction(rectified_img1, rectified_img2, rectified_reference_gray, cases, top_cases)
+        print(f"Movement detected: {origin} -> {destination}")
+    else:
+        print("Not enough modified cases to determine movement.")
+
+
+    # Déterminer si le mouvement est une capture
+    destination_coords = cases[destination]
+    capture_detected = is_capture_2(rectified_img1, rectified_reference_gray, destination_coords)
+    if capture_detected:
+        print(f"The move is a CAPTURE!")
+    else:
+        print(f"The move is a simple move.")
+
+
+
+
+    # # Déterminer si le mouvement est une capture
+    # destination_coords = cases[destination]
+    # capture_detected = is_capture(img1_color, img2_color, destination_coords)
+    # if capture_detected:
+    #     print(f"The move {origin} -> {destination} is a capture!")
+    # else:
+    #     print(f"The move {origin} -> {destination} is a simple move.")
+
+
+    
+'''
     if len(modified_cases) >= 2:
         # Déterminer le mouvement
         movement_info = determine_movement(modified_cases, rectified_img1, rectified_img2, rectified_reference, cases, sensitivity_threshold)
@@ -73,7 +110,7 @@ for i in range(len(image_files) - 1):
             print("Erreur : Pas assez de cases pour un mouvement valide.")
     else:
         print("Aucun mouvement significatif détecté.")
-
+'''
 '''
     # Print diff entre les cases
     if modified_cases:
