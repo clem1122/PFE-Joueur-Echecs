@@ -6,7 +6,8 @@ import pickle
 import os
 
 clicked_points = []
-
+print(os.path.abspath(os.path.curdir))
+os.chdir('../Vision/Python')
 # Fonction de rappel pour gérer les clics de la souris
 def mouse_callback(event, x, y, flags, param):
     global clicked_points
@@ -30,6 +31,7 @@ def calibrate_corners(calibration_file, reference_image, output_size):
     
     # Si il n'y a pas de calibration faite
     else:
+        print("pkl file not found")
         # Charger image ref et convertir en niveau de gris
         cv2.imshow("reference_image", reference_image)
         if reference_image is None:

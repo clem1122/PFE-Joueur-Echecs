@@ -2,8 +2,8 @@ import cv2
 import os
 import numpy as np
 
-from calibration import calibrate_corners, compute_transformation, rectify_image
-from processing import (
+from Vision.Python.calibration import calibrate_corners, compute_transformation, rectify_image
+from Vision.Python.processing import (
     detect_differences, analyze_squares, determine_movement_direction, 
     is_capture, determine_piece_color, check_color
 )
