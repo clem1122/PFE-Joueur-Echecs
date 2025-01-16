@@ -100,7 +100,7 @@ def analyze_squares(filtered_diff, cases, square_size):
 
 #-----------------------
 # La case destination etait-elle vide ou pleine dans l'image 1 ?
-def was_square_full(img, empty_board, coords, threshold=50):
+def was_square_full(img, empty_board, coords, threshold):
     """
     Détermine si une case était pleine en comparant avec l'échiquier vide.
     """
@@ -113,17 +113,55 @@ def was_square_full(img, empty_board, coords, threshold=50):
     # Calculer la différence moyenne entre les deux
     diff = np.mean(cv2.absdiff(square_img, empty_square))
 
+    print("diff =", diff)
+
     # Vérifier si la différence dépasse le seuil
     return diff > threshold
 
-def is_capture_2(img1, empty_board, destination_coords, threshold=30):
+def is_capture_2(img1, empty_board, destination_coords, threshold=20):
     """
     Détecte si un mouvement est une capture en analysant la case de destination.
     """
     # Vérifier si la case de destination était pleine avant le coup
     return was_square_full(img1, empty_board, destination_coords, threshold)
 
+# Verifions si la couleur de la case d'arriver differe de la case d'origine
+# on check la couleur presente dans un cercle de d=l/2 centre au milieu de la case
+def check_color(img, coords):
+    """
+    Analyse la couleur moyenne dans un cercle centré dans une case.
+    img : Image en niveaux de gris.
+    coords : Coordonnées de la case (x_start, x_end, y_start, y_end).
+    """
+    x_start, x_end, y_start, y_end = coords
 
+    # Dimensions de la case
+    square_width = x_end - x_start
+    square_height = y_end - y_start
+    center_x = x_start + square_width // 2
+    center_y = y_start + square_height // 2
+    radius = square_width // 4  # Diamètre = largeur / 2, donc rayon = largeur / 4
+
+    # Créer un masque circulaire
+    mask = np.zeros_like(img, dtype=np.uint8)
+    cv2.circle(mask, (center_x, center_y), radius, 255, -1)
+
+    # Appliquer le masque pour extraire les pixels du cercle
+    masked_img = cv2.bitwise_and(img, img, mask=mask)
+
+    # Calculer l'intensité moyenne dans le cercle
+    circle_mean_intensity = cv2.mean(masked_img, mask=mask)[0]  # Moyenne des pixels dans le cercle
+    
+    print("couleur =:", circle_mean_intensity)
+    return circle_mean_intensity
+
+def determine_piece_color(circle_mean_intensity, threshold=50):
+    """
+    Détermine si la pièce est blanche ou noire en fonction de l'intensité moyenne.
+    atours de 255 = banc 
+    proche de 0 = noir
+    """
+    return "white" if circle_mean_intensity > threshold else "black"
 
 
 # ---------------------------------
@@ -168,75 +206,3 @@ def is_capture(img1, img2, destination_coords, threshold=30):
     # Vérifier si la couleur moyenne a changé
     return has_color_changed(avg_color_before, avg_color_after, threshold)
 
-
-
-# # Fonctions logique pour determiner
-# def is_case_empty(case_coords, reference_img, sensitivity_threshold):
-#     """
-#     Vérifie si une case est vide en utilisant l'image de référence.
-#     """
-#     x_start, x_end, y_start, y_end = case_coords
-#     reference_square = reference_img[y_start:y_end, x_start:x_end]
-#     diff = np.sum(reference_square > sensitivity_threshold)
-#     return diff < 250  # Seuil pour considérer la case vide.
-
-# def is_case_occupied(case_coords, img, reference_img, sensitivity_threshold):
-#     """
-#     Vérifie si une case est occupée en comparant l'image actuelle avec l'image de référence.
-#     """
-#     x_start, x_end, y_start, y_end = case_coords
-#     current_square = img[y_start:y_end, x_start:x_end]
-#     reference_square = reference_img[y_start:y_end, x_start:x_end]
-#     diff = np.sum(cv2.absdiff(current_square, reference_square) > sensitivity_threshold)
-#     return diff > 250  # Seuil pour considérer la case occupée.
-
-# def did_piece_leave_case(case_coords, img_prev, reference_img, sensitivity_threshold):
-#     """
-#     Vérifie si une pièce a quitté la case.
-#     """
-#     return is_case_occupied(case_coords, img_prev, reference_img, sensitivity_threshold) and is_case_empty(case_coords, reference_img, sensitivity_threshold)
-
-# def did_piece_arrive_in_case(case_coords, img_curr, reference_img, sensitivity_threshold):
-#     """
-#     Vérifie si une pièce est arrivée sur la case.
-#     """
-#     return is_case_empty(case_coords, reference_img, sensitivity_threshold) and is_case_occupied(case_coords, img_curr, reference_img, sensitivity_threshold)
-
-# def determine_movement_info(start_case, end_case, img_prev, img_curr, reference_img, cases, sensitivity_threshold):
-#     """
-#     Détermine la direction et le type du mouvement en utilisant des fonctions booléennes.
-#     """
-#     start_coords = cases[start_case]
-#     end_coords = cases[end_case]
-
-#     left_start = did_piece_leave_case(start_coords, img_prev, reference_img, sensitivity_threshold)
-#     arrived_end = did_piece_arrive_in_case(end_coords, img_curr, reference_img, sensitivity_threshold)
-
-#     if left_start and arrived_end:
-#         direction = "from start to end"
-#         move_type = "simple" if is_case_empty(end_coords, img_prev, sensitivity_threshold) else "capture"
-#     elif did_piece_leave_case(end_coords, img_prev, reference_img, sensitivity_threshold) and did_piece_arrive_in_case(start_coords, img_curr, reference_img, sensitivity_threshold):
-#         direction = "from end to start"
-#         move_type = "simple" if is_case_empty(start_coords, img_prev, sensitivity_threshold) else "capture"
-#     else:
-#         direction = "unknown"
-#         move_type = "unknown"
-
-#     return {
-#         "start": start_case,
-#         "end": end_case,
-#         "direction": direction,
-#         "move_type": move_type
-#     }
-
-# # def determine_movement(modified_cases, rectified_img1, rectified_img2, reference_img, cases, sensitivity_threshold):
-# #     """
-# #     Fonction principale appelée pour déterminer le mouvement entre deux images.
-# #     """
-# #     if len(modified_cases) >= 2:
-# #         start_case, end_case = modified_cases[0][0], modified_cases[1][0]
-# #         return determine_movement_info(start_case, end_case, rectified_img1, rectified_img2, reference_img, cases, sensitivity_threshold)
-# #     else:
-# #         return {
-# #             "error": "Pas assez de cases modifiées pour déterminer un mouvement."
-# #         }

@@ -5,11 +5,11 @@ import numpy as np
 
 from calibration import calibrate_corners, compute_transformation, rectify_image
 #from image_processing import detect_differences, analyze_squares, determine_movement
-from processing import detect_differences, analyze_squares, determine_movement_direction, is_capture, is_capture_2
+from processing import detect_differences, analyze_squares, determine_movement_direction, is_capture, is_capture_2, determine_piece_color, check_color
 
 # --- Paramètres 
 calibration_file = "chessboard_calibration.pkl"
-reference_image_path = "img0.png"
+reference_image_path = "empty.png"
 output_size = (800, 800)
 square_size = output_size[0] // 8
 sensitivity_threshold = 20 # Seuil pour la diff de pixels 
@@ -41,7 +41,7 @@ for row in range(8):
         cases[case_name] = (x_start, x_end, y_start, y_end)
 
 # Chargement des images
-image_folder = "photos"
+image_folder = "photos4"
 # Trier par ordre numerique que les fichiers .png
 image_files = sorted([f for f in os.listdir(image_folder) if f.endswith(".png")])
 
@@ -85,7 +85,12 @@ for i in range(len(image_files) - 1):
         print(f"The move is a CAPTURE!")
     else:
         print(f"The move is a simple move.")
+ 
+    origin_coords = cases[origin]
+    circle_mean_intensity = check_color(rectified_img1, origin_coords)
+    piece_color = determine_piece_color(circle_mean_intensity)
 
+    print(f"The piece moving from {origin} is {piece_color}.")
 
 
 
@@ -96,36 +101,3 @@ for i in range(len(image_files) - 1):
     #     print(f"The move {origin} -> {destination} is a capture!")
     # else:
     #     print(f"The move {origin} -> {destination} is a simple move.")
-
-
-    
-'''
-    if len(modified_cases) >= 2:
-        # Déterminer le mouvement
-        movement_info = determine_movement(modified_cases, rectified_img1, rectified_img2, rectified_reference, cases, sensitivity_threshold)
-        if "error" not in movement_info:
-            print(f"Déplacement détecté : {movement_info['direction']} - Type : {movement_info['move_type']}")
-            print(f"De {movement_info['start']} à {movement_info['end']}")
-        else:
-            print("Erreur : Pas assez de cases pour un mouvement valide.")
-    else:
-        print("Aucun mouvement significatif détecté.")
-'''
-'''
-    # Print diff entre les cases
-    if modified_cases:
-        print(f"Differences between {image_files[i]} and {image_files[i+1]}: {modified_cases}")
-        for case in modified_cases:
-            x_start, x_end, y_start, y_end = cases[case]
-            square_diff = filtered_diff[y_start:y_end, x_start:x_end]
-            diff_pixels = np.sum(square_diff > 0)
-            total_pixels = square_size ** 2
-            percentage_diff = int((diff_pixels / total_pixels) * 100)
-            print(f"Case {case}:{percentage_diff:.2f}%")
-
-        # Movment simple ou capture ?
-        movement = determine_movement(modified_cases, rectified_img1, rectified_img1, rectified_reference, cases, sensitivity_threshold)
-
-        # print le move 
-        print(f"Mouvement: {movement['move_type']} de {movement['start_case']} a {movement['end_case']}")
-'''
