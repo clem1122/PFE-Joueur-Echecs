@@ -10,6 +10,9 @@ from model.Model import Model
 from model.Loss import Loss
 from preprocessing.dataloader import ChessDataset, collate_fn
 from datasets import load_dataset
+# import torch.nn as nn
+
+# os.environ["CUDA_VISIBLE_DEVICES"] = "2, 3, 4, 5, 6"
 
 import json
 with open("mapping.json", "r") as json_file:
@@ -44,6 +47,12 @@ class Training:
             valout1=config["valout1"], 
             valout2=config["valout2"]
         ).to(device)
+        
+        # if torch.cuda.device_count() > 1:
+        #     print(f"Utilisation de {torch.cuda.device_count()} GPUs")
+        #     self.model = nn.DataParallel(self.model)
+        
+        # self.model = self.model.to(device)
 
         self.num_epochs = config["num_epochs"]
         self.criterion = Loss(config["alpha"], config["beta"])
@@ -118,10 +127,14 @@ class Training:
 def main():
     dataset = load_dataset('angeluriot/chess_games')
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    if torch.cuda.device_count() > 1:
+        device = torch.device("cuda:0")  # Le modèle principal sera sur le premier GPU
+    else:
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+            
     trainer = Training(config, device)
     
-    trainer.train(dataset, new_mapping, fraction=0.05)
+    trainer.train(dataset, new_mapping, fraction=0.1)
 
 if __name__ == "__main__":
     main()
