@@ -6,7 +6,7 @@ from sys import exit
 import argparse
 import requests
 from Scripts.camera_control import take_picture
-from Scripts.lichess import get_move
+from Scripts.lichess import get_stockfish_move
 from Vision.delete_images import del_im
 from Vision.oracle_function import oracle
 
@@ -31,6 +31,8 @@ parser.add_argument("--stockfish", "-s", action="store_true")
 parser.add_argument("--take-picture", "--tp", action="store_true")
 args = parser.parse_args()
 isWhite = False
+vision = True
+
 
 g = pc.Game(classic_FEN)
 b = g.board
@@ -58,7 +60,6 @@ def send_board_FEN(board):
 	else:
 		print(f"Erreur lors de l'envoi du board : {response.status_code}, {response.text}")
 
-
 def manage_promotion(promotion_piece, move):
 	if promotion_piece == None : raise Exception("No promotion type")
 
@@ -69,7 +70,6 @@ def manage_promotion(promotion_piece, move):
 	b.modify_piece(valhalla_coord, '.')
 	# Quand c'est le robot qui joue, l'IA donne le mouvement avec le caractère de la nouvelle pièce
 	# Quand c'est le joueur qui joue, la vision donne le coup, PChess voit que c'est une promotion, il photographie le valhalla, connait la pièce partie et voit le nouveau trou
-
 
 def robot_play(moveStr, cautious = False):
 	promotion = None
@@ -110,6 +110,32 @@ def send_color_FEN(board):
 	else:
 	    print(f"Erreur lors de l'envoi du board : {response.status_code}, {response.text}")
 
+def get_move():
+	if args.stockfish:
+		return get_move(b.FEN(), b.special_rules(), b.en_passant_coord())
+	else:
+		return input("Move :")
+
+def play(moveStr, vision = True):
+	global isRobotTurn
+
+	if args.no_robot:
+		if g.play(moveStr):
+			isRobotTurn = not isRobotTurn
+			return True
+		return False
+	else:
+		if robot_play(moveStr, cautious = args.cautious):
+			playCount = g.play_count()
+			isRobotTurn = not isRobotTurn
+			return True
+		return False
+
+def see():
+	if args.no_robot: return
+	global im_pre_robot, im_post_robot
+	im_post_robot = take_picture(robot, playCount)
+	oracle(im_pre_robot, im_post_robot, imVide)
 
 
 if args.take_picture :
@@ -120,54 +146,45 @@ if args.take_picture :
 if args.move_to_square :
 	robot = Robot()
 	robot.move_to_square(args.move_to_square)
+	exit(0)
 
-elif args.obs_pose:
+if args.obs_pose:
 	robot = Robot()
 	robot.move_to_obs_pose()
+	exit(0)
 
-else:
 
+
+playCount = g.play_count()
+if not args.no_robot: 
+	robot = Robot()
+	robot.move_to_obs_pose()
+	
+send_board_FEN(b)
+send_color_FEN(b)
+isRobotTurn = True
+
+im_pre_robot = take_picture(robot, 0)
+im_post_robot = im_pre_robot
+
+while True:	
 	playCount = g.play_count()
-	if not args.no_robot: 
-		robot = Robot()
-		robot.move_to_obs_pose()
-		
-	send_board_FEN(b)
-	send_color_FEN(b)
-	isRobotTurn = True
 
-	im1 = take_picture(robot, 0)
+	if isRobotTurn:
+		moveStr = get_move()
+		play(moveStr)
+		if vision: see()
 
-	while True:	
-		playCount = g.play_count()
-
-		if isRobotTurn:
-			if args.stockfish:
-				moveStr = get_move(b.FEN(), b.special_rules(), b.en_passant_coord())
-			else:
-				moveStr = input("Move :")
-
-			if args.no_robot:
-				if g.play(moveStr):
-					isRobotTurn = not isRobotTurn
-
-			elif robot_play(moveStr, cautious = args.cautious):
+	else:
+		moveStr = get_move()
+		if g.play(moveStr):
+			if not args.no_robot:
 				playCount = g.play_count()
-				im2 = take_picture(robot, playCount)
-				#cv2.imshow("im1", im1)
-				#cv2.imshow("im2", im2)
-				oracle(im1, im2, imVide)
-				isRobotTurn = not isRobotTurn
-		else:
-			moveStr = input("Move :")
-			if g.play(moveStr):
-				if not args.no_robot:
-					playCount = g.play_count()
-					im1 = take_picture(robot, playCount)
-					oracle(im2, im1, imVide)
-				isRobotTurn = not isRobotTurn
-		
-		send_color_FEN(b)
-		send_board_FEN(b)
+				im1 = take_picture(robot, playCount)
+				oracle(im_post_robot, im_pre_robot, imVide)
+			isRobotTurn = not isRobotTurn
+	
+	send_color_FEN(b)
+	send_board_FEN(b)
 
-	robot.close()
+robot.close()
