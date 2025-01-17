@@ -117,7 +117,6 @@ def is_capture(img1, empty_board, destination_coords, threshold):
     # Vérifier si la case de destination était pleine avant le coup
     return was_square_full(img1, empty_board, destination_coords, threshold)
 
-
 ###############################################
 # Determiner la couleur de la piece jouee #####
 ###############################################
