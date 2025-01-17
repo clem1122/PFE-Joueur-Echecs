@@ -35,7 +35,7 @@ g = pc.Game(classic_FEN)
 b = g.board
 b.print()
 flask = not (args.no_flask or args.take_picture)
-imVide = cv2.imread("Vision/Image_Calibration.png")
+imVide = cv2.imread("Images/calibration_img.png")
 	
 if flask:
 	try:
@@ -124,11 +124,11 @@ elif args.obs_pose:
 	robot.move_to_obs_pose()
 
 else:
+
 	playCount = g.play_count()
 	if not args.no_robot: 
 		robot = Robot()
 		robot.move_to_obs_pose()
-		im1 = take_picture(robot, 0)
 		
 	send_board_FEN(b)
 	send_color_FEN(b)
@@ -136,6 +136,9 @@ else:
 
 	while True:	
 		playCount = g.play_count()
+		print(playCount)
+		im1 = take_picture(robot, playCount)
+
 		if isRobotTurn:
 			if args.stockfish:
 				moveStr = get_move(b.FEN(), b.special_rules(), b.en_passant_coord())
@@ -147,9 +150,11 @@ else:
 					isRobotTurn = not isRobotTurn
 
 			elif robot_play(moveStr, cautious = args.cautious):
+				playCount = g.play_count()
+				print(playCount)
 				im2 = take_picture(robot, playCount)
-				cv2.imshow("im1", im1)
-				cv2.imshow("im2", im2)
+				#cv2.imshow("im1", im1)
+				#cv2.imshow("im2", im2)
 				oracle(im1, im2, imVide)
 				isRobotTurn = not isRobotTurn
 		else:

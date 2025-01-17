@@ -7,7 +7,7 @@ import os
 
 clicked_points = []
 print(os.path.abspath(os.path.curdir))
-directory = 'Vision/Python/'
+directory = 'Vision/'
 # Fonction de rappel pour gérer les clics de la souris
 def mouse_callback(event, x, y, flags, param):
     global clicked_points
@@ -24,8 +24,9 @@ def calibrate_corners(calibration_file, reference_image, output_size):
     clicked_points = []
 
     # Si le fichier de calibration existe deja
+    print(directory + calibration_file)
     if os.path.exists(directory + calibration_file):
-        with open(calibration_file, 'rb') as file:
+        with open(directory + calibration_file, 'rb') as file:
             input_points = pickle.load(file) #Load input_points depuis le fichier
         #print("Calibration chargée depuis le fichier.")
     
@@ -33,7 +34,7 @@ def calibrate_corners(calibration_file, reference_image, output_size):
     else:
         print("pkl file not found")
         # Charger image ref et convertir en niveau de gris
-        cv2.imshow("reference_image", reference_image)
+        #cv2.imshow("reference_image", reference_image)
         if reference_image is None:
             print("Pas d'image")
         gray = cv2.cvtColor(reference_image, cv2.COLOR_BGR2GRAY)
@@ -62,7 +63,7 @@ def calibrate_corners(calibration_file, reference_image, output_size):
                 return None
 
         # Sauvegarder les points de calibration
-        with open(calibration_file, 'wb') as file:
+        with open(directory + calibration_file, 'wb') as file:
             pickle.dump(input_points, file)
         print("Calibration done .")
 
