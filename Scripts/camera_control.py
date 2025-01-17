@@ -11,13 +11,17 @@ import argparse
 directory ='Images'
 
 # Image directory
-def take_picture(robot, img_number):
+def take_picture(robot, img_name):
     
     mtx, dist = robot.niryo.get_camera_intrinsics()
     img_compressed = robot.niryo.get_img_compressed()
     img_raw = uncompress_image(img_compressed)
     img_undistort = undistort_image(img_raw, mtx, dist)
     # Sauvegarder l'image
-    output_path = os.path.join(directory, str(img_number) + '.png')
+    output_path = os.path.join(directory, str(img_name) + '.png')
     cv2.imwrite(output_path, img_undistort)
     return img_undistort
+
+
+if __name__ == "__main__":
+    take_picture(NiryoRobot('192.168.7.1'), 'calibration_img')
