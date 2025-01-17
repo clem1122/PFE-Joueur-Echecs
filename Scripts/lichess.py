@@ -44,7 +44,9 @@ def get_move(simplified_FEN, player_and_castling = "wKQkq", en_passant = '-'):
     fen = generate_complete_fen(simplified_FEN, player_and_castling, en_passant)
     print("FEN : ",  fen)
     board = chess.Board(fen)
-    with chess.engine.SimpleEngine.popen_uci("/mnt/d/Programmes/stockfish/stockfish-windows-x86-64-avx2.exe") as engine:
+    with chess.engine.SimpleEngine.popen_uci("/mnt/c/Program Files/stockfish/stockfish-windows-x86-64-avx2.exe") as engine:
+        # "C:/Program Files/stockfish/stockfish-windows-x86-64-avx2.exe" Louis
+        # "/mnt/d/Programmes/stockfish/stockfish-windows-x86-64-avx2.exe" Clément
     # Request an evaluation of the current position
         result = engine.play(board, chess.engine.Limit(time=2.0))  # Limit the analysis to 2 seconds
         print("coup :", result.move)

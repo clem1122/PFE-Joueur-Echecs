@@ -3,11 +3,11 @@ b = pc.Board()
 
 class Space:
 	def __init__(self):
-		self.a1_pose = [0.136, 0.129, 0.114]
+		self.a1_pose = [0.136, 0.129, 0.114] #0.136, 0.129, 0.114
 		self.square_size = 0.04
 		self.valhalla_square_size = 0.04
 		self.chessboard = self.generate()
-		self.observation_joints = [0.022, 0.327, -0.392, -0.026, -1.651, -0.011]
+		self.observation_joints = [0.022, 0.327, -0.412, -0.026, -1.651, -0.011] #0.022, 0.327, -0.392, -0.026, -1.651, -0.011
 		
 		
 	def generate(self):

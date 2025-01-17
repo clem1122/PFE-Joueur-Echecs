@@ -27,14 +27,15 @@ parser.add_argument("--no-flask", "--nf", action="store_true")
 parser.add_argument("--cautious", "-c", action="store_true")
 parser.add_argument("--no-robot", "--nr", action="store_true")
 parser.add_argument("--stockfish", "-s", action="store_true")
+parser.add_argument("--take-picture", "--tp", action="store_true")
 args = parser.parse_args()
 isWhite = False
 
 g = pc.Game(classic_FEN)
 b = g.board
 b.print()
-flask = not args.no_flask
-imVide = cv2.imread("Vision/Python/photos3/img0.png")
+flask = not (args.no_flask or args.take_picture)
+imVide = cv2.imread("Vision/Image_Calibration.png")
 	
 if flask:
 	try:
@@ -109,6 +110,10 @@ def send_color_FEN(board):
 
 
 
+if args.take_picture :
+	robot = Robot()
+	take_picture(robot, 'calibration_img')
+	exit(0)
 
 if args.move_to_square :
 	robot = Robot()

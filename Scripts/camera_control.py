@@ -20,8 +20,5 @@ def take_picture(robot, img_name):
     # Sauvegarder l'image
     output_path = os.path.join(directory, str(img_name) + '.png')
     cv2.imwrite(output_path, img_undistort)
+    print(output_path)
     return img_undistort
-
-
-if __name__ == "__main__":
-    take_picture(NiryoRobot('192.168.7.1'), 'calibration_img')
