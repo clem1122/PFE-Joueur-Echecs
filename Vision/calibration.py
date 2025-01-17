@@ -7,7 +7,7 @@ import os
 
 clicked_points = []
 print(os.path.abspath(os.path.curdir))
-directory = '../Vision/Python'
+directory = 'Vision/Python/'
 # Fonction de rappel pour gérer les clics de la souris
 def mouse_callback(event, x, y, flags, param):
     global clicked_points
@@ -24,7 +24,7 @@ def calibrate_corners(calibration_file, reference_image, output_size):
     clicked_points = []
 
     # Si le fichier de calibration existe deja
-    if os.path.exists(directory + '/' + calibration_file):
+    if os.path.exists(directory + calibration_file):
         with open(calibration_file, 'rb') as file:
             input_points = pickle.load(file) #Load input_points depuis le fichier
         #print("Calibration chargée depuis le fichier.")
