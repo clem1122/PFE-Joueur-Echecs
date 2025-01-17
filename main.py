@@ -7,8 +7,9 @@ import argparse
 import requests
 from Scripts.camera_control import take_picture
 from Scripts.lichess import get_move
-from Vision import *
+from Vision.delete_images import del_im
 from Vision.oracle_function import oracle
+
 import cv2
 
 pieces_list = ['p','P','n','N','b','B	','r','R','q','Q','k','K']
@@ -36,6 +37,7 @@ b = g.board
 b.print()
 flask = not (args.no_flask or args.take_picture)
 imVide = cv2.imread("Images/calibration_img.png")
+del_im('Images/')
 	
 if flask:
 	try:
