@@ -134,10 +134,10 @@ else:
 	send_color_FEN(b)
 	isRobotTurn = True
 
+	im1 = take_picture(robot, 0)
+
 	while True:	
 		playCount = g.play_count()
-		print(playCount)
-		im1 = take_picture(robot, playCount)
 
 		if isRobotTurn:
 			if args.stockfish:
@@ -151,7 +151,6 @@ else:
 
 			elif robot_play(moveStr, cautious = args.cautious):
 				playCount = g.play_count()
-				print(playCount)
 				im2 = take_picture(robot, playCount)
 				#cv2.imshow("im1", im1)
 				#cv2.imshow("im2", im2)
@@ -161,6 +160,7 @@ else:
 			moveStr = input("Move :")
 			if g.play(moveStr):
 				if not args.no_robot:
+					playCount = g.play_count()
 					im1 = take_picture(robot, playCount)
 					oracle(im2, im1, imVide)
 				isRobotTurn = not isRobotTurn
