@@ -27,7 +27,7 @@ parser.add_argument("--stockfish", "-s", action="store_true")
 args = parser.parse_args()
 isWhite = False
 
-g = pc.Game('k............q...........pQp.....P......P...P......K............')
+g = pc.Game(classic_FEN)
 b = g.board
 b.print()
 flask = not args.no_flask

@@ -14,6 +14,7 @@ async function getInfo(toggleId) {
         FEN_to_show[`${toggleId}`] = true;
         console.log("sending : " + JSON.stringify(FEN_to_show));
         localStorage.setItem("FEN_to_show", JSON.stringify(FEN_to_show));
+
         all_toggle_buttons.forEach(button => {
           if (button.id !== toggleId) {
             button.checked = false; // Uncheck other buttons
@@ -33,5 +34,3 @@ async function getInfo(toggleId) {
     console.error(error);
   }
 }
-
-
