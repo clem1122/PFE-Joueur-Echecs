@@ -35,9 +35,9 @@ function preload() {
 }
 
 function setup() {
-    const canvas = createCanvas(500, 500);
+    const canvas = createCanvas(600, 600);
     canvas.parent('chessboard');
-    squareSize = width / (rows + 2); // Adjust size to leave space for labels
+    squareSize = width / rows;
     for (let key in pieceImages) {
         pieceImages[key].resize(squareSize, 0);
     }
@@ -52,7 +52,8 @@ function draw() {
     if (frameCount % 10 == 0) {
         updateFENs();
     }
-    drawBoardWithLabels();
+    drawBoard();
+    drawCoordinates();
     if (FEN_to_show['threats']) { draw_color_FEN(threats, color(150, 0, 0, 175)); }
     if (FEN_to_show['controlled']) { draw_color_FEN(controlled, color(0, 0, 150, 100)); }
     if (FEN_to_show['playable']) { draw_color_FEN(playable, color(0, 150, 0, 100)); }
@@ -72,8 +73,8 @@ async function updateFENs() {
 function draw_color_FEN(FEN, couleur) {
     for (let i = 0; i < rows; i++) {
         for (let j = 0; j < cols; j++) {
-            let x = (isFlipped ? cols - j : j + 1) * squareSize;
-            let y = (isFlipped ? rows - i : i + 1) * squareSize;
+            let x = (isFlipped ? cols - 1 - j : j) * squareSize;
+            let y = (isFlipped ? rows - 1 - i : i) * squareSize;
             fill(couleur);
             if (FEN[i * 8 + j] == '1') {
                 rect(x, y, squareSize, squareSize);
@@ -82,11 +83,11 @@ function draw_color_FEN(FEN, couleur) {
     }
 }
 
-function drawBoardWithLabels() {
+function drawBoard() {
     for (let i = 0; i < rows; i++) {
         for (let j = 0; j < cols; j++) {
-            let x = (isFlipped ? cols - j : j + 1) * squareSize;
-            let y = (isFlipped ? rows - i : i + 1) * squareSize;
+            let x = (isFlipped ? cols - 1 - j : j) * squareSize;
+            let y = (isFlipped ? rows - 1 - i : i) * squareSize;
             fill(colors[(i + j) % 2]);
             if (selectedSquare != null) {
                 let { row, col } = selectedSquare;
@@ -97,20 +98,23 @@ function drawBoardWithLabels() {
             rect(x, y, squareSize, squareSize);
         }
     }
+}
 
-    // Draw labels
+function drawCoordinates() {
+    textSize(16);
     fill(0);
-    textSize(squareSize * 0.4);
     textAlign(CENTER, CENTER);
-    for (let i = rows-1; i >=0  ; i--) {
-        let label = isFlipped ? i + 1 : rows - i;
-        text(label, 0.5 * squareSize, (i + 1.5) * squareSize);
-        text(label, (cols + 1.5) * squareSize, (i + 1.5) * squareSize);
-    }
-    for (let j = 0; j < cols; j++) {
-        let label = isFlipped ? String.fromCharCode(104 - j) : String.fromCharCode(97 + j);
-        text(label, (j + 1.5) * squareSize, 0.5 * squareSize);
-        text(label, (j + 1.5) * squareSize, (rows + 1.5) * squareSize);
+
+    for (let i = 0; i < rows; i++) {
+        let label = isFlipped ? rows - i : i + 1;
+        let x = isFlipped ? cols * squareSize - 10 : 10;
+        let y = i * squareSize + squareSize / 2;
+        text(label, x, y);
+
+        label = String.fromCharCode(97 + (isFlipped ? cols - i - 1 : i));
+        x = i * squareSize + squareSize / 2;
+        y = isFlipped ? rows * squareSize - 10 : 10;
+        text(label, x, y);
     }
 }
 
@@ -119,8 +123,8 @@ function drawPieces() {
         for (let j = 0; j < cols; j++) {
             let FENindex = i * 8 + j;
             if (FEN[FENindex] != '.') {
-                let x = (isFlipped ? cols - j : j + 1) * squareSize;
-                let y = (isFlipped ? rows - i : i + 1) * squareSize;
+                let x = (isFlipped ? cols - 1 - j : j) * squareSize;
+                let y = (isFlipped ? rows - 1 - i : i) * squareSize;
                 image(pieceImages[FEN[FENindex]], x, y);
             }
         }
@@ -128,8 +132,8 @@ function drawPieces() {
 }
 
 function mousePressed() {
-    let _col = floor(mouseX / squareSize) - 1;
-    let _row = floor(mouseY / squareSize) - 1;
+    let _col = floor(mouseX / squareSize);
+    let _row = floor(mouseY / squareSize);
 
     if (_col >= 0 && _col < 8 && _row >= 0 && _row < 8) {
         let adjustedCol = isFlipped ? cols - 1 - _col : _col;
@@ -152,7 +156,7 @@ function mousePressed() {
             selectedSquare = null;
         }
 
-        drawBoardWithLabels();
+        drawBoard();
     }
 }
 
