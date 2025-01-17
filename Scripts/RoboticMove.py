@@ -1,5 +1,5 @@
-import PChess as pc
-from Space import space, height
+import Scripts.PChess as pc
+from Scripts.Space import space, height
 import re
 
 		

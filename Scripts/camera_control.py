@@ -8,9 +8,7 @@ import argparse
 # args = parser.parse_args()
 
 # Chemin vers le répertoire "Downloads"
-directory ='Image'
-os.chdir(directory)
-# Changer le répertoire courant
+directory ='Images'
 
 # Image directory
 def take_picture(robot, img_number):
@@ -20,6 +18,6 @@ def take_picture(robot, img_number):
     img_raw = uncompress_image(img_compressed)
     img_undistort = undistort_image(img_raw, mtx, dist)
     # Sauvegarder l'image
-    output_path = os.path.join('.', str(img_number) + '.png')
+    output_path = os.path.join(directory, str(img_number) + '.png')
     cv2.imwrite(output_path, img_undistort)
     return img_undistort
