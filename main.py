@@ -7,8 +7,8 @@ import argparse
 import requests
 from Scripts.camera_control import take_picture
 from Scripts.lichess import get_move
-from Vision.Python import *
-from Vision.Python.oracle_function import oracle
+from Vision import *
+from Vision.oracle_function import oracle
 import cv2
 
 pieces_list = ['p','P','n','N','b','B	','r','R','q','Q','k','K']
