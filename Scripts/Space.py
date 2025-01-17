@@ -1,4 +1,4 @@
-import PChess as pc
+import Scripts.PChess as pc
 b = pc.Board()
 
 class Space:

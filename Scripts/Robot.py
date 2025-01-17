@@ -1,6 +1,6 @@
 from pyniryo import *
-from Space import space, height
-from RoboticMove import RoboticMove, TestRoboticMove, create_complex_robotic_move
+from Scripts.Space import space, height
+from Scripts.RoboticMove import RoboticMove, TestRoboticMove, create_complex_robotic_move
 
 
 class Robot:

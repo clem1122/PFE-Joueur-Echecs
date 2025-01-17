@@ -1,17 +1,17 @@
-from Space import height 
-from Robot import Robot
-from RoboticMove import get_valhalla_coord
-import sys
+from Scripts import PChess as pc
+from Scripts.Space import height 
+from Scripts.Robot import Robot
+from Scripts.RoboticMove import get_valhalla_coord
+from sys import exit
 import argparse
 import requests
-import sys
-import PChess as pc
-from camera_control import take_picture
-from lichess import get_move
+from Scripts.camera_control import take_picture
+from Scripts.lichess import get_move
 from Vision.Python import *
 from Vision.Python.oracle_function import oracle
 import cv2
-pieces_list = ['p','P','n','N','b','B','r','R','q','Q','k','K']
+
+pieces_list = ['p','P','n','N','b','B	','r','R','q','Q','k','K']
 classic_FEN = 'rnbqkbnrpppppppp................................PPPPPPPPRNBQKBNR'
 capture_FEN = 'rnbqkbnrppp.pppp...........p........P...........PPPP.PPPRNBQKBNR'
 roque_FEN = 'r...k..rpppq.ppp..npbn....b.p.....B.P.....NPBN..PPPQ.PPPR...K..R'
@@ -41,7 +41,7 @@ if flask:
 		requests.post("http://127.0.0.1:5000")
 	except Exception as e:
 		print("Error : Flask is not running")
-		sys.exit(1)
+		exit(1)
 
 def send_board_FEN(board):
 	if(not flask):
@@ -140,6 +140,7 @@ else:
 			if args.no_robot:
 				if g.play(moveStr):
 					isRobotTurn = not isRobotTurn
+
 			elif robot_play(moveStr, cautious = args.cautious):
 				im2 = take_picture(robot, playCount)
 				cv2.imshow("im1", im1)
@@ -149,8 +150,9 @@ else:
 		else:
 			moveStr = input("Move :")
 			if g.play(moveStr):
-				im1 = take_picture(robot, playCount)
-				oracle(im2, im1, imVide)
+				if not args.no_robot:
+					im1 = take_picture(robot, playCount)
+					oracle(im2, im1, imVide)
 				isRobotTurn = not isRobotTurn
 		
 		send_color_FEN(b)
