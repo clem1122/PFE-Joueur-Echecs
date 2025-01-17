@@ -1,6 +1,7 @@
 import cv2
 import os
 import numpy as np
+import matplotlib.pyplot as plt
 
 from Vision.calibration import calibrate_corners, compute_transformation, rectify_image
 from Vision.processing import (
@@ -9,6 +10,12 @@ from Vision.processing import (
 )
 
 def oracle(img1,img2, reference_image):
+    # plt.figure(1)
+    # plt.subplot(1,2,1)
+    # plt.imshow(img1)
+    # plt.subplot(1,2,2)
+    # plt.imshow(img2)
+    # plt.show()
 
     # ------------- PARAMETERS -------------------
     sensitivity_threshold = 20 # Seuil pour la diff de pixels 
@@ -78,9 +85,9 @@ def oracle(img1,img2, reference_image):
     piece_color = determine_piece_color(circle_mean_intensity)
     #print(f"\nThe piece is {piece_color}.")
 
-    print("-------------------------------------------------------------------")
-    print(f"Origin: {origin}, Destination: {destination}, Move Type: {move_type}, Piece Color: {piece_color}")
-    print("-------------------------------------------------------------------")
+    #print("-------------------------------------------------------------------")
+    #print(f"Origin: {origin}, Destination: {destination}, Move Type: {move_type}, Piece Color: {piece_color}")
+    #print("-------------------------------------------------------------------")
 
     return origin, destination, move_type, piece_color
 
