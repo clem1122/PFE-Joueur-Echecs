@@ -7,8 +7,10 @@ import argparse
 import requests
 from Scripts.camera_control import take_picture
 from Scripts.lichess import get_move
-from Vision import *
+from Vision.delete_images import del_im
 from Vision.oracle_function import oracle
+
+
 import cv2
 
 pieces_list = ['p','P','n','N','b','B	','r','R','q','Q','k','K']
@@ -36,6 +38,7 @@ b = g.board
 b.print()
 flask = not (args.no_flask or args.take_picture)
 imVide = cv2.imread("Images/calibration_img.png")
+del_im('Images/')
 	
 if flask:
 	try:
@@ -134,10 +137,10 @@ else:
 	send_color_FEN(b)
 	isRobotTurn = True
 
+	im1 = take_picture(robot, 0)
+
 	while True:	
 		playCount = g.play_count()
-		print(playCount)
-		im1 = take_picture(robot, playCount)
 
 		if isRobotTurn:
 			if args.stockfish:
@@ -151,18 +154,24 @@ else:
 
 			elif robot_play(moveStr, cautious = args.cautious):
 				playCount = g.play_count()
-				print(playCount)
 				im2 = take_picture(robot, playCount)
 				#cv2.imshow("im1", im1)
 				#cv2.imshow("im2", im2)
-				oracle(im1, im2, imVide)
+				depart,arrive,type,couleur = oracle(im1, im2, imVide)
+				coup_percu = depart.lower() + arrive.lower()
+				if  coup_percu != moveStr : 
+					print("Coup joué : " + moveStr + " alors que Coup perçu : " + coup_percu)
 				isRobotTurn = not isRobotTurn
 		else:
 			moveStr = input("Move :")
 			if g.play(moveStr):
 				if not args.no_robot:
+					playCount = g.play_count()
 					im1 = take_picture(robot, playCount)
 					oracle(im2, im1, imVide)
+					coup_percu = depart.lower() + arrive.lower()
+					if  coup_percu != moveStr : 
+						print("Coup joué : " + moveStr + " alors que Coup perçu : " + coup_percu)
 				isRobotTurn = not isRobotTurn
 		
 		send_color_FEN(b)
