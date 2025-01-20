@@ -55,7 +55,7 @@ class Training:
         # self.model = self.model.to(device)
 
         self.num_epochs = config["num_epochs"]
-        self.criterion = Loss(config["alpha"], config["beta"])
+        self.criterion = Loss()
         self.optimizer = optim.Adam(self.model.parameters(), lr=config["lr"])
         self.batch_size = config["batch_size"]
 
@@ -92,25 +92,20 @@ class Training:
             for i, (board_tensors, target_vectors, value_targets, move_indices, tot_moves, board_fens) in enumerate(
                 tqdm(train_loader, desc=f"Epoch {epoch}")
             ):
-                # Move data to device
                 board_tensors = board_tensors.float().to(self.device)
                 target_vectors = target_vectors.float().to(self.device)
                 value_targets = value_targets.float().to(self.device)
 
                 self.optimizer.zero_grad()
                 
-                # Forward pass
                 outputs, value_preds = self.model(board_tensors) #0.9s
-
                 outputs = outputs.float()
                 value_preds = value_preds.float()
                 
-                # Compute loss
                 loss = self.criterion(board_fens, outputs, target_vectors, value_preds, value_targets, move_indices, tot_moves) #2s
                 loss.backward() #1.5s
                 self.optimizer.step()
 
-                # Update running metrics
                 running_loss += loss.item()
                 running_accuracy += self.accuracy(outputs, target_vectors, value_preds, value_targets)[0]
 
@@ -127,11 +122,9 @@ class Training:
 def main():
     dataset = load_dataset('angeluriot/chess_games')
 
-    if torch.cuda.device_count() > 1:
-        device = torch.device("cuda:0")  # Le modèle principal sera sur le premier GPU
-    else:
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
             
+    print(device)
     trainer = Training(config, device)
     
     trainer.train(dataset, new_mapping, fraction=0.1)
