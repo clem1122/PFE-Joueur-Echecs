@@ -13,7 +13,7 @@ def oracle(img1,img2, reference_image, debug = True):
 
     # ------------- PARAMETERS -------------------
     threshold_diff = 50 # pour 'detect_difference' : Seuil pour la diff de pixels 
-    threshold_empty = 30 #pour  'is square_empty': Seuil pour diff entre case et case empty
+    threshold_empty = 20 #pour  'is square_empty': Seuil pour diff entre case et case empty
     # ----------------------------------------------------------------------------------------------
     calibration_file = "test_calibration.pkl"
     output_size = (800, 800) # 

@@ -18,8 +18,8 @@ def oracle(img1,img2, reference_image, debug = False):
     # plt.show()
 
     # ------------- PARAMETERS -------------------
-    threshold_diff = 50 # pour 'detect_difference' : Seuil pour la diff de pixels 
-    threshold_empty = 40 #pour  'is square_empty': Seuil pour diff entre case et case empty
+    threshold_diff = 50 #dans 'detect_difference' : Seuil pour la diff de pixels 
+    threshold_empty = 20 #dans 'is square_empty': Seuil pour diff entre case et case empty
     
     # ----------------------------------------------------------------------------------------------
     calibration_file = "chessboard_calibration.pkl"
