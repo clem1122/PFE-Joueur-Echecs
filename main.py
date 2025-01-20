@@ -30,11 +30,11 @@ parser.add_argument("--no-flask", "--nf", action="store_true")
 parser.add_argument("--cautious", "-c", action="store_true")
 parser.add_argument("--no-robot", "--nr", action="store_true")
 parser.add_argument("--stockfish", "-s", action="store_true")
-parser.add_argument("--take-picture", "--tp", action="store_true")
+parser.add_argument("--take-picture", "--tp", "--tp", nargs="?", const=True)
 parser.add_argument("--calibration", action="store_true")
 args = parser.parse_args()
 isWhite = False
-vision = True
+vision = not args.no_robot
 
 
 g = pc.Game(classic_FEN)
@@ -138,10 +138,10 @@ def see(photoId, human = False):
 	global im_pre_robot, im_post_robot
 	if not human:
 		im_post_robot = take_picture(robot, photoId)
-		origin, end, type, color = oracle(im_pre_robot, im_post_robot, imVide)
+		origin, end, type, color = oracle(im_pre_robot, im_post_robot, imVide, debug=True)
 	else:
 		im_pre_robot = take_picture(robot, photoId)
-		origin, end, type, color = oracle(im_post_robot, im_pre_robot, imVide)
+		origin, end, type, color = oracle(im_post_robot, im_pre_robot, imVide, debug=True)
 
 	return origin + end, type, color
 
@@ -149,9 +149,13 @@ if args.calibration:
 	calibration.main()
 	exit(0)
 
-if args.take_picture :
+if args.take_picture:
+	if isinstance(args.take_picture, str):
+		name = args.take_picture
+	else:
+		name = 'calibration_img'
 	robot = Robot()
-	take_picture(robot, 'calibration_img')
+	take_picture(robot, name)
 	exit(0)
 
 if args.move_to_square :
