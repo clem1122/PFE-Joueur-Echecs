@@ -145,10 +145,10 @@ def see(photoId, human = False):
 	global im_pre_robot, im_post_robot
 	if not human:
 		im_post_robot = take_picture(robot, photoId)
-		origin, end, type, color = oracle(im_pre_robot, im_post_robot, imVide, debug=True)
+		origin, end, type, color = oracle(im_pre_robot, im_post_robot, imVide, debug=False)
 	else:
 		im_pre_robot = take_picture(robot, photoId)
-		origin, end, type, color = oracle(im_post_robot, im_pre_robot, imVide, debug=True)
+		origin, end, type, color = oracle(im_post_robot, im_pre_robot, imVide, debug=False)
 
 	return origin + end, type, color
 
