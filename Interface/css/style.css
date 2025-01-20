@@ -1,59 +1,134 @@
-body, html {
-    margin: 0;
-    padding: 0;
-    height: 100%; /* Ensure body and html fill the viewport */
-  }
+body,
+html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  /* Ensure body and html fill the viewport */
+}
 
 
 .background {
-    background-color: lightblue;
-    width: 100%;
-    height: 100%;
+  background-color: lightblue;
+  width: 100%;
+  height: 100%;
 }
 
 /* Ensure container is centered with proper height */
 #container {
-    display: flex;
-    justify-content: center;  /* Center horizontally */
-    align-items: center;      /* Center vertically */
-    gap: 20px;              /* Space between canvas and checkbox */
-    height: 100%;
-  }
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  /* Center horizontally */
+  align-items: center;
+  /* Center vertically */
+  gap: 20px;
+  /* Space between canvas and checkbox */
+  height: 80%;
+  width : 100%;
+  /* border: 2px solid red; */
+}
+
+.checkbox-container {
+  /* border: 2px solid red;*/
+  width: 300px;
+}
+/* Optional: Add border and specific size to canvas */
+#chessboard {
+  /* Style for canvas border */
+  max-width: 100%;
+  display: flex;
+  justify-content: center;
+  /* Center horizontally */
+  align-items: center;
+  /* Ensure canvas doesn't overflow */
+  height: auto;
+  /* Maintain aspect ratio */
+  position: relative;
+  /*border: 2px solid red*/
+}
+
+/* Style the checkbox and label */
+.form-check {
+  display: flex;
+  align-items: center;
+  /* Center vertically */
+}
+
+
+#threats:checked {
+  background-color: #d42d2d;
+  /* Green when checked */
+  border-color: #d42d2d;
+}
+
+#playable:checked {
+  background-color: #17910e;
+  /* Green when checked */
+  border-color: #17910e;
+}
+
+#controlled:checked {
+  background-color: #0f0faa;
+  /* Green when checked */
+  border-color: #0f0faa;
+}
+
+#protected:checked {
+  background-color: #bccc0a;
+  /* Yellow when checked */
+  border-color: #bccc0a;
+}
+
+#help:checked {
+  background-color: #a1107d;
+  /* Magenta when checked */
+  border-color: #a1107d;
+}
+
+.form-check-label {
+  margin-left: 10px;
+  /* Add a gap between the toggle and the text */
+}
+
+.chat-container {
+  width: 100%;
+  max-width: 300px;
+  height: 400px;
+  background: #ffffff;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  overflow: hidden;
+  /* border: 2px solid red */
+}
+
+.chat-header {
+  background-color: #007bff;
+  color: white;
+  padding: 10px;
+  text-align: center;
+  font-size: 1.2em;
+}
+
+.chat-messages {
+  flex: 1;
+  padding: 10px;
+  height: 400px;
+  overflow-y: auto;
+  background: #ffffff;
+
   
-  /* Optional: Add border and specific size to canvas */
-  #chessboard {
-      /* Style for canvas border */
-    max-width: 100%; 
-    display: flex;
-    justify-content: center;   /* Center horizontally */
-    align-items: center;       /* Ensure canvas doesn't overflow */
-    height: auto;              /* Maintain aspect ratio */
-  }
-  
-  /* Style the checkbox and label */
-  .form-check {
-    display: flex;
-    align-items: center;      /* Center vertically */
-  }
+}
+
+.message {
+  margin: 5px 0;
+  padding: 10px;
+  border-radius: 10px;
+  max-width: 75%;
+}
+
+.message.bot {
+  background-color: #e6e6e6;
+  align-self: flex-start;
+}
 
 
-  #threats:checked{
-    background-color: #d42d2d; /* Green when checked */
-    border-color: #d42d2d;  
-  }
-
-  #playable:checked{
-    background-color: #17910e; /* Green when checked */
-    border-color: #17910e;  
-  }
-
-  #controlled:checked{
-    background-color: #0f0faa; /* Green when checked */
-    border-color: #0f0faa;  
-  }
-
-  .form-check-label {
-    margin-left: 10px;         /* Add a gap between the toggle and the text */
-  }
-  
-  

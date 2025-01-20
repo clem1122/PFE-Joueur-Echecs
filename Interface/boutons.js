@@ -1,7 +1,7 @@
 async function getInfo(toggleId) {
 
-  const buttonIds = ['threats', 'controlled', 'playable']; // Liste des IDs connus
-  const FEN_to_show = {'threats': false, 'controlled': false, 'playable': false};
+  const buttonIds = ['threats', 'controlled', 'playable','help','protected']; // Liste des IDs connus
+  const FEN_to_show = {'threats': false, 'controlled': false, 'playable': false, 'help': false, 'protected':false};
   const all_toggle_buttons = buttonIds.map(id => document.getElementById(id));
 
   try {
@@ -33,4 +33,10 @@ async function getInfo(toggleId) {
     alert("Impossible de récupérer les infos.");
     console.error(error);
   }
+}
+
+
+async function have_played(){
+
+console.log("J'ai joué !");
 }

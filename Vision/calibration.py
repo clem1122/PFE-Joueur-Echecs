@@ -1,13 +1,16 @@
 # CALIBRATION AVEC LA PHOTO EMPTY
-
 import cv2
 import numpy as np
 import pickle
 import os
+from Scripts.Robot import Robot
+from pyniryo.vision import uncompress_image, undistort_image, concat_imgs, show_img
+from time import sleep
+
 
 clicked_points = []
 print(os.path.abspath(os.path.curdir))
-directory = 'Vision/Python/'
+directory = 'Vision/'
 # Fonction de rappel pour gérer les clics de la souris
 def mouse_callback(event, x, y, flags, param):
     global clicked_points
@@ -24,8 +27,9 @@ def calibrate_corners(calibration_file, reference_image, output_size):
     clicked_points = []
 
     # Si le fichier de calibration existe deja
+    print(directory + calibration_file)
     if os.path.exists(directory + calibration_file):
-        with open(calibration_file, 'rb') as file:
+        with open(directory + calibration_file, 'rb') as file:
             input_points = pickle.load(file) #Load input_points depuis le fichier
         #print("Calibration chargée depuis le fichier.")
     
@@ -33,7 +37,7 @@ def calibrate_corners(calibration_file, reference_image, output_size):
     else:
         print("pkl file not found")
         # Charger image ref et convertir en niveau de gris
-        cv2.imshow("reference_image", reference_image)
+        #cv2.imshow("reference_image", reference_image)
         if reference_image is None:
             print("Pas d'image")
         gray = cv2.cvtColor(reference_image, cv2.COLOR_BGR2GRAY)
@@ -62,7 +66,7 @@ def calibrate_corners(calibration_file, reference_image, output_size):
                 return None
 
         # Sauvegarder les points de calibration
-        with open(calibration_file, 'wb') as file:
+        with open(directory + calibration_file, 'wb') as file:
             pickle.dump(input_points, file)
         print("Calibration done .")
 
@@ -84,3 +88,27 @@ def compute_transformation(input_points, output_size):
 # Transformation projective (redressement)
 def rectify_image(image, tform, output_size):
     return cv2.warpPerspective(image, tform, (output_size[1], output_size[0]))
+
+# Chemin vers le répertoire "Downloads"
+ImageDirectory ='Images'
+
+# Image directory
+def take_picture(robot, img_name):
+    
+    mtx, dist = robot.niryo.get_camera_intrinsics()
+    sleep(1)
+    img_compressed = robot.niryo.get_img_compressed()
+    img_raw = uncompress_image(img_compressed)
+    img_undistort = undistort_image(img_raw, mtx, dist)
+    # Sauvegarder l'image
+    output_path = os.path.join(ImageDirectory, str(img_name) + '.png')
+    cv2.imwrite(output_path, img_undistort)
+    print(output_path)
+    return img_undistort
+
+def main():
+    robot = Robot()
+    take_picture(robot, "calibration_img")
+    calibrate_corners("chessboard_calibration.pkl", cv2.imread("Images/calibration_img.png"), (800, 800))
+
+    
