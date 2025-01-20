@@ -5,17 +5,30 @@ import numpy as np
 ######### Trouver les cases modifiees ##########
 ###############################################
 
-# Difference absolue entre deux images
-def detect_differences(img1, img2, sensitivity_threshold):
+# Difference entre deux images
+def detect_differences(img1, img2, sensitivity_threshold, debug):
     diff = cv2.absdiff(img1, img2)
-    # Filtre pour ignorer les diff en dessous du threshold choisi
+    # Filtre pour ignorer les diff en dessous du threshold
     _, filtered_diff = cv2.threshold(diff, sensitivity_threshold, 255, cv2.THRESH_BINARY)
+    
+    # DEBUG
+    if debug == True :
+        # Verifier que l'echiquier n'as pas bouge entre deux prises
+        cv2.imshow("Diff brute", diff)
+        cv2.imshow("Diff filtree", filtered_diff)
+        cv2.waitKey(0)  # Attendre une touche pour avancer
+        cv2.destroyAllWindows()  # Fermer toutes les fenêtres après visualisation
+
     return filtered_diff
 
 # Analyse repere cases modifiees
-def analyze_squares(filtered_diff, cases, square_size):
+def analyze_squares(filtered_diff, cases, square_size, debug):
 
     modified_cases = [] # Liste vide
+
+    # DEBUG
+    if debug == True :
+        print("\nLISTE CASES MODIFEES:")
 
     # Parcourir les cases du dictionnaire cases
     for case_name, coords in cases.items():
@@ -31,31 +44,43 @@ def analyze_squares(filtered_diff, cases, square_size):
         # Application du seuil de difference pour considerer la case modifiee
         modified_cases.append((case_name, percentage_diff))
 
+        # DEBUG
+        # Print la liste de toute les cases modifiees et leur pourcentage
+        if debug == True :
+            print(f"Case: {case_name}, Pixels modifies: {diff_pixels}, Pourcentage: {percentage_diff}%")
+
     modified_cases.sort(key=lambda x: x[1], reverse=True)
+
+    if debug == True:
+        print(f"\nTOP 2 CASES MODIFIEES: {modified_cases[:2]}")
 
     return modified_cases[:2]
 
 ###############################################
 ####### Determiner la direction du coup #######
 ###############################################
-def is_square_empty(square_img, empty_square_img, threshold=30):
+def is_square_empty(square_img, empty_square_img, threshold, debug):
     """
     Détermine si une case est vide en la comparant à l'échiquier vide.
+    VALEUR DE THESHOLD TRES IMPORTANTE
     """
     diff = cv2.absdiff(square_img, empty_square_img)
     diff_value = np.mean(diff)  # Moyenne des différences
+
+    if debug :
+        print(f'Difference case avec case vide: {diff_value}, Threshold: {threshold}')
+    
     return diff_value < threshold  # Si la différence est faible, la case est vide
 
-def determine_movement_direction(img1, img2, empty_board, cases, top_modified_cases):
+def determine_movement_direction(img1, img2, empty_board, cases, top_modified_cases, threshold_empty, debug):
     """
     Détermine le mouvement en comparant les cases avec l'échiquier vide.
     LA CASE QUI EST DEVENUE VIDE EST LA CASE DE DEPART
     """
     if len(top_modified_cases) != 2:
-        return None, "Impossible de déterminer un mouvement : moins de deux cases modifiées."
+        return None, "Erreur 'determine_movement': moins de deux cases modifiées."
 
     case1, case2 = top_modified_cases[0][0], top_modified_cases[1][0]
-
     # Extraire les coordonnées des cases
     coords1 = cases[case1]
     coords2 = cases[case2]
@@ -72,9 +97,18 @@ def determine_movement_direction(img1, img2, empty_board, cases, top_modified_ca
     square2_img2 = img2[y2_start:y2_end, x2_start:x2_end]
     square2_empty = empty_board[y2_start:y2_end, x2_start:x2_end]
 
+    # if debug:
+    #     cv2.imshow("Case 1 Image (img1)", square1_img1)
+    #     cv2.imshow("Case 1 Image (img2)", square1_img2)
+    #     cv2.imshow("Case 1 Empty Reference", square1_empty)
+    #     cv2.imshow("Case 2 Image (img1)", square2_img1)
+    #     cv2.imshow("Case 2 Image (img2)", square2_img2)
+    #     cv2.imshow("Case 2 Empty Reference", square2_empty)
+    #     cv2.waitKey(0)
+
     # Déterminer si les cases sont vides
-    square1_empty_after = is_square_empty(square1_img2, square1_empty)
-    square2_empty_after = is_square_empty(square2_img2, square2_empty)
+    square1_empty_after = is_square_empty(square1_img2, square1_empty, threshold_empty, debug)
+    square2_empty_after = is_square_empty(square2_img2, square2_empty, threshold_empty, debug)
 
     # Identifier l'origine et la destination
     if square1_empty_after:  # Case 1 est devenue vide
@@ -84,7 +118,7 @@ def determine_movement_direction(img1, img2, empty_board, cases, top_modified_ca
         origin = case2
         destination = case1
     else:
-        return None, "Ambiguïté : aucune case ne semble être devenue vide."
+        return None, "Erreur: Aucune case ne semble etre devenue vide -> 'is square empty'."
 
     return origin, destination
 
