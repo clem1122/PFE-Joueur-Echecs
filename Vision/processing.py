@@ -219,7 +219,9 @@ def determine_movement_direction(img1, img2, empty_board, cases, top_modified_ca
     origin = case1 if var_case1 == min(var_case1, var_case2) else case2
     destination = case1 if origin==case2 else case2
 
-    print('var 1 : ' + str(var_case1) + '\n' + "Var 2 : " + str(var_case2))
+    if debug: 
+        print('var 1 : ' + str(var_case1) + '\n' + "Var 2 : " + str(var_case2))
+        
     return origin, destination
 
 ###############################################
