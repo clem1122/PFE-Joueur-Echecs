@@ -89,7 +89,7 @@ def oracle(img1,img2, reference_image, debug = False):
     #print(f"Origin: {origin}, Destination: {destination}, Move Type: {move_type}, Piece Color: {piece_color}")
     #print("-------------------------------------------------------------------")
 
-    return origin, destination, move_type, piece_color
+    return origin.lower(), destination.lower(), move_type, piece_color
 
 # Example usage:
 def main():
