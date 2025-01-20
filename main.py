@@ -2,15 +2,16 @@ from Scripts import PChess as pc
 from Scripts.Space import height 
 from Scripts.Robot import Robot
 from Scripts.RoboticMove import get_valhalla_coord
-from sys import exit
-import argparse
-import requests
-from Scripts.camera_control import take_picture
 from Scripts.lichess import get_stockfish_move
+
+from Vision import calibration
+from Vision.calibration import take_picture
 from Vision.delete_images import del_im
 from Vision.oracle_function import oracle
 
-
+from sys import exit
+import argparse
+import requests
 import cv2
 
 pieces_list = ['p','P','n','N','b','B	','r','R','q','Q','k','K']
@@ -29,10 +30,11 @@ parser.add_argument("--no-flask", "--nf", action="store_true")
 parser.add_argument("--cautious", "-c", action="store_true")
 parser.add_argument("--no-robot", "--nr", action="store_true")
 parser.add_argument("--stockfish", "-s", action="store_true")
-parser.add_argument("--take-picture", "--tp", action="store_true")
+parser.add_argument("--take-picture", "--tp", "--tp", nargs="?", const=True)
+parser.add_argument("--calibration", action="store_true")
 args = parser.parse_args()
 isWhite = False
-vision = True
+vision = not args.no_robot
 
 
 g = pc.Game(classic_FEN)
@@ -83,7 +85,6 @@ def robot_play(moveStr, cautious = False):
 	
 	m = b.create_move(moveStr[:4])
 	robot.play_move(b, m, cautious, promotion)
-	print("move : <" + moveStr + ">")
 	result = g.play(moveStr)
 	if m.isPromoting() : manage_promotion(promotion, m)
 	return result
@@ -124,10 +125,10 @@ def get_move():
 	else:
 		return input("Move :")
 
-def play(moveStr, vision = True):
+def play(moveStr):
 	global isRobotTurn
 
-	if args.no_robot:
+	if args.no_robot or not isRobotTurn:
 		if g.play(moveStr):
 			isRobotTurn = not isRobotTurn
 			return True
@@ -139,16 +140,29 @@ def play(moveStr, vision = True):
 			return True
 		return False
 
-def see():
+def see(photoId, human = False):
 	if args.no_robot: return
 	global im_pre_robot, im_post_robot
-	im_post_robot = take_picture(robot, playCount)
-	oracle(im_pre_robot, im_post_robot, imVide)
+	if not human:
+		im_post_robot = take_picture(robot, photoId)
+		origin, end, type, color = oracle(im_pre_robot, im_post_robot, imVide, debug=True)
+	else:
+		im_pre_robot = take_picture(robot, photoId)
+		origin, end, type, color = oracle(im_post_robot, im_pre_robot, imVide, debug=True)
 
+	return origin + end, type, color
 
-if args.take_picture :
+if args.calibration:
+	calibration.main()
+	exit(0)
+
+if args.take_picture:
+	if isinstance(args.take_picture, str):
+		name = args.take_picture
+	else:
+		name = 'calibration_img'
 	robot = Robot()
-	take_picture(robot, 'calibration_img')
+	take_picture(robot, name)
 	exit(0)
 
 if args.move_to_square :
@@ -161,57 +175,46 @@ if args.obs_pose:
 	robot.move_to_obs_pose()
 	exit(0)
 
-
-
-playCount = g.play_count()
 if not args.no_robot: 
 	robot = Robot()
 	robot.move_to_obs_pose()
-	im_pre_robot = take_picture(robot, 0)
-	im_post_robot = im_pre_robot
-	
+	if vision:
+		im_pre_robot = take_picture(robot, 0)
+		im_post_robot = im_pre_robot
+
+
 send_board_FEN(b)
 send_color_FEN(b)
 isRobotTurn = True
 
-
-
-
 while True:	
-	playCount = g.play_count()
+	playCount = g.play_count() + 1
 
 	if isRobotTurn:
 		moveStr = get_move()
-		play(moveStr)
-		if vision: see()
+		if not play(moveStr): break #While ?
 
+		if vision:
+			allegedMove, type, color = see(playCount)
+			if allegedMove != moveStr:
+				print("Warning : Coup détécté" + allegedMove + " != coup joué " + moveStr)
+
+		# Verification du coup joué par le robot
 	else:
 		#moveStr = get_move()
-		moveStr = input("Move : ")
-		if g.play(moveStr):
-			if not args.no_robot:
-				playCount = g.play_count()
-				im2 = take_picture(robot, playCount)
+		input("Entrée quand le coup est joué...")
 
-				depart,arrive,type,couleur = oracle(im1, im2, imVide)
-				coup_percu = depart.lower() + arrive.lower()
-				if  coup_percu != moveStr : 
-					print("Coup joué : " + moveStr + " alors que Coup perçu : " + coup_percu)
-				isRobotTurn = not isRobotTurn
-		else:
-			have_played = input("Appuyez sur Entrée")
-			im1 = take_picture(robot, playCount)
-			oracle(im2, im1, imVide)
-			coup_percu = depart.lower() + arrive.lower()
-			vision_correct = True if (input("Prédiction correcte ? [y/n]") == 'y') else False 
-			if not vision_correct : moveStr = input("Move :")
-			else : moveStr = coup_percu
-			if g.play(moveStr):
-				if not args.no_robot:
-					playCount = g.play_count()
-				isRobotTurn = not isRobotTurn
+		if vision:
+			allegedMove, type, color = see(playCount, human=True)
+			if not play(allegedMove):
+				print("Warning : Coup détécté " + allegedMove + " semble être erroné")
+				moveStr = get_move()
+				while not play(moveStr):
+					moveStr = get_move()
+				
 		
-		send_color_FEN(b)
-		send_board_FEN(b)
+	send_color_FEN(b)
+	send_board_FEN(b)
+
 
 robot.close()

@@ -9,7 +9,7 @@ let selectedSquare = null;
 let selectedPiece = null;
 let port = "8080";
 let url = "http://localhost:" + port;
-let isFlipped = false; // Boolean for board orientation, false for normal, true for 180° rotated
+let isWhite = false; // Boolean for board orientation, false for normal, true for 180° rotated
 let Box;
 let threats = '.'.repeat(64);
 let controlled = '.'.repeat(64);
@@ -55,6 +55,7 @@ function draw() {
         updateFENs();
     }
     drawBoardWithLabels();
+	drawGraveyard();
     if (FEN_to_show['threats']) { draw_color_FEN(threats, color(150, 0, 0, 175)); }
     if (FEN_to_show['controlled']) { draw_color_FEN(controlled, color(0, 0, 150, 100)); }
     if (FEN_to_show['playable']) { draw_color_FEN(playable, color(0, 150, 0, 100)); }
@@ -76,8 +77,8 @@ async function updateFENs() {
 function draw_color_FEN(FEN, couleur) {
     for (let i = 0; i < rows; i++) {
         for (let j = 0; j < cols; j++) {
-            let x = (isFlipped ? cols - j : j + 1) * squareSize;
-            let y = (isFlipped ? rows - i : i + 1) * squareSize;
+            let x = (isWhite ? cols - j : j + 1) * squareSize;
+            let y = (isWhite ? rows - i : i + 1) * squareSize;
             fill(couleur);
             if (FEN[i * 8 + j] == '1') {
                 rect(x, y, squareSize, squareSize);
@@ -89,8 +90,8 @@ function draw_color_FEN(FEN, couleur) {
 function drawBoardWithLabels() {
     for (let i = 0; i < rows; i++) {
         for (let j = 0; j < cols; j++) {
-            let x = (isFlipped ? cols - j : j + 1) * squareSize;
-            let y = (isFlipped ? rows - i : i + 1) * squareSize;
+            let x = (isWhite ? cols - j : j + 1) * squareSize;
+            let y = (isWhite ? rows - i : i + 1) * squareSize;
             fill(colors[(i + j) % 2]);
             if (selectedSquare != null) {
                 let { row, col } = selectedSquare;
@@ -107,13 +108,13 @@ function drawBoardWithLabels() {
     textSize(squareSize * 0.4);
     textAlign(CENTER, CENTER);
     for (let i = rows-1; i >=0  ; i--) {
-        let label = isFlipped ? i + 1 : rows - i;
+        let label = isWhite ? i + 1 : rows - i;
         text(label, 0.5 * squareSize, (i + 1.5) * squareSize);
-        text(label, (cols + 1.5) * squareSize, (i + 1.5) * squareSize);
+        //text(label, (cols + 1.5) * squareSize, (i + 1.5) * squareSize);
     }
     for (let j = 0; j < cols; j++) {
-        let label = isFlipped ? String.fromCharCode(104 - j) : String.fromCharCode(97 + j);
-        text(label, (j + 1.5) * squareSize, 0.5 * squareSize);
+        let label = isWhite ? String.fromCharCode(104 - j) : String.fromCharCode(97 + j);
+        //text(label, (j + 1.5) * squareSize, 0.5 * squareSize);
         text(label, (j + 1.5) * squareSize, (rows + 1.5) * squareSize);
     }
 }
@@ -123,21 +124,39 @@ function drawPieces() {
         for (let j = 0; j < cols; j++) {
             let FENindex = i * 8 + j;
             if (FEN[FENindex] != '.') {
-                let x = (isFlipped ? cols - j : j + 1) * squareSize;
-                let y = (isFlipped ? rows - i : i + 1) * squareSize;
+                let x = (isWhite ? cols - j : j + 1) * squareSize;
+                let y = (isWhite ? rows - i : i + 1) * squareSize;
                 image(pieceImages[FEN[FENindex]], x, y);
             }
         }
     }
 }
+function drawGraveyard() {
+    let graveyardX = width + 10; // Position of the graveyard on the right
+    let graveyardY = 10; // Top margin of the graveyard
+    let graveyardSize = squareSize / 1.5; // Size of the graveyard squares
+
+    fill("#d3d3d3");
+    rect(graveyardX - 5, graveyardY - 5, graveyardSize * 4 + 10, graveyardSize * 4 + 10); // Background for the graveyard
+
+    for (let i = 0; i < 4; i++) {
+        for (let j = 0; j < 4; j++) {
+            let x = graveyardX + j * graveyardSize;
+            let y = graveyardY + i * graveyardSize;
+            fill(colors[(i + j) % 2]);
+            rect(x, y, graveyardSize, graveyardSize);
+        }
+    }
+}
+
 
 function mousePressed() {
     let _col = floor(mouseX / squareSize) - 1;
     let _row = floor(mouseY / squareSize) - 1;
 
     if (_col >= 0 && _col < 8 && _row >= 0 && _row < 8) {
-        let adjustedCol = isFlipped ? cols - 1 - _col : _col;
-        let adjustedRow = isFlipped ? rows - 1 - _row : _row;
+        let adjustedCol = isWhite ? cols - 1 - _col : _col;
+        let adjustedRow = isWhite ? rows - 1 - _row : _row;
         let FENindex = adjustedRow * 8 + adjustedCol;
 
         if (selectedPiece == null) {

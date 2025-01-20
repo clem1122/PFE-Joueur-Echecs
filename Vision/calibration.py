@@ -1,9 +1,12 @@
 # CALIBRATION AVEC LA PHOTO EMPTY
-
 import cv2
 import numpy as np
 import pickle
 import os
+from Scripts.Robot import Robot
+from pyniryo.vision import uncompress_image, undistort_image, concat_imgs, show_img
+from time import sleep
+
 
 clicked_points = []
 print(os.path.abspath(os.path.curdir))
@@ -85,3 +88,27 @@ def compute_transformation(input_points, output_size):
 # Transformation projective (redressement)
 def rectify_image(image, tform, output_size):
     return cv2.warpPerspective(image, tform, (output_size[1], output_size[0]))
+
+# Chemin vers le répertoire "Downloads"
+ImageDirectory ='Images'
+
+# Image directory
+def take_picture(robot, img_name):
+    
+    mtx, dist = robot.niryo.get_camera_intrinsics()
+    sleep(1)
+    img_compressed = robot.niryo.get_img_compressed()
+    img_raw = uncompress_image(img_compressed)
+    img_undistort = undistort_image(img_raw, mtx, dist)
+    # Sauvegarder l'image
+    output_path = os.path.join(ImageDirectory, str(img_name) + '.png')
+    cv2.imwrite(output_path, img_undistort)
+    print(output_path)
+    return img_undistort
+
+def main():
+    robot = Robot()
+    take_picture(robot, "calibration_img")
+    calibrate_corners("chessboard_calibration.pkl", cv2.imread("Images/calibration_img.png"), (800, 800))
+
+    
