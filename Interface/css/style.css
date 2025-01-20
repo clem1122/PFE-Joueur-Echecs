@@ -64,6 +64,12 @@ html {
   border-color: #0f0faa;
 }
 
+#help:checked {
+  background-color: #a1107d;
+  /* Magenta when checked */
+  border-color: #a1107d;
+}
+
 .form-check-label {
   margin-left: 10px;
   /* Add a gap between the toggle and the text */
