@@ -66,7 +66,7 @@ def analyze_squares(filtered_diff, cases, square_size, debug):
     modified_cases.sort(key=lambda x: x[1], reverse=True)
 
     if debug:
-        print(f"\nTOP 2 CASES MODIFIEES: {modified_cases[:2]}")
+        print(f"\nTOP 2 CASES MODIFIEES: {modified_cases[:2]} \n")
 
     return modified_cases[:2]
 
@@ -107,7 +107,7 @@ def is_square_empty(square_img, empty_square_img, threshold, debug):
     """
     Détermine si une case est vide en comparant son contenu avec une image de référence vide,
     en analysant uniquement un cercle centré dans la case.
-    - True si la case est vide, False sinon.
+    True si la case est vide, False sinon.
     """
     # Dimensions de la case
     square_height, square_width = square_img.shape
@@ -129,6 +129,7 @@ def is_square_empty(square_img, empty_square_img, threshold, debug):
 
     if debug:
         print(f"Difference moyenne dans le cercle: {diff_value}, Seuil: {threshold}")
+        
         # Visualisation pour debug
         # cv2.imshow("Masque circulaire sur la case actuelle", masked_square_img)
         # cv2.imshow("Masque circulaire sur la case vide", masked_empty_square_img)
@@ -176,9 +177,13 @@ def determine_movement_direction(img1, img2, empty_board, cases, top_modified_ca
 
     # Identifier l'origine et la destination
     if square1_empty_after:  # Case 1 est devenue vide
+        if debug == True:
+            print("Case 1 devenue vide")
         origin = case1
         destination = case2
     elif square2_empty_after:  # Case 2 est devenue vide
+        if debug == True:
+            print("Case 2 devenue vide")
         origin = case2
         destination = case1
     else:
