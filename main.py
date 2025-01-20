@@ -10,6 +10,7 @@ from Scripts.lichess import get_stockfish_move
 from Vision.delete_images import del_im
 from Vision.oracle_function import oracle
 
+
 import cv2
 
 pieces_list = ['p','P','n','N','b','B	','r','R','q','Q','k','K']
@@ -180,11 +181,27 @@ while True:
 		if g.play(moveStr):
 			if not args.no_robot:
 				playCount = g.play_count()
-				im1 = take_picture(robot, playCount)
-				oracle(im_post_robot, im_pre_robot, imVide)
-			isRobotTurn = not isRobotTurn
-	
-	send_color_FEN(b)
-	send_board_FEN(b)
+				im2 = take_picture(robot, playCount)
+				#cv2.imshow("im1", im1)
+				#cv2.imshow("im2", im2)
+				depart,arrive,type,couleur = oracle(im1, im2, imVide)
+				coup_percu = depart.lower() + arrive.lower()
+				if  coup_percu != moveStr : 
+					print("Coup joué : " + moveStr + " alors que Coup perçu : " + coup_percu)
+				isRobotTurn = not isRobotTurn
+		else:
+			moveStr = input("Move :")
+			if g.play(moveStr):
+				if not args.no_robot:
+					playCount = g.play_count()
+					im1 = take_picture(robot, playCount)
+					oracle(im2, im1, imVide)
+					coup_percu = depart.lower() + arrive.lower()
+					if  coup_percu != moveStr : 
+						print("Coup joué : " + moveStr + " alors que Coup perçu : " + coup_percu)
+				isRobotTurn = not isRobotTurn
+		
+		send_color_FEN(b)
+		send_board_FEN(b)
 
-robot.close()
+	robot.close()
