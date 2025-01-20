@@ -70,7 +70,7 @@ def oracle(img1,img2, reference_image, debug = False):
     # ----------------------------------------------------------------------
     # Déterminer si le mouvement est une capture
     destination_coords = cases[destination]
-    capture_detected = is_capture(rectified_img1, rectified_reference_gray, destination_coords, threshold_diff, debug)
+    capture_detected = is_capture(rectified_img1, rectified_reference_gray, destination_coords, threshold_diff)
     if capture_detected:
         move_type = "CAPTURE"
         #print(f"The move is a : CAPTURE")
