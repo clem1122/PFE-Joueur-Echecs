@@ -39,7 +39,7 @@ fen = generate_complete_fen(simplified_fen, player_and_castling)
 #else:
 #    print(f"Erreur {response.status_code}: {response.text}")
 
-def get_move(simplified_FEN, player_and_castling = "wKQkq", en_passant = '-'):
+def get_stockfish_move(simplified_FEN, player_and_castling = "wKQkq", en_passant = '-'):
     print(simplified_FEN)
     fen = generate_complete_fen(simplified_FEN, player_and_castling, en_passant)
     print("FEN : ",  fen)

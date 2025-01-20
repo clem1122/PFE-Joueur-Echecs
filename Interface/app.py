@@ -14,7 +14,7 @@ def new_game():
     "threats":    "................................................................",
     "playable":   "................................................................",
     "controlled": "................................................................",
-    "toggle4": "Aide"
+    "help": "................................................................"
 }
 
     board_FEN = "rnbqkbnrpppppppp................................PPPPPPPPRNBQKBNR"
@@ -47,6 +47,7 @@ def set_color_FEN():
     color_FEN["controlled"] = data["controlled"]
     color_FEN["playable"] = data["playable"]
     color_FEN["threats"] = data["threats"]
+    color_FEN["help"] = data["help"]
     return jsonify({"status": "success", "received": color_FEN})
 
 @app.route('/get-color-FEN', methods=['GET'])

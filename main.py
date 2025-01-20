@@ -69,8 +69,6 @@ def manage_promotion(promotion_piece, move):
 	valhalla_coord = get_valhalla_coord(promotion_piece, b)
 	print("valhalla coord : " + valhalla_coord)
 	b.modify_piece(valhalla_coord, '.')
-	# Quand c'est le robot qui joue, l'IA donne le mouvement avec le caractère de la nouvelle pièce
-	# Quand c'est le joueur qui joue, la vision donne le coup, PChess voit que c'est une promotion, il photographie le valhalla, connait la pièce partie et voit le nouveau trou
 
 def robot_play(moveStr, cautious = False):
 	promotion = None
@@ -100,10 +98,19 @@ def robot_play_test(moveStr, h):
 def send_color_FEN(board):
 	if(not flask):
 		return
+	spec_rules = "b" +  board.special_rules()[1:]
+	best_move = get_stockfish_move(board.FEN(), spec_rules, board.en_passant_coord())
+	index_1 = board.coord_to_index(best_move[:2])
+	index_2 = board.coord_to_index(best_move[2:])
+	best_FEN = ['.']*64
+	best_FEN[index_1] = '1'
+	best_FEN[index_2] = '1'
+	
 	url = "http://127.0.0.1:5000/set-color-FEN"
 	payload = {"threats": board.threats(isWhite), 
 			"playable": board.playable(isWhite), 
-			"controlled": board.controlled(isWhite)}
+			"controlled": board.controlled(isWhite),
+			"help": best_FEN}
 	
 	response = requests.post(url, json=payload)
 	if response.status_code == 200:
@@ -113,7 +120,7 @@ def send_color_FEN(board):
 
 def get_move():
 	if args.stockfish:
-		return get_move(b.FEN(), b.special_rules(), b.en_passant_coord())
+		return get_stockfish_move(b.FEN(), b.special_rules(), b.en_passant_coord())
 	else:
 		return input("Move :")
 
@@ -160,13 +167,15 @@ playCount = g.play_count()
 if not args.no_robot: 
 	robot = Robot()
 	robot.move_to_obs_pose()
+	im_pre_robot = take_picture(robot, 0)
+	im_post_robot = im_pre_robot
 	
 send_board_FEN(b)
 send_color_FEN(b)
 isRobotTurn = True
 
-im_pre_robot = take_picture(robot, 0)
-im_post_robot = im_pre_robot
+
+
 
 while True:	
 	playCount = g.play_count()
@@ -177,31 +186,32 @@ while True:
 		if vision: see()
 
 	else:
-		moveStr = get_move()
+		#moveStr = get_move()
+		moveStr = input("Move : ")
 		if g.play(moveStr):
 			if not args.no_robot:
 				playCount = g.play_count()
 				im2 = take_picture(robot, playCount)
-				#cv2.imshow("im1", im1)
-				#cv2.imshow("im2", im2)
+
 				depart,arrive,type,couleur = oracle(im1, im2, imVide)
 				coup_percu = depart.lower() + arrive.lower()
 				if  coup_percu != moveStr : 
 					print("Coup joué : " + moveStr + " alors que Coup perçu : " + coup_percu)
 				isRobotTurn = not isRobotTurn
 		else:
-			moveStr = input("Move :")
+			have_played = input("Appuyez sur Entrée")
+			im1 = take_picture(robot, playCount)
+			oracle(im2, im1, imVide)
+			coup_percu = depart.lower() + arrive.lower()
+			vision_correct = True if (input("Prédiction correcte ? [y/n]") == 'y') else False 
+			if not vision_correct : moveStr = input("Move :")
+			else : moveStr = coup_percu
 			if g.play(moveStr):
 				if not args.no_robot:
 					playCount = g.play_count()
-					im1 = take_picture(robot, playCount)
-					oracle(im2, im1, imVide)
-					coup_percu = depart.lower() + arrive.lower()
-					if  coup_percu != moveStr : 
-						print("Coup joué : " + moveStr + " alors que Coup perçu : " + coup_percu)
 				isRobotTurn = not isRobotTurn
 		
 		send_color_FEN(b)
 		send_board_FEN(b)
 
-	robot.close()
+robot.close()

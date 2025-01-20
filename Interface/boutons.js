@@ -1,7 +1,7 @@
 async function getInfo(toggleId) {
 
-  const buttonIds = ['threats', 'controlled', 'playable']; // Liste des IDs connus
-  const FEN_to_show = {'threats': false, 'controlled': false, 'playable': false};
+  const buttonIds = ['threats', 'controlled', 'playable','help']; // Liste des IDs connus
+  const FEN_to_show = {'threats': false, 'controlled': false, 'playable': false, 'help': false};
   const all_toggle_buttons = buttonIds.map(id => document.getElementById(id));
 
   try {
