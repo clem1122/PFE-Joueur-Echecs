@@ -14,7 +14,8 @@ def new_game():
     "threats":    "................................................................",
     "playable":   "................................................................",
     "controlled": "................................................................",
-    "help": "................................................................"
+    "protected": "................................................................",
+    "help":       "................................................................"
 }
 
     board_FEN = "rnbqkbnrpppppppp................................PPPPPPPPRNBQKBNR"
@@ -47,6 +48,7 @@ def set_color_FEN():
     color_FEN["controlled"] = data["controlled"]
     color_FEN["playable"] = data["playable"]
     color_FEN["threats"] = data["threats"]
+    color_FEN["protected"] = data["protected"]
     color_FEN["help"] = data["help"]
     return jsonify({"status": "success", "received": color_FEN})
 

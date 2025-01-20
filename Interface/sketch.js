@@ -15,9 +15,12 @@ let threats = '.'.repeat(64);
 let controlled = '.'.repeat(64);
 let playable = '.'.repeat(64);
 let help = '.'.repeat(64);
+let protected = '.'.repeat(64);
+
 localStorage.setItem("threats", threats);
 localStorage.setItem("controlled", controlled);
 localStorage.setItem("playable", playable);
+localStorage.setItem("protected", protected);
 localStorage.setItem("help", help);
 
 function preload() {
@@ -59,6 +62,7 @@ function draw() {
     if (FEN_to_show['threats']) { draw_color_FEN(threats, color(150, 0, 0, 175)); }
     if (FEN_to_show['controlled']) { draw_color_FEN(controlled, color(0, 0, 150, 100)); }
     if (FEN_to_show['playable']) { draw_color_FEN(playable, color(0, 150, 0, 100)); }
+    if (FEN_to_show['protected']) { draw_color_FEN(protected, color(165, 165, 0, 170)); }
     if (FEN_to_show['help']) { draw_color_FEN(help, color(165, 32, 100, 170)); }
     drawPieces();
 }
@@ -71,7 +75,7 @@ async function updateFENs() {
         controlled = color_FEN['controlled'];
         playable = color_FEN['playable'];
         help = color_FEN['help']
-    }
+        protected = color_FEN['protected']    }
 }
 
 function draw_color_FEN(FEN, couleur) {
@@ -175,7 +179,6 @@ function mousePressed() {
             selectedSquare = null;
         }
 
-        drawBoardWithLabels();
     }
 }
 

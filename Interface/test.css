@@ -1,0 +1,38 @@
+body,
+html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  /* Ensure body and html fill the viewport */
+}
+
+#big-container {
+    position: relative; /* Permet de positionner des éléments de manière absolue à l'intérieur */
+    display: flex;
+    justify-content: center; /* Centrer les éléments horizontalement */
+    align-items: center; /* Centrer les éléments verticalement */
+    gap: 20px; /* Espacement entre le chessboard et container2 */
+    height: 100vh; /* Prend toute la hauteur de la fenêtre */
+    width: 100%; /* Prend toute la largeur */
+    background-color: #f0f0f0;
+    border: 5px solid black;
+}
+
+#chessboard {
+    position: absolute; /* Positionne le chessboard indépendamment */
+    top: 50%; /* Place le centre verticalement */
+    left: 50%; /* Place le centre horizontalement */
+    transform: translate(-50%, -50%); /* Centre vraiment en utilisant un offset */
+    width: 200px; /* Définir la taille du chessboard */
+    height: 200px;
+    background-color: lightblue;
+    border: 2px solid red;
+}
+
+#container2 {
+    width: 200px; /* Définir une taille pour container2 */
+    height: 200px;
+    background-color: lightgreen; /* Pour voir le container2 */
+    display: flex;
+    border: 2px solid blue; /* Bordure pour voir container2 */
+}

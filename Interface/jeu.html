@@ -20,7 +20,7 @@
 
     <div id="container">
       <div class="chat-container">
-        <div class="chat-header">Chat Bot</div>
+        <div class="chat-header">Nini</div>
         <div id="chat-messages" class="chat-messages">
           <!-- Messages will appear here -->
         </div>
@@ -32,7 +32,7 @@
         <div class="form-check form-switch">
           <input class="form-check-input" type="checkbox" id="threats" , onclick="getInfo('threats')">
           <label class="form-check-label" for="exampleCheck1">
-            Menaces
+            Pièces menacées
           </label>
         </div>
         <div class="form-check form-switch">
@@ -44,7 +44,13 @@
         <div class="form-check form-switch">
           <input class="form-check-input" type="checkbox" id="controlled" , onclick="getInfo('controlled')">
           <label class="form-check-label" for="exampleCheck3">
-            Cases controlées
+            Cases controlées par l'adversaire
+          </label>
+        </div>
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" id="protected" , onclick="getInfo('protected')">
+          <label class="form-check-label" for="exampleCheck3">
+            Pièces protégées
           </label>
         </div>
         <div class="form-check form-switch">
@@ -54,6 +60,9 @@
           </label>
         </div>
       </div>
+    </div>
+    <div class="container text-center mt-5">
+      <a class="btn btn-primary btn-lg" onclick="have_played()">J'ai joué</a>
     </div>
   </div>
 </body>

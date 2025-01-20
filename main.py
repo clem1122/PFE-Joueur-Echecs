@@ -16,7 +16,7 @@ import cv2
 
 pieces_list = ['p','P','n','N','b','B	','r','R','q','Q','k','K']
 classic_FEN = 'rnbqkbnrpppppppp................................PPPPPPPPRNBQKBNR'
-capture_FEN = 'rnbqkbnrppp.pppp...........p........P...........PPPP.PPPRNBQKBNR'
+capture_FEN = 'rnbqkbnrppp.pppp........ ...p........P...........PPPP.PPPRNBQKBNR'
 roque_FEN = 'r...k..rpppq.ppp..npbn....b.p.....B.P.....NPBN..PPPQ.PPPR...K..R'
 prise_en_passant_FEN = '............p........p.......P...................q......K......k'
 promotion_FEN = 'r.b.kbnrpPpp.ppp..n.................p.q..P...N....PPPPPPRNBQKB.R'
@@ -37,7 +37,7 @@ isWhite = False
 vision = not args.no_robot
 
 
-g = pc.Game(classic_FEN)
+g = pc.Game(roque_FEN)
 b = g.board
 b.print()
 flask = not (args.no_flask or args.take_picture)
@@ -106,11 +106,11 @@ def send_color_FEN(board):
 	best_FEN = ['.']*64
 	best_FEN[index_1] = '1'
 	best_FEN[index_2] = '1'
-	
 	url = "http://127.0.0.1:5000/set-color-FEN"
 	payload = {"threats": board.threats(isWhite), 
 			"playable": board.playable(isWhite), 
 			"controlled": board.controlled(isWhite),
+			"protected": board.protected(isWhite),
 			"help": best_FEN}
 	
 	response = requests.post(url, json=payload)
