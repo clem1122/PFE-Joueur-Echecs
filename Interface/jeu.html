@@ -19,6 +19,13 @@
   <div class="background">
 
     <div id="container">
+      <div class="chat-container">
+        <div class="chat-header">Chat Bot</div>
+        <div id="chat-messages" class="chat-messages">
+          <!-- Messages will appear here -->
+        </div>
+      </div>
+      
       <div id="chessboard" width="1500" height="1500"></div>
 
       <div class="checkbox-container">
@@ -41,7 +48,7 @@
           </label>
         </div>
         <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" id="help" , onclick="getInfo('help')">
+          <input class="form-check-input" type="checkbox" id="exampleCheck4" , onclick="getInfo('toggle4')">
           <label class="form-check-label" for="exampleCheck4">
             Aide
           </label>
@@ -52,5 +59,6 @@
 </body>
 <script src="sketch.js"></script>
 <script src="boutons.js"></script>
+<script src="chat.js"></script>
 
 </html>
