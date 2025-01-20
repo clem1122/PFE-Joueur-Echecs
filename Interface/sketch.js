@@ -14,9 +14,11 @@ let Box;
 let threats = '.'.repeat(64);
 let controlled = '.'.repeat(64);
 let playable = '.'.repeat(64);
+let help = '.'.repeat(64);
 localStorage.setItem("threats", threats);
 localStorage.setItem("controlled", controlled);
 localStorage.setItem("playable", playable);
+localStorage.setItem("help", help);
 
 function preload() {
     pieceImages['Q'] = loadImage("Images/Q.png");
@@ -57,6 +59,7 @@ function draw() {
     if (FEN_to_show['threats']) { draw_color_FEN(threats, color(150, 0, 0, 175)); }
     if (FEN_to_show['controlled']) { draw_color_FEN(controlled, color(0, 0, 150, 100)); }
     if (FEN_to_show['playable']) { draw_color_FEN(playable, color(0, 150, 0, 100)); }
+    if (FEN_to_show['help']) { draw_color_FEN(help, color(165, 32, 100, 170)); }
     drawPieces();
 }
 
@@ -67,6 +70,7 @@ async function updateFENs() {
         threats = color_FEN['threats'];
         controlled = color_FEN['controlled'];
         playable = color_FEN['playable'];
+        help = color_FEN['help']
     }
 }
 

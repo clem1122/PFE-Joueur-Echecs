@@ -7,13 +7,12 @@ from processing import (
     detect_differences, analyze_squares, determine_movement_direction, 
     is_capture, determine_piece_color, check_color
 )
-
-
+ 
 def oracle(img1,img2, reference_image, debug = True):
 
     # ------------- PARAMETERS -------------------
-    threshold_diff = 50 # pour 'detect_difference' : Seuil pour la diff de pixels 
-    threshold_empty = 20 #pour  'is square_empty': Seuil pour diff entre case et case empty
+    threshold_diff = 25 # pour 'detect_difference' : Seuil pour la diff de pixels 
+    threshold_empty = 10 #pour  'is square_empty': Seuil pour diff entre case et case empty
     # ----------------------------------------------------------------------------------------------
     calibration_file = "test_calibration.pkl"
     output_size = (800, 800) # 
@@ -58,7 +57,7 @@ def oracle(img1,img2, reference_image, debug = True):
         origin, destination = determine_movement_direction(rectified_img1, rectified_img2, rectified_reference_gray, cases, top_cases, threshold_empty, debug)
         print(f"\nDetected movement: {origin} -> {destination}")
     else:
-        print("Errror determining mouvment: not enough modified cases.")
+        print("Errror determining mouvement: not enough modified cases.")
 
     # ----------------------------------------------------------------------
     # Déterminer si le mouvement est une capture
@@ -88,10 +87,10 @@ def oracle(img1,img2, reference_image, debug = True):
 def main():
 
     #Load empty checkboard
-    reference_image = cv2.imread("Vision/photos3/img0.png", cv2.IMREAD_COLOR)
+    reference_image = cv2.imread("Vision/photos_test/img0.png", cv2.IMREAD_COLOR)
     # Load example images
-    img1 = cv2.imread("Vision/photos3/pose1.png", cv2.IMREAD_COLOR)
-    img2 = cv2.imread("Vision/photos3/pose2.png", cv2.IMREAD_COLOR)
+    img1 = cv2.imread("Vision/photos_test/pose1.png", cv2.IMREAD_COLOR)
+    img2 = cv2.imread("Vision/photos_test/pose2.png", cv2.IMREAD_COLOR)
 
     # Process the move
     origin, destination, move_type, piece_color = oracle(img1, img2, reference_image)

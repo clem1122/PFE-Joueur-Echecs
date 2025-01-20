@@ -71,8 +71,6 @@ def manage_promotion(promotion_piece, move):
 	valhalla_coord = get_valhalla_coord(promotion_piece, b)
 	print("valhalla coord : " + valhalla_coord)
 	b.modify_piece(valhalla_coord, '.')
-	# Quand c'est le robot qui joue, l'IA donne le mouvement avec le caractère de la nouvelle pièce
-	# Quand c'est le joueur qui joue, la vision donne le coup, PChess voit que c'est une promotion, il photographie le valhalla, connait la pièce partie et voit le nouveau trou
 
 def robot_play(moveStr, cautious = False):
 	promotion = None
@@ -101,10 +99,19 @@ def robot_play_test(moveStr, h):
 def send_color_FEN(board):
 	if(not flask):
 		return
+	spec_rules = "b" +  board.special_rules()[1:]
+	best_move = get_stockfish_move(board.FEN(), spec_rules, board.en_passant_coord())
+	index_1 = board.coord_to_index(best_move[:2])
+	index_2 = board.coord_to_index(best_move[2:])
+	best_FEN = ['.']*64
+	best_FEN[index_1] = '1'
+	best_FEN[index_2] = '1'
+	
 	url = "http://127.0.0.1:5000/set-color-FEN"
 	payload = {"threats": board.threats(isWhite), 
 			"playable": board.playable(isWhite), 
-			"controlled": board.controlled(isWhite)}
+			"controlled": board.controlled(isWhite),
+			"help": best_FEN}
 	
 	response = requests.post(url, json=payload)
 	if response.status_code == 200:
