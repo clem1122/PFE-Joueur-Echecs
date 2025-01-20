@@ -158,3 +158,12 @@ def determine_piece_color(circle_mean_intensity, threshold=50):
     proche de 0 = noir
     """
     return "white" if circle_mean_intensity > threshold else "black"
+
+
+###############################################
+###### Verifier que la photo est valide ######
+###############################################
+
+# Verifier si la photo est valide, cad que l'echiquier est bien visible
+# Cela renforce si jamais une main cache l'echiquier
+
