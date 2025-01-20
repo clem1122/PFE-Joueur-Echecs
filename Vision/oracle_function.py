@@ -18,7 +18,7 @@ def oracle(img1,img2, reference_image, debug = False):
     # plt.show()
 
     # ------------- PARAMETERS -------------------
-    threshold_diff = 50 #dans 'detect_difference' : Seuil pour la diff de pixels 
+    threshold_diff = 30 #dans 'detect_difference' : Seuil pour la diff de pixels 
     threshold_empty = 20 #dans 'is square_empty': Seuil pour diff entre case et case empty
     
     # ----------------------------------------------------------------------------------------------
@@ -54,6 +54,10 @@ def oracle(img1,img2, reference_image, debug = False):
     rectified_img1 = rectify_image(img1, tform, output_size)
     rectified_img2 = rectify_image(img2, tform, output_size)
 
+    if debug:
+        cv2.imshow('rectified_img1', rectified_img1)
+        cv2.imshow('rectified_img2', rectified_img2)
+
     # Calculer les diff en utilisant la fonction de image_processing
     filtered_diff = detect_differences(rectified_img1, rectified_img2, threshold_diff, debug)
     modified_cases = analyze_squares(filtered_diff, cases, square_size, debug)
@@ -70,7 +74,7 @@ def oracle(img1,img2, reference_image, debug = False):
     # ----------------------------------------------------------------------
     # Déterminer si le mouvement est une capture
     destination_coords = cases[destination]
-    capture_detected = is_capture(rectified_img1, rectified_reference_gray, destination_coords, threshold_diff)
+    capture_detected = is_capture(rectified_img1, rectified_reference_gray, destination_coords, threshold_diff, debug)
     if capture_detected:
         move_type = "CAPTURE"
         #print(f"The move is a : CAPTURE")

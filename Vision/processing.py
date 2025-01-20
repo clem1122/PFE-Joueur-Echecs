@@ -49,6 +49,10 @@ def analyze_squares(filtered_diff, cases, square_size, debug):
 
         # Appliquer le masque pour extraire les pixels du cercle
         masked_diff = cv2.bitwise_and(filtered_diff, filtered_diff, mask=mask)
+        if debug and False:
+            cv2.imshow('masked_diff', masked_diff)
+            cv2.waitKey(0)
+            cv2.destroyWindow('masked_diff')
 
         # Calculer les pourcentages de pixels différents dans le cercle
         diff_pixels = np.sum(masked_diff > 0)
@@ -102,6 +106,21 @@ def visualize_diff_with_highlight(img, diff, cases, highlighted_cases, debug):
 
     return diff_overlay
 
+def masked_variance(img, debug = False):
+     # Dimensions de la case
+    square_height, square_width = img.shape
+    center_x = square_width // 2
+    center_y = square_height // 2
+    radius = square_width // 4  # Rayon du cercle = largeur de la case / 4
+
+    # Créer un masque circulaire
+    mask = np.zeros_like(img, dtype=np.uint8)
+    cv2.circle(mask, (center_x, center_y), radius, 255, -1)
+
+    # Appliquer le masque sur les deux images (case actuelle et case vide)
+    masked_square_img = cv2.bitwise_and(img, img, mask=mask)
+    return np.var(img[img > 0])
+
 
 def is_square_empty(square_img, empty_square_img, threshold, debug):
     """
@@ -123,6 +142,15 @@ def is_square_empty(square_img, empty_square_img, threshold, debug):
     masked_square_img = cv2.bitwise_and(square_img, square_img, mask=mask)
     masked_empty_square_img = cv2.bitwise_and(empty_square_img, empty_square_img, mask=mask)
 
+    cv2.imshow('masked_square_img', masked_square_img)
+    cv2.imshow('masked_empty_square_img', masked_empty_square_img)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+    var1 = np.var(masked_square_img[masked_square_img > 0])
+    var2 = np.var(masked_empty_square_img[masked_empty_square_img > 0])
+
+    print('var pleine : ' + str(var1) + '\n' + "Var vide : " + str(var2))
     # Calculer la différence moyenne dans le cercle
     diff = cv2.absdiff(masked_square_img, masked_empty_square_img)
     diff_value = np.mean(diff)
@@ -137,7 +165,7 @@ def is_square_empty(square_img, empty_square_img, threshold, debug):
         # cv2.destroyAllWindows()
 
     # Retourne True si la différence moyenne est inférieure au seuil
-    return diff_value < threshold
+    return diff_value #< threshold
 
 def determine_movement_direction(img1, img2, empty_board, cases, top_modified_cases, threshold_empty, debug):
     """
@@ -156,34 +184,41 @@ def determine_movement_direction(img1, img2, empty_board, cases, top_modified_ca
     x1_start, x1_end, y1_start, y1_end = coords1
     x2_start, x2_end, y2_start, y2_end = coords2
 
-    square1_img1 = img1[y1_start:y1_end, x1_start:x1_end]
+    #square1_img1 = img1[y1_start:y1_end, x1_start:x1_end]
     square1_img2 = img2[y1_start:y1_end, x1_start:x1_end]
-    square1_empty = empty_board[y1_start:y1_end, x1_start:x1_end]
+    # square1_empty = empty_board[y1_start:y1_end, x1_start:x1_end]
 
-    square2_img1 = img1[y2_start:y2_end, x2_start:x2_end]
+    # square2_img1 = img1[y2_start:y2_end, x2_start:x2_end]
     square2_img2 = img2[y2_start:y2_end, x2_start:x2_end]
-    square2_empty = empty_board[y2_start:y2_end, x2_start:x2_end]
+    # square2_empty = empty_board[y2_start:y2_end, x2_start:x2_end]
 
     # Calcul de la différence complète
-    diff = cv2.absdiff(img2, empty_board)
+    #diff = cv2.absdiff(img2, empty_board)
      # Visualisation de la différence avec surbrillance des cases
-    if debug:
-        visualize_diff_with_highlight(img2, diff, cases, [case1, case2], debug)
+    #if debug:
+    #    visualize_diff_with_highlight(img2, diff, cases, [case1, case2], debug)
 
     # Déterminer dans image 2 quelle case est devenue vide
-    square1_empty_after = is_square_empty(square1_img2, square1_empty, threshold_empty, debug)
-    square2_empty_after = is_square_empty(square2_img2, square2_empty, threshold_empty, debug)
+    #square1_empty_after = is_square_empty(square1_img2, square1_empty, threshold_empty, debug)
+    #square2_empty_after = is_square_empty(square2_img2, square2_empty, threshold_empty, debug)
 
     # Identifier l'origine et la destination
-    if square1_empty_after:  # Case 1 est devenue vide
-        origin = case1
-        destination = case2
-    elif square2_empty_after:  # Case 2 est devenue vide
-        origin = case2
-        destination = case1
-    else:
-        return None, "Erreur: Aucune case ne semble etre devenue vide -> 'is square empty'."
+    #if square1_empty_after:  # Case 1 est devenue vide
+     #   origin = case1
+     #destination = case2
+    #elif square2_empty_after:  # Case 2 est devenue vide
+    #origin = case2
+     #destination = case1
+    #else:
+        #return None, "Erreur: Aucune case ne semble etre devenue vide -> 'is square empty'."
 
+
+    var_case1 = masked_variance(square1_img2)
+    var_case2 = masked_variance(square2_img2)
+    origin = case1 if var_case1 == min(var_case1, var_case2) else case2
+    destination = case1 if origin==case2 else case2
+
+    print('var 1 : ' + str(var_case1) + '\n' + "Var 2 : " + str(var_case2))
     return origin, destination
 
 ###############################################
@@ -192,7 +227,7 @@ def determine_movement_direction(img1, img2, empty_board, cases, top_modified_ca
 
 #-----------------------
 # La case destination etait-elle vide ou pleine dans l'image 1 ?
-def was_square_full(img, empty_board, coords, threshold, debug):
+def was_square_full(img, empty_board, coords, threshold, debug=False):
     """
     Détermine si une case était pleine en comparant avec l'échiquier vide.
     """
@@ -208,7 +243,7 @@ def was_square_full(img, empty_board, coords, threshold, debug):
     # Vérifier si la différence dépasse le seuil
     return diff > threshold
 
-def is_capture(img1, empty_board, destination_coords, threshold, debug):
+def is_capture(img1, empty_board, destination_coords, threshold, debug=False):
     """
     Détecte si un mouvement est une capture en analysant la case de destination.
     """
