@@ -106,11 +106,11 @@ function drawBoardWithLabels() {
     for (let i = rows-1; i >=0  ; i--) {
         let label = isWhite ? i + 1 : rows - i;
         text(label, 0.5 * squareSize, (i + 1.5) * squareSize);
-        text(label, (cols + 1.5) * squareSize, (i + 1.5) * squareSize);
+        //text(label, (cols + 1.5) * squareSize, (i + 1.5) * squareSize);
     }
     for (let j = 0; j < cols; j++) {
         let label = isWhite ? String.fromCharCode(104 - j) : String.fromCharCode(97 + j);
-        text(label, (j + 1.5) * squareSize, 0.5 * squareSize);
+        //text(label, (j + 1.5) * squareSize, 0.5 * squareSize);
         text(label, (j + 1.5) * squareSize, (rows + 1.5) * squareSize);
     }
 }
