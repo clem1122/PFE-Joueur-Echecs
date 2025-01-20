@@ -39,3 +39,12 @@ dist/
 # Sensitive data
 .env
 
+#Images
+.png
+
+#Calibration
+.pkl
+
+#Sound 
+.mp3
+
