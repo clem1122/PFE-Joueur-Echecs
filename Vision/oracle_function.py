@@ -6,7 +6,8 @@ import matplotlib.pyplot as plt
 from Vision.calibration import calibrate_corners, compute_transformation, rectify_image
 from Vision.processing import (
     detect_differences, analyze_squares, determine_movement_direction, 
-    is_capture, determine_piece_color, check_color, is_roque
+    is_capture, determine_piece_color, check_color,
+    is_roque, is_en_passant
 )
 
 def oracle(img1,img2, reference_image, debug = False):
@@ -116,11 +117,20 @@ def oracle(img1,img2, reference_image, debug = False):
         pass
 
    # -------------------
-   # ----PROMOTION -----
+   # ----EN-PASSANT ----
    # -------------------
+    top_3_cases = [modified_cases[0], modified_cases[1], modified_cases[2]]
+    en_passant, new_origin = is_en_passant(top_3_cases, threshold_diff,debug)
+
+    if en_passant :
+        origin = new_origin
+        move_type = 'EN PASSANT' 
+    else:
+        pass
+
 
    # -------------------
-   # ----EN-PASSANT ----
+   # ----PROMOTION -----
    # -------------------
 
 
