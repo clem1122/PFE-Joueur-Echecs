@@ -12,7 +12,7 @@ def detect_differences(img1, img2, sensitivity_threshold, debug):
     _, filtered_diff = cv2.threshold(diff, sensitivity_threshold, 255, cv2.THRESH_BINARY)
     
     # DEBUG
-    if debug == True :
+    if debug:
         # Verifier que l'echiquier n'as pas bouge entre deux prises
         cv2.imshow("Diff brute", diff)
         cv2.imshow("Diff filtree", filtered_diff)
@@ -71,8 +71,9 @@ def analyze_squares(filtered_diff, cases, square_size, debug):
 
     if debug:
         print(f"\nTOP 2 CASES MODIFIEES: {modified_cases[:2]} \n")
+        print(f"\nTOP 4 CASES MODIFIEES: {modified_cases[:4]} \n")
 
-    return modified_cases[:2]
+    return modified_cases[:4]
 
 ###############################################
 ####### Determiner la direction du coup #######
@@ -295,6 +296,61 @@ def determine_piece_color(circle_mean_intensity, threshold=50):
     """
     return "white" if circle_mean_intensity > threshold else "black"
 
+
+
+###############################################
+################ COUPS SPECIAUX ###############
+###############################################
+
+def is_roque(top_4_cases, debug):
+    """"
+    Regarde les 4 cases modifiees et determine si elles correspondent a la sequence du roque"
+    """
+    if debug :
+        print(' ROQUE: TOP4:', top_4_cases)
+    
+    # Définition des séquences attendues
+    petit_roque_noir = ['E8', 'G8', 'H8', 'F8']
+    grand_roque_noir = ['E8', 'C8', 'A8', 'D8']
+    # Définition des séquences attendues
+    petit_roque_blanc = ['E1', 'G1', 'H1', 'F1']
+    grand_roque_blanc = ['E1', 'C1', 'A1', 'D1']
+    
+    # Vérification si les cases correspondent à l'une des séquences roque
+    if sorted(top_4_cases) == sorted(petit_roque_noir):
+        roque_type = 'Petit roque'
+        roque_color = 'black'
+        origin = 'E8'
+        destination = 'G8'
+        if debug:
+            print("\nPETIT ROQUE NOIR detected")
+    elif sorted(top_4_cases) == sorted(grand_roque_noir):
+        roque_type = 'Grand roque'
+        roque_color = 'black'
+        origin = 'E8'
+        destination = 'C8'
+        if debug:
+            print("\nGRAND ROQUE NOIR detected")
+    elif sorted(top_4_cases) == sorted(petit_roque_blanc):
+        roque_type = 'Petit roque'
+        roque_color = 'white'
+        origin = 'E1'
+        destination = 'G1'
+        if debug:
+            print("\PETIT ROQUE BLANC detected")
+    elif sorted(top_4_cases) == sorted(grand_roque_blanc):
+        roque_type = 'Grnad roque'
+        roque_color = 'white'
+        origin = 'E1'
+        destination = 'C1'
+        if debug:
+            print("\nGRAND ROQUE BLANC detected")
+    else:
+        if debug:
+            print("Aucune correspondance avec un roque.")
+        return None
+    
+    return (roque_type, roque_color, origin, destination)
 
 ###############################################
 ###### Verifier que la photo est valide ######
