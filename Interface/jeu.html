@@ -15,49 +15,51 @@
 
 <body>
 
-  
+
   <div class="background">
 
     <div id="container">
-      <div class="chat-container">
-        <div class="chat-header">Nini</div>
-        <div id="chat-messages" class="chat-messages">
-          <!-- Messages will appear here -->
-        </div>
-      </div>
-      
-      <div id="chessboard" width="1500" height="1500"></div>
 
-      <div class="checkbox-container">
-        <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" id="threats" , onclick="getInfo('threats')">
-          <label class="form-check-label" for="exampleCheck1">
-            Pièces menacées
-          </label>
+      <div id="chessboard" width="1500" height="1500"></div>
+      <div class="right-container">
+        <div class="chat-container">
+          <div class="chat-header">Nini</div>
+          <div id="chat-messages" class="chat-messages">
+            <!-- Messages will appear here -->
+          </div>
         </div>
-        <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" id="playable" , onclick="getInfo('playable')">
-          <label class="form-check-label" for="exampleCheck2">
-            Coups possibles
-          </label>
-        </div>
-        <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" id="controlled" , onclick="getInfo('controlled')">
-          <label class="form-check-label" for="exampleCheck3">
-            Cases controlées par l'adversaire
-          </label>
-        </div>
-        <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" id="protected" , onclick="getInfo('protected')">
-          <label class="form-check-label" for="exampleCheck3">
-            Pièces protégées
-          </label>
-        </div>
-        <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" id="help" , onclick="getInfo('help')">
-          <label class="form-check-label" for="exampleCheck4">
-            Aide
-          </label>
+
+        <div class="checkbox-container">
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="threats" , onclick="getInfo('threats')">
+            <label class="form-check-label" for="exampleCheck1">
+              Pièces menacées
+            </label>
+          </div>
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="playable" , onclick="getInfo('playable')">
+            <label class="form-check-label" for="exampleCheck2">
+              Coups possibles
+            </label>
+          </div>
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="controlled" , onclick="getInfo('controlled')">
+            <label class="form-check-label" for="exampleCheck3">
+              Cases controlées par l'adversaire
+            </label>
+          </div>
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="protected" , onclick="getInfo('protected')">
+            <label class="form-check-label" for="exampleCheck3">
+              Pièces protégées
+            </label>
+          </div>
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="help" , onclick="getInfo('help')">
+            <label class="form-check-label" for="exampleCheck4">
+              Aide
+            </label>
+          </div>
         </div>
       </div>
     </div>
