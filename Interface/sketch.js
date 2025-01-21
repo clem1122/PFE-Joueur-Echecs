@@ -40,7 +40,7 @@ function preload() {
 }
 
 function setup() {
-    const canvas = createCanvas(500, 500);
+    const canvas = createCanvas(700, 700);
     canvas.parent('chessboard');
     squareSize = width / (rows + 2); // Adjust size to leave space for labels
     for (let key in pieceImages) {
@@ -58,7 +58,7 @@ function draw() {
         updateFENs();
     }
     drawBoardWithLabels();
-	drawGraveyard();
+    drawGraveyard();
     if (FEN_to_show['threats']) { draw_color_FEN(threats, color(150, 0, 0, 175)); }
     if (FEN_to_show['controlled']) { draw_color_FEN(controlled, color(0, 0, 150, 100)); }
     if (FEN_to_show['playable']) { draw_color_FEN(playable, color(0, 150, 0, 100)); }
@@ -75,7 +75,8 @@ async function updateFENs() {
         controlled = color_FEN['controlled'];
         playable = color_FEN['playable'];
         help = color_FEN['help']
-        protected = color_FEN['protected']    }
+        protected = color_FEN['protected']
+    }
 }
 
 function draw_color_FEN(FEN, couleur) {
@@ -111,7 +112,7 @@ function drawBoardWithLabels() {
     fill(0);
     textSize(squareSize * 0.4);
     textAlign(CENTER, CENTER);
-    for (let i = rows-1; i >=0  ; i--) {
+    for (let i = rows - 1; i >= 0; i--) {
         let label = isWhite ? i + 1 : rows - i;
         text(label, 0.5 * squareSize, (i + 1.5) * squareSize);
         //text(label, (cols + 1.5) * squareSize, (i + 1.5) * squareSize);

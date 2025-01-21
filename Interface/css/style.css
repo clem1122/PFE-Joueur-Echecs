@@ -47,7 +47,7 @@ html {
   align-items: center;
   /* Centre verticalement */
   top: 50%;
-  left: calc(50% + 240px);
+  left: calc(50% + 300px);
   transform: translateY(-50%);
 }
 
@@ -97,6 +97,7 @@ html {
 .chat-container {
   width: 100%;
   max-width: 300px;
+  min-width: 300px;
   height: 400px;
   background: #ffffff;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
