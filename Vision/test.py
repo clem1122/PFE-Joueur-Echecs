@@ -5,16 +5,16 @@ import numpy as np
 from calibration import calibrate_corners, compute_transformation, rectify_image
 from processing import (
     detect_differences, analyze_squares, determine_movement_direction, 
-    is_capture, determine_piece_color, check_color
+    is_capture, determine_piece_color, check_color, is_roque
 )
  
-def oracle(img1,img2, reference_image, debug = True):
+def oracle(img1,img2, reference_image, debug = False):
 
     # ------------- PARAMETERS -------------------
-    threshold_diff = 25 # pour 'detect_difference' : Seuil pour la diff de pixels 
-    threshold_empty = 10 #pour  'is square_empty': Seuil pour diff entre case et case empty
+    threshold_diff = 30 # pour 'detect_difference' : Seuil pour la diff de pixels 
+    threshold_empty = 20 #pour  'is square_empty': Seuil pour diff entre case et case empty
     # ----------------------------------------------------------------------------------------------
-    calibration_file = "test_calibration.pkl"
+    calibration_file = "chessboard_calibration.pkl"
     output_size = (800, 800) # 
     square_size = output_size[0] // 8
 
@@ -52,10 +52,10 @@ def oracle(img1,img2, reference_image, debug = True):
 
     # ---------------------------------------------------------------------
     # Déterminer le sens du mouvement
-    if len(modified_cases) == 2:
+    if len(modified_cases) >= 2:
         top_cases = [modified_cases[0], modified_cases[1]]
         origin, destination = determine_movement_direction(rectified_img1, rectified_img2, rectified_reference_gray, cases, top_cases, threshold_empty, debug)
-        print(f"\nDetected movement: {origin} -> {destination}")
+        #print(f"\nDetected movement: {origin} -> {destination}")
     else:
         print("Errror determining mouvement: not enough modified cases.")
 
@@ -74,14 +74,29 @@ def oracle(img1,img2, reference_image, debug = True):
     # Determiner la couleur de la piece bougee
     origin_coords = cases[origin]
     circle_mean_intensity = check_color(rectified_img1, origin_coords)
-    piece_color = determine_piece_color(circle_mean_intensity)
-    #print(f"\nThe piece is {piece_color}.")
+    color = determine_piece_color(circle_mean_intensity)
+    
 
+   # ----------------------------------------------------------------------
+   # ------------------ COUPS SPECIAUX ------------------------------------
+
+    # ROQUE
+    top_4_cases = [modified_cases[0][0], modified_cases[1][0], modified_cases[2][0], modified_cases[3][0]]
+    result = is_roque(top_4_cases, debug)
+
+    # Si un roque is detected
+    if result is not None:
+        move_type, color, origin, destination = is_roque(top_4_cases, debug)
+    else:
+        pass
+
+
+# ------------------------------------------------
     print("-------------------------------------------------------------------")
-    print(f"Origin: {origin}, Destination: {destination}, Move Type: {move_type}, Piece Color: {piece_color}")
+    print(f"Origin: {origin}, Destination: {destination}, Move Type: {move_type}, Piece Color: {color}")
     print("-------------------------------------------------------------------")
 
-    return origin, destination, move_type, piece_color
+    return origin, destination, move_type, color
 
 # Example usage:
 def main():
@@ -89,11 +104,11 @@ def main():
     #Load empty checkboard
     reference_image = cv2.imread("Vision/photos_test/img0.png", cv2.IMREAD_COLOR)
     # Load example images
-    img1 = cv2.imread("Vision/photos_test/pose1.png", cv2.IMREAD_COLOR)
-    img2 = cv2.imread("Vision/photos_test/pose2.png", cv2.IMREAD_COLOR)
+    img1 = cv2.imread("Vision/photos_roque/pose3.png", cv2.IMREAD_COLOR)
+    img2 = cv2.imread("Vision/photos_roque/pose4.png", cv2.IMREAD_COLOR)
 
     # Process the move
-    origin, destination, move_type, piece_color = oracle(img1, img2, reference_image)
+    origin, destination, move_type, color = oracle(img1, img2, reference_image)
 
 if __name__ == "__main__":
     main()
