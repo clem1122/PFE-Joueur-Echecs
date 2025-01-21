@@ -25,6 +25,15 @@ const botMessages = [
     "TEST"
 ];
 
+const Messages = {
+    'checked': "Attention, tu es en echec, ton roi est attaqué !",
+    'checkmated': "J'ai gagné ! Tu t'es bien défendu, mais ton roi ne peut plus esquiver cette attaque",
+    'check': "Joli ! Tu attaques mon roi.",
+    'checkmate': "Tu as gagné ! Je m'incline, mon roi est définitivement perdu...",
+    'threats': ""
+
+}
+
 // Simulate messages appearing one by one
 let index = 0;
 const interval = setInterval(() => {
