@@ -37,7 +37,7 @@ isWhite = False
 vision = not args.no_robot
 
 
-g = pc.Game(roque_FEN)
+g = pc.Game(classic_FEN)
 b = g.board
 b.print()
 flask = not (args.no_flask or args.take_picture)
@@ -50,6 +50,12 @@ if flask:
 	except Exception as e:
 		print("Error : Flask is not running")
 		exit(1)
+
+def have_human_played():
+	response = requests.get('http://127.0.0.1:5000/get-have-played')
+	have_played = response.json()
+
+	return have_played
 
 def send_board_FEN(board):
 	if(not flask):
@@ -100,7 +106,7 @@ def send_color_FEN(board):
 	if(not flask):
 		return
 	spec_rules = "b" +  board.special_rules()[1:]
-	best_move = get_stockfish_move(board.FEN(), spec_rules, board.en_passant_coord())
+	best_move = get_stockfish_move(board.FEN(), spec_rules, board.en_passant_coord(), display = False)
 	index_1 = board.coord_to_index(best_move[:2])
 	index_2 = board.coord_to_index(best_move[2:])
 	best_FEN = ['.']*64
@@ -192,8 +198,8 @@ while True:
 
 	if isRobotTurn:
 		moveStr = get_move()
-		if not play(moveStr): break #While ?
-
+		#if not play(moveStr): break #While ?
+		play(moveStr)
 		if vision:
 			allegedMove, type, color = see(playCount)
 			if allegedMove != moveStr:
@@ -202,7 +208,8 @@ while True:
 		# Verification du coup joué par le robot
 	else:
 		#moveStr = get_move()
-		input("Entrée quand le coup est joué...")
+		while not have_human_played() :
+			pass
 
 		if vision:
 			allegedMove, type, color = see(playCount, human=True)
