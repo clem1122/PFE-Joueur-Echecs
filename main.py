@@ -41,7 +41,11 @@ g = pc.Game(roque_FEN)
 b = g.board
 b.print()
 flask = not (args.no_flask or args.take_picture)
-imVide = cv2.imread("Images/calibration_img.png")
+try:
+	imVide = cv2.imread("Images/calibration_img.png")
+except e:
+	print("Warning : no calibration file")
+	
 del_im('Images/')
 	
 if flask:
@@ -100,12 +104,15 @@ def send_color_FEN(board):
 	if(not flask):
 		return
 	spec_rules = "b" +  board.special_rules()[1:]
-	best_move = get_stockfish_move(board.FEN(), spec_rules, board.en_passant_coord())
-	index_1 = board.coord_to_index(best_move[:2])
-	index_2 = board.coord_to_index(best_move[2:])
+
 	best_FEN = ['.']*64
-	best_FEN[index_1] = '1'
-	best_FEN[index_2] = '1'
+	if args.stockfish:
+		best_move = get_stockfish_move(board.FEN(), spec_rules, board.en_passant_coord())
+		index_1 = board.coord_to_index(best_move[:2])
+		index_2 = board.coord_to_index(best_move[2:])
+		best_FEN[index_1] = '1'
+		best_FEN[index_2] = '1'
+
 	url = "http://127.0.0.1:5000/set-color-FEN"
 	payload = {"threats": board.threats(isWhite), 
 			"playable": board.playable(isWhite), 
@@ -192,7 +199,7 @@ while True:
 
 	if isRobotTurn:
 		moveStr = get_move()
-		if not play(moveStr): break #While ?
+		if not play(moveStr): continue
 
 		if vision:
 			allegedMove, type, color = see(playCount)
@@ -201,16 +208,17 @@ while True:
 
 		# Verification du coup joué par le robot
 	else:
-		#moveStr = get_move()
-		input("Entrée quand le coup est joué...")
-
 		if vision:
+			input("Entrée quand le coup est joué...")
 			allegedMove, type, color = see(playCount, human=True)
 			if not play(allegedMove):
 				print("Warning : Coup détécté " + allegedMove + " semble être erroné")
 				moveStr = get_move()
 				while not play(moveStr):
 					moveStr = get_move()
+		else: 
+			moveStr = get_move()
+			play(moveStr)
 				
 		
 	send_color_FEN(b)
