@@ -9,20 +9,11 @@ function appendBotMessage(content) {
 }
 
 // Example bot messages
-const botMessages = [
-    "Welcome to the chat!",
-    "How can I assist you today?",
-    "Here is some information you requested.",
-    "Have a great day!",
-    "TEST",
-    "TEST",
-    "TEST",
-    "TEST",
-    "TEST",
-    "TEST",
-    "TEST",
-    "TEST",
-    "TEST"
+const StartMessages = [
+    "Bonjour ! Je suis Niryo",
+    "Je suis un robot pédagogique pour enseigner les échecs",
+    "Tu veux jouer une partie avec moi ?",
+    "😊😊😊"
 ];
 
 const Messages = {
@@ -30,15 +21,18 @@ const Messages = {
     'checkmated': "J'ai gagné ! Tu t'es bien défendu, mais ton roi ne peut plus esquiver cette attaque",
     'check': "Joli ! Tu attaques mon roi.",
     'checkmate': "Tu as gagné ! Je m'incline, mon roi est définitivement perdu...",
-    'threats': ""
-
+    'threats': "Regarde, voici les pièces que je te menace.",
+    'playable': "Voila toutes les cases que tu peux atteindre avec une de tes pièces",
+    'controlled': "Prudence sur ces cases, je les controlle avec une de mes pièces.",
+    'protected': "Ces pièces sont protégées : si tu les captures, je pourrais te capturer derrière.",
+    'aide': "Si tu veux mon avis, le meilleur coup pour toi est "
 }
 
 // Simulate messages appearing one by one
 let index = 0;
 const interval = setInterval(() => {
-    if (index < botMessages.length) {
-        appendBotMessage(botMessages[index]);
+    if (index < StartMessages.length) {
+        appendBotMessage(StartMessages[index]);
         index++;
     } else {
         clearInterval(interval);
