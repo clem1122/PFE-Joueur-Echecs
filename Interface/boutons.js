@@ -39,4 +39,21 @@ async function getInfo(toggleId) {
 async function have_played(){
 
 console.log("J'ai joué !");
+
+try {
+  // Envoi d'une requête POST au serveur Flask
+  const response = await fetch('http://127.0.0.1:5000/set-have-played', 
+  {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json',},
+    body: JSON.stringify({ have_played: true }), // Envoi d'un booléen
+  });
+
+  if (response.ok) {
+    console.log('Données de have_played envoyées avec succès depuis le .js !');
+  } else {
+    console.error('Erreur lors de l\'envoi des données de have_played depuis le .js.');
+  }
+
+} catch (error) {console.error('Erreur réseau :', error);}
 }
