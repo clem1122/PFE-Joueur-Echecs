@@ -302,12 +302,13 @@ def determine_piece_color(circle_mean_intensity, threshold=50):
 ################ COUPS SPECIAUX ###############
 ###############################################
 
+################## ROQUE ######################
 def is_roque(top_4_cases, debug):
     """"
     Regarde les 4 cases modifiees et determine si elles correspondent a la sequence du roque"
     """
     if debug :
-        print(' ROQUE: TOP4:', top_4_cases)
+        print('\nROQUE: TOP4:', top_4_cases)
     
     # Définition des séquences attendues
     petit_roque_noir = ['E8', 'G8', 'H8', 'F8']
@@ -318,39 +319,85 @@ def is_roque(top_4_cases, debug):
     
     # Vérification si les cases correspondent à l'une des séquences roque
     if sorted(top_4_cases) == sorted(petit_roque_noir):
-        roque_type = 'Petit roque'
+        roque_type = 'ROQUE - petit'
         roque_color = 'black'
         origin = 'E8'
         destination = 'G8'
         if debug:
-            print("\nPETIT ROQUE NOIR detected")
+            print("PETIT ROQUE NOIR detected")
     elif sorted(top_4_cases) == sorted(grand_roque_noir):
-        roque_type = 'Grand roque'
+        roque_type = 'ROQUE - grand'
         roque_color = 'black'
         origin = 'E8'
         destination = 'C8'
         if debug:
-            print("\nGRAND ROQUE NOIR detected")
+            print("GRAND ROQUE NOIR detected")
     elif sorted(top_4_cases) == sorted(petit_roque_blanc):
-        roque_type = 'Petit roque'
+        roque_type = 'ROQUE - petit'
         roque_color = 'white'
         origin = 'E1'
         destination = 'G1'
         if debug:
-            print("\PETIT ROQUE BLANC detected")
+            print("PETIT ROQUE BLANC detected")
     elif sorted(top_4_cases) == sorted(grand_roque_blanc):
-        roque_type = 'Grnad roque'
+        roque_type = 'ROQUE - grand'
         roque_color = 'white'
         origin = 'E1'
         destination = 'C1'
         if debug:
-            print("\nGRAND ROQUE BLANC detected")
+            print("GRAND ROQUE BLANC detected")
     else:
         if debug:
-            print("Aucune correspondance avec un roque.")
+            print("ROQUE: Aucune correspondance avec un roque.")
         return None
     
     return (roque_type, roque_color, origin, destination)
+
+
+################## EN PASSANT ###################
+def is_en_passant(top_3_cases, threshold, debug=False):
+    """
+    Vérifie si une prise en passant a eu lieu.
+    On check si 3 cases sont modifies au dessus d'un seuil
+    On check si parmis ces 3 cases, il y a lignes 5->6 ou 4->3
+    """
+    # Filtrer les cases qui dépassent le seuil
+    valid_cases = [(case, int(case[1])) for case, pourcentage in top_3_cases if pourcentage >= threshold]
+    
+    if debug:
+        print('\n EN PASSANT :')
+        print(f"Cases valides apres filtrage par seuil ({threshold}%): {valid_cases}")
+    
+    # Vérifier qu'il y a au moins 3 cases valides
+    if len(valid_cases) < 3:
+        if debug:
+            print("Moins de 3 cases dépassent le seuil. Pas de prise en passant.")
+        return False
+    
+    # lignes extraites des cases
+    lignes = [int(case[1]) for case, _ in valid_cases]
+    if debug:
+        print("lignes extraites", lignes)
+
+    # Vérifier si deux lignes consécutives pertinentes existent
+    is_valid = (5 in lignes and 6 in lignes) or (4 in lignes and 3 in lignes)
+    
+    # Identifier la colonne unique ("origin")
+    colonnes = [case[0] for case, _ in valid_cases]
+    unique_colonnes = [colonne for colonne in colonnes if colonnes.count(colonne) == 1]
+    
+    if unique_colonnes:
+        # Trouver la case complète correspondant à la colonne unique
+        for case, _ in valid_cases:
+            if case[0] in unique_colonnes:
+                origin = case
+                break
+    
+    if debug:
+        print(f"Colonnes uniques: {unique_colonnes}, Case d'origine: {origin}")
+        print(f"Prise en passant detected: {is_valid}\n")
+    
+    return is_valid, origin
 
 ###############################################
 ###### Verifier que la photo est valide ######

@@ -5,10 +5,11 @@ import numpy as np
 from calibration import calibrate_corners, compute_transformation, rectify_image
 from processing import (
     detect_differences, analyze_squares, determine_movement_direction, 
-    is_capture, determine_piece_color, check_color, is_roque
+    is_capture, determine_piece_color, check_color,
+    is_roque, is_en_passant
 )
  
-def oracle(img1,img2, reference_image, debug = False):
+def oracle(img1,img2, reference_image, debug = True):
 
     # ------------- PARAMETERS -------------------
     threshold_diff = 30 # pour 'detect_difference' : Seuil pour la diff de pixels 
@@ -78,17 +79,37 @@ def oracle(img1,img2, reference_image, debug = False):
     
 
    # ----------------------------------------------------------------------
-   # ------------------ COUPS SPECIAUX ------------------------------------
-
-    # ROQUE
+   # ------------------ CHECK FOR COUPS SPECIAUX --------------------------
+   # ----------------------------------------------------------------------
+   
+   # -------------------
+   # ------ROQUE -------
+   # -------------------
     top_4_cases = [modified_cases[0][0], modified_cases[1][0], modified_cases[2][0], modified_cases[3][0]]
-    result = is_roque(top_4_cases, debug)
+    roque = is_roque(top_4_cases, debug)
 
     # Si un roque is detected
-    if result is not None:
+    if roque is not None:
         move_type, color, origin, destination = is_roque(top_4_cases, debug)
     else:
         pass
+
+   # -------------------
+   # ----EN-PASSANT ----
+   # -------------------
+    top_3_cases = [modified_cases[0], modified_cases[1], modified_cases[2]]
+    en_passant, new_origin = is_en_passant(top_3_cases, threshold_diff,debug)
+
+    if en_passant :
+        origin = new_origin
+        move_type = 'EN PASSANT' 
+    else:
+        pass
+
+
+   # -------------------
+   # ----PROMOTION -----
+   # -------------------
 
 
 # ------------------------------------------------
@@ -104,8 +125,8 @@ def main():
     #Load empty checkboard
     reference_image = cv2.imread("Vision/photos_test/img0.png", cv2.IMREAD_COLOR)
     # Load example images
-    img1 = cv2.imread("Vision/photos_roque/pose3.png", cv2.IMREAD_COLOR)
-    img2 = cv2.imread("Vision/photos_roque/pose4.png", cv2.IMREAD_COLOR)
+    img1 = cv2.imread("Vision/photos_en_passant/pose1.png", cv2.IMREAD_COLOR)
+    img2 = cv2.imread("Vision/photos_en_passant/pose2.png", cv2.IMREAD_COLOR)
 
     # Process the move
     origin, destination, move_type, color = oracle(img1, img2, reference_image)
