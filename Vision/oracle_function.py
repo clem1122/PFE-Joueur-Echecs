@@ -65,9 +65,9 @@ def oracle(img1,img2, reference_image, debug = False):
 
     if len(modified_cases) >= 2:
         top_cases = [modified_cases[0], modified_cases[1]]
-        origin, destination = determine_movement_direction(rectified_img1, rectified_img2, rectified_reference_gray, cases, top_cases, threshold_empty, debug)
+        origin, destination = determine_movement_direction(rectified_img2, cases, top_cases, debug)
     else:
-        print("Errror determining movment: not enough modified cases.")
+        print("Errror determining mouvement: not enough modified cases.")
 
     # ----------------------------------------------------------------------
     #---------- Déterminer si le mouvement est une capture -----------------
