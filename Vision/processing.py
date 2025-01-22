@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 
+
 ###############################################
 ######### Trouver les cases modifiees ##########
 ###############################################
@@ -229,11 +230,29 @@ def determine_movement_direction(img1, img2, empty_board, cases, top_modified_ca
 # Determiner la capture ou le mouvement simple
 ###############################################
 
-#-----------------------
-# La case destination etait-elle vide ou pleine dans l'image 1 ?
+#------------------------------------------------------
+# # La case destination etait-elle pleine dans l'image 1 ?
+# def was_square_full(img, empty_board, coords, threshold, debug=False):
+#     """
+#     Détermine si une case était pleine en comparant avec l'échiquier vide.
+#     """
+#     x_start, x_end, y_start, y_end = coords
+
+#     # Extraire la case dans l'image et dans l'échiquier vide
+#     square_img = img[y_start:y_end, x_start:x_end]
+#     empty_square = empty_board[y_start:y_end, x_start:x_end]
+
+#     # Calculer la différence moyenne entre les deux
+#     diff = np.mean(cv2.absdiff(square_img, empty_square))
+
+#     # Vérifier si la différence dépasse le seuil
+#     return diff > threshold
+
+#------------------------------------------------
+# La case destination etait-elle vide en image 1 ?
 def was_square_full(img, empty_board, coords, threshold, debug=False):
     """
-    Détermine si une case était pleine en comparant avec l'échiquier vide.
+    Détermine si une case était vide en utilisant la variance.
     """
     x_start, x_end, y_start, y_end = coords
 
@@ -241,11 +260,19 @@ def was_square_full(img, empty_board, coords, threshold, debug=False):
     square_img = img[y_start:y_end, x_start:x_end]
     empty_square = empty_board[y_start:y_end, x_start:x_end]
 
-    # Calculer la différence moyenne entre les deux
-    diff = np.mean(cv2.absdiff(square_img, empty_square))
+    var_case1 = masked_variance(square_img)
+    var_case2 = masked_variance(empty_square)
 
-    # Vérifier si la différence dépasse le seuil
-    return diff > threshold
+    if debug:
+        print("\n DETERMINE CAPTURE:")
+        print('var case image:' + str(var_case1) + '\n' + "var case empty: " + str(var_case2))
+
+    # Si les variances sont proches, alors les deux cases sont vides
+    # Return True si la case est pas vide 
+    if abs(var_case1-var_case2) > 500:
+        return True
+    else:
+        return False 
 
 def is_capture(img1, empty_board, destination_coords, threshold, debug=False):
     """
@@ -295,7 +322,6 @@ def determine_piece_color(circle_mean_intensity, threshold=50):
     proche de 0 = noir
     """
     return "white" if circle_mean_intensity > threshold else "black"
-
 
 
 ###############################################
@@ -355,30 +381,47 @@ def is_roque(top_4_cases, debug):
 
 
 ################## EN PASSANT ###################
-def is_en_passant(top_3_cases, threshold, debug=False):
+def is_en_passant(top_4_cases, threshold, debug=False):
     """
     Vérifie si une prise en passant a eu lieu.
     On check si 3 cases sont modifies au dessus d'un seuil
     On check si parmis ces 3 cases, il y a lignes 5->6 ou 4->3
     """
     # Filtrer les cases qui dépassent le seuil
-    valid_cases = [(case, int(case[1])) for case, pourcentage in top_3_cases if pourcentage >= threshold]
+    valid_cases = [(case, int(case[1])) for case, pourcentage in top_4_cases if pourcentage >= threshold]
     
     if debug:
-        print('\n EN PASSANT :')
+        print('\nEN PASSANT :')
         print(f"Cases valides apres filtrage par seuil ({threshold}%): {valid_cases}")
     
     # Vérifier qu'il y a au moins 3 cases valides
     if len(valid_cases) < 3:
         if debug:
-            print("Moins de 3 cases dépassent le seuil. Pas de prise en passant.")
-        return False
+            print("Moins de 3 cases dépassent le seuil de diff. Pas de prise en passant.")
+        return False, 'A1'
     
-    # lignes extraites des cases
+    # Check si il y a redondance de lignes et de colonnes dans les 3 cases
+    # lignes et colonnes extraites des cases
     lignes = [int(case[1]) for case, _ in valid_cases]
-    if debug:
-        print("lignes extraites", lignes)
+    colonnes = [case[0] for case, _ in valid_cases]
 
+    # Vérifier les redondances dans les lignes
+    lignes_redondantes = any(lignes.count(ligne) > 1 for ligne in lignes)
+    # Vérifier les redondances dans les colonnes
+    colonnes_redondantes = any(colonnes.count(colonne) > 1 for colonne in colonnes)
+
+    if debug:
+        print("Lignes extraites:", lignes)
+        print("Colonnes extraites:", colonnes)
+        print(f"Redondances - Lignes: {lignes_redondantes}, Colonnes: {colonnes_redondantes}")
+    
+    # Continuer seulement s'il y a redondances de lignes ET de colonnes
+    if not (lignes_redondantes and colonnes_redondantes):
+        if debug:
+            print("Pas de redondances suffisantes. Pas de prise en passant.")
+        return False, 'A1'
+    
+    # ----Determiner case d'origine ---    
     # Vérifier si deux lignes consécutives pertinentes existent
     is_valid = (5 in lignes and 6 in lignes) or (4 in lignes and 3 in lignes)
     

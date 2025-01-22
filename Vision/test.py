@@ -6,13 +6,13 @@ from calibration import calibrate_corners, compute_transformation, rectify_image
 from processing import (
     detect_differences, analyze_squares, determine_movement_direction, 
     is_capture, determine_piece_color, check_color,
-    is_roque, is_en_passant
+    is_roque, is_en_passant,
 )
  
 def oracle(img1,img2, reference_image, debug = True):
 
     # ------------- PARAMETERS -------------------
-    threshold_diff = 30 # pour 'detect_difference' : Seuil pour la diff de pixels 
+    threshold_diff = 20 # pour 'detect_difference' : Seuil pour la diff de pixels 
     threshold_empty = 20 #pour  'is square_empty': Seuil pour diff entre case et case empty
     # ----------------------------------------------------------------------------------------------
     calibration_file = "chessboard_calibration.pkl"
@@ -66,10 +66,8 @@ def oracle(img1,img2, reference_image, debug = True):
     capture_detected = is_capture(rectified_img1, rectified_reference_gray, destination_coords, threshold_diff, debug)
     if capture_detected:
         move_type = "CAPTURE"
-        #print(f"The move is a : CAPTURE")
     else:
         move_type = "SIMPLE"
-        #print(f"The move is a : SIMPLE MOVE")
 
     # ----------------------------------------------------------------------
     # Determiner la couleur de la piece bougee
@@ -97,8 +95,8 @@ def oracle(img1,img2, reference_image, debug = True):
    # -------------------
    # ----EN-PASSANT ----
    # -------------------
-    top_3_cases = [modified_cases[0], modified_cases[1], modified_cases[2]]
-    en_passant, new_origin = is_en_passant(top_3_cases, threshold_diff,debug)
+    top_cases = [modified_cases[0], modified_cases[1], modified_cases[2], modified_cases[3]]
+    en_passant, new_origin = is_en_passant(top_cases, threshold_diff,debug)
 
     if en_passant :
         origin = new_origin
@@ -113,7 +111,7 @@ def oracle(img1,img2, reference_image, debug = True):
 
 
 # ------------------------------------------------
-    print("-------------------------------------------------------------------")
+    print("\n-------------------------------------------------------------------")
     print(f"Origin: {origin}, Destination: {destination}, Move Type: {move_type}, Piece Color: {color}")
     print("-------------------------------------------------------------------")
 
@@ -125,8 +123,8 @@ def main():
     #Load empty checkboard
     reference_image = cv2.imread("Vision/photos_test/img0.png", cv2.IMREAD_COLOR)
     # Load example images
-    img1 = cv2.imread("Vision/photos_en_passant/pose1.png", cv2.IMREAD_COLOR)
-    img2 = cv2.imread("Vision/photos_en_passant/pose2.png", cv2.IMREAD_COLOR)
+    img1 = cv2.imread("Vision/photos_en_passant/pose3.png", cv2.IMREAD_COLOR)
+    img2 = cv2.imread("Vision/photos_en_passant/pose4.png", cv2.IMREAD_COLOR)
 
     # Process the move
     origin, destination, move_type, color = oracle(img1, img2, reference_image)
