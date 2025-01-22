@@ -79,34 +79,6 @@ def analyze_squares(filtered_diff, cases, square_size, debug):
 ####### Determiner la direction du coup #######
 ###############################################
 
-def visualize_diff_with_highlight(img, diff, cases, highlighted_cases, debug):
-    """
-    Visualise l'image complète avec les différences entre l'image actuelle et l'échiquier vide,
-    tout en mettant en surbrillance les cases d'intérêt.
-    """
-    # Convertir l'image en couleur si elle est en niveaux de gris (pour dessiner en couleur)
-    if len(img.shape) == 2:
-        img_color = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
-    else:
-        img_color = img.copy()
-
-    # Dessiner les cases modifiées
-    for case, coords in cases.items():
-        x_start, x_end, y_start, y_end = coords
-        color = (0, 255, 0) if case not in highlighted_cases else (0, 0, 255)  # Vert normal, Rouge pour surbrillance
-        thickness = 2 if case in highlighted_cases else 1  # Épaisseur différente pour les cases d'intérêt
-        cv2.rectangle(img_color, (x_start, y_start), (x_end, y_end), color, thickness)
-
-    # Superposer la différence avec l'échiquier vide
-    diff_overlay = cv2.addWeighted(img_color, 0.7, cv2.cvtColor(diff, cv2.COLOR_GRAY2BGR), 0.3, 0)
-
-    if debug:
-        cv2.imshow("Différence avec surbrillance des cases", diff_overlay)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
-
-    return diff_overlay
-
 def masked_variance(img, debug = False):
      # Dimensions de la case
     square_height, square_width = img.shape
@@ -122,44 +94,39 @@ def masked_variance(img, debug = False):
     masked_square_img = cv2.bitwise_and(img, img, mask=mask)
     return np.var(img[img > 0])
 
-def is_square_empty(square_img, empty_square_img, threshold, debug):
-    """
-    Détermine si une case est vide en comparant son contenu avec une image de référence vide,
-    en analysant uniquement un cercle centré dans la case.
-    True si la case est vide, False sinon.
-    """
-    # Dimensions de la case
-    square_height, square_width = square_img.shape
-    center_x = square_width // 2
-    center_y = square_height // 2
-    radius = square_width // 4  # Rayon du cercle = largeur de la case / 4
+# def is_square_empty(square_img, empty_square_img, threshold, debug):
+#     """
+#     Détermine si une case est vide en comparant son contenu avec une image de référence vide,
+#     en analysant uniquement un cercle centré dans la case.
+#     True si la case est vide, False sinon.
+#     """
+#     # Dimensions de la case
+#     square_height, square_width = square_img.shape
+#     center_x = square_width // 2
+#     center_y = square_height // 2
+#     radius = square_width // 4  # Rayon du cercle = largeur de la case / 4
 
-    # Créer un masque circulaire
-    mask = np.zeros_like(square_img, dtype=np.uint8)
-    cv2.circle(mask, (center_x, center_y), radius, 255, -1)
+#     # Créer un masque circulaire
+#     mask = np.zeros_like(square_img, dtype=np.uint8)
+#     cv2.circle(mask, (center_x, center_y), radius, 255, -1)
 
-    # Appliquer le masque sur les deux images (case actuelle et case vide)
-    masked_square_img = cv2.bitwise_and(square_img, square_img, mask=mask)
-    masked_empty_square_img = cv2.bitwise_and(empty_square_img, empty_square_img, mask=mask)
+#     # Appliquer le masque sur les deux images (case actuelle et case vide)
+#     masked_square_img = cv2.bitwise_and(square_img, square_img, mask=mask)
+#     masked_empty_square_img = cv2.bitwise_and(empty_square_img, empty_square_img, mask=mask)
 
-    cv2.imshow('masked_square_img', masked_square_img)
-    cv2.imshow('masked_empty_square_img', masked_empty_square_img)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+#     var1 = np.var(masked_square_img[masked_square_img > 0])
+#     var2 = np.var(masked_empty_square_img[masked_empty_square_img > 0])
 
-    var1 = np.var(masked_square_img[masked_square_img > 0])
-    var2 = np.var(masked_empty_square_img[masked_empty_square_img > 0])
+#     #print('var pleine : ' + str(var1) + '\n' + "Var vide : " + str(var2))
+#     # Calculer la différence moyenne dans le cercle
+#     diff = cv2.absdiff(masked_square_img, masked_empty_square_img)
+#     diff_value = np.mean(diff)
 
-    #print('var pleine : ' + str(var1) + '\n' + "Var vide : " + str(var2))
-    # Calculer la différence moyenne dans le cercle
-    diff = cv2.absdiff(masked_square_img, masked_empty_square_img)
-    diff_value = np.mean(diff)
-
-    if debug:
-        print(f"Difference moyenne dans le cercle: {diff_value}, Seuil: {threshold}")
+#     if debug:
+#         print(f"Difference moyenne dans le cercle: {diff_value}, Seuil: {threshold}")
         
-    # Retourne True si la différence moyenne est inférieure au seuil
-    return diff_value #< threshold
+#     # Retourne True si la différence moyenne est inférieure au seuil
+#     return diff_value #< threshold
 
 def determine_movement_direction(img2, cases, top_modified_cases, debug):
     """
@@ -208,82 +175,81 @@ def determine_movement_direction(img2, cases, top_modified_cases, debug):
 
 #------------------------------------------------
 # La case destination etait-elle vide en image 1 ?
-def was_square_full(img, empty_board, coords, threshold, debug=False):
-    """
-    Détermine si une case était vide en utilisant la variance.
-    """
-    x_start, x_end, y_start, y_end = coords
+# def was_square_full(img, empty_board, coords, threshold, debug=False):
+#     """
+#     Détermine si une case était vide en utilisant la variance.
+#     """
+#     x_start, x_end, y_start, y_end = coords
 
-    # Extraire la case dans l'image et dans l'échiquier vide
-    square_img = img[y_start:y_end, x_start:x_end]
-    empty_square = empty_board[y_start:y_end, x_start:x_end]
+#     # Extraire la case dans l'image et dans l'échiquier vide
+#     square_img = img[y_start:y_end, x_start:x_end]
+#     empty_square = empty_board[y_start:y_end, x_start:x_end]
 
-    var_case1 = masked_variance(square_img)
-    var_case2 = masked_variance(empty_square)
+#     var_case1 = masked_variance(square_img)
+#     var_case2 = masked_variance(empty_square)
 
-    if debug:
-        print("\nDETERMINE CAPTURE:")
-        print('Var case image : ' + str(var_case1) + '\n' + "Var case empty : " + str(var_case2))
+#     if debug:
+#         print("\nDETERMINE CAPTURE:")
+#         print('Var case image : ' + str(var_case1) + '\n' + "Var case empty : " + str(var_case2))
 
+#     # Si les variances sont proches, alors les deux cases sont vides
+#     # Return True si la case est pas vide
+#     if abs(var_case1-var_case2) > 500:
+#         if debug:
+#             print('Var diff >500 => case pleine => capture')
+#         return True
+#     else:
+#         if debug:
+#             print('Var diff <500 => case vide => mouv simple')
+#         return False
 
-    # Si les variances sont proches, alors les deux cases sont vides
-    # Return True si la case est pas vide
-    if abs(var_case1-var_case2) > 500:
-        if debug:
-            print('Var diff >500 => case pleine => capture')
-        return True
-    else:
-        if debug:
-            print('Var diff <500 => case vide => mouv simple')
-        return False
-
-def is_capture(img1, empty_board, destination_coords, threshold, debug=False):
-    """
-    Détecte si un mouvement est une capture en analysant la case de destination.
-    """
-    # Vérifier si la case de destination était pleine avant le coup
-    return was_square_full(img1, empty_board, destination_coords, threshold, debug)
+# def is_capture(img1, empty_board, destination_coords, threshold, debug=False):
+#     """
+#     Détecte si un mouvement est une capture en analysant la case de destination.
+#     """
+#     # Vérifier si la case de destination était pleine avant le coup
+#     return was_square_full(img1, empty_board, destination_coords, threshold, debug)
 
 ###############################################
 # Determiner la couleur de la piece jouee #####
 ###############################################
 # Verifions si la couleur de la case d'arriver differe de la case d'origine
 # on check la couleur presente dans un cercle de d=l/2 centre au milieu de la case
-def check_color(img, coords):
-    """
-    Analyse la couleur moyenne dans un cercle centré dans une case.
-    img : Image en niveaux de gris.
-    coords : Coordonnées de la case (x_start, x_end, y_start, y_end).
-    """
-    x_start, x_end, y_start, y_end = coords
+# def check_color(img, coords):
+#     """
+#     Analyse la couleur moyenne dans un cercle centré dans une case.
+#     img : Image en niveaux de gris.
+#     coords : Coordonnées de la case (x_start, x_end, y_start, y_end).
+#     """
+#     x_start, x_end, y_start, y_end = coords
 
-    # Dimensions de la case
-    square_width = x_end - x_start
-    square_height = y_end - y_start
-    center_x = x_start + square_width // 2
-    center_y = y_start + square_height // 2
-    radius = square_width // 4  # Diamètre = largeur / 2, donc rayon = largeur / 4
+#     # Dimensions de la case
+#     square_width = x_end - x_start
+#     square_height = y_end - y_start
+#     center_x = x_start + square_width // 2
+#     center_y = y_start + square_height // 2
+#     radius = square_width // 4  # Diamètre = largeur / 2, donc rayon = largeur / 4
 
-    # Créer un masque circulaire
-    mask = np.zeros_like(img, dtype=np.uint8)
-    cv2.circle(mask, (center_x, center_y), radius, 255, -1)
+#     # Créer un masque circulaire
+#     mask = np.zeros_like(img, dtype=np.uint8)
+#     cv2.circle(mask, (center_x, center_y), radius, 255, -1)
 
-    # Appliquer le masque pour extraire les pixels du cercle
-    masked_img = cv2.bitwise_and(img, img, mask=mask)
+#     # Appliquer le masque pour extraire les pixels du cercle
+#     masked_img = cv2.bitwise_and(img, img, mask=mask)
 
-    # Calculer l'intensité moyenne dans le cercle
-    circle_mean_intensity = cv2.mean(masked_img, mask=mask)[0]  # Moyenne des pixels dans le cercle
+#     # Calculer l'intensité moyenne dans le cercle
+#     circle_mean_intensity = cv2.mean(masked_img, mask=mask)[0]  # Moyenne des pixels dans le cercle
     
-    #print("couleur =:", circle_mean_intensity)
-    return circle_mean_intensity
+#     #print("couleur =:", circle_mean_intensity)
+#     return circle_mean_intensity
 
-def determine_piece_color(circle_mean_intensity, threshold=50):
-    """
-    Détermine si la pièce est blanche ou noire en fonction de l'intensité moyenne.
-    atours de 255 = banc
-    proche de 0 = noir
-    """
-    return "white" if circle_mean_intensity > threshold else "black"
+# def determine_piece_color(circle_mean_intensity, threshold=50):
+#     """
+#     Détermine si la pièce est blanche ou noire en fonction de l'intensité moyenne.
+#     atours de 255 = banc
+#     proche de 0 = noir
+#     """
+#     return "white" if circle_mean_intensity > threshold else "black"
 
 ###############################################
 ################ COUPS SPECIAUX ###############
@@ -339,7 +305,7 @@ def is_roque(top_4_cases, debug):
             print("Aucune correspondance avec un roque")
         return None
     
-    return (roque_type, roque_color, origin, destination)
+    return (origin, destination)
 
 
 ################## EN PASSANT ###################
