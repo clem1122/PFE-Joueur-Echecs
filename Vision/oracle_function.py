@@ -11,13 +11,7 @@ from Vision.processing import (
 )
 
 def oracle(img1,img2, reference_image, debug = False):
-    # plt.figure(1)
-    # plt.subplot(1,2,1)
-    # plt.imshow(img1)
-    # plt.subplot(1,2,2)
-    # plt.imshow(img2)
-    # plt.show()
-
+ 
     # ------------------------------ PARAMETERS ----------------------------------
     threshold_diff = 30 #dans 'detect_difference' : Seuil pour la diff de pixels 
     threshold_empty = 20 #dans 'is square_empty': Seuil pour diff entre case et case empty
