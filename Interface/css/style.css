@@ -135,3 +135,17 @@ html {
   background-color: #e6e6e6;
   align-self: flex-start;
 }
+
+.form-check-label {
+  font-size: 1.5rem; /* Taille de la police agrandie */
+}
+
+.form-check-input {
+  width: 2rem; /* Agrandit la taille des boutons */
+  height: 2rem;
+}
+
+.btn-lg {
+  font-size: 1.5rem; /* Agrandit la taille du texte du bouton */
+  padding: 1rem 2rem; /* Augmente la taille globale du bouton */
+}

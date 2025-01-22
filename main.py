@@ -193,9 +193,9 @@ if args.take_picture:
 def close(signal_received, frame):
 	print("\nSignal d'interruption reçu (Ctrl+C). Fermeture en cours...")
 	if not args.no_robot: 
-		robot.nyrio.close_connection()
-
-	exit(0)
+		robot.niryo.close_connection()
+	while True:
+		pass
 
 signal.signal(signal.SIGINT, close)
 
