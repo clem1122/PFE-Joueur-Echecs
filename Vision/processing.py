@@ -1,10 +1,9 @@
 import cv2
 import numpy as np
 
-
-###############################################
+################################################
 ######### Trouver les cases modifiees ##########
-###############################################
+################################################
 
 # Difference entre deux images
 def detect_differences(img1, img2, sensitivity_threshold, debug):

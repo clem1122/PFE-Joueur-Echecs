@@ -104,6 +104,7 @@ def take_picture(robot, img_name):
     output_path = os.path.join(ImageDirectory, str(img_name) + '.png')
     cv2.imwrite(output_path, img_undistort)
     print(output_path)
+    robot.nyrio.play_sound("learning_trajectory.wav")
     return img_undistort
 
 def main():
