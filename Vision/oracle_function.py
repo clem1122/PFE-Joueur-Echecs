@@ -119,15 +119,15 @@ def oracle(img1,img2, reference_image, debug = False):
    # -------------------
    # ----EN-PASSANT ----
    # -------------------
-    top_3_cases = [modified_cases[0], modified_cases[1], modified_cases[2]]
-    en_passant, new_origin = is_en_passant(top_3_cases, threshold_diff,debug)
+    top_cases = [modified_cases[0], modified_cases[1], modified_cases[2]] #, modified_cases[3], modified_cases[4]]
+    en_passant, new_origin, new_destination = is_en_passant(top_cases, threshold_diff,debug)
 
     if en_passant :
         origin = new_origin
+        destination = new_destination
         move_type = 'EN PASSANT' 
     else:
         pass
-
 
    # -------------------
    # ----PROMOTION -----

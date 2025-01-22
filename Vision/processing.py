@@ -71,7 +71,7 @@ def analyze_squares(filtered_diff, cases, square_size, debug):
 
     if debug:
         print(f"\nTOP 2 CASES MODIFIEES: {modified_cases[:2]} \n")
-        print(f"\nTOP 4 CASES MODIFIEES: {modified_cases[:4]} \n")
+        #print(f"\nTOP 4 CASES MODIFIEES: {modified_cases[:4]} \n")
 
     return modified_cases[:5]
 
@@ -151,7 +151,7 @@ def is_square_empty(square_img, empty_square_img, threshold, debug):
     var1 = np.var(masked_square_img[masked_square_img > 0])
     var2 = np.var(masked_empty_square_img[masked_empty_square_img > 0])
 
-    print('var pleine : ' + str(var1) + '\n' + "Var vide : " + str(var2))
+    #print('var pleine : ' + str(var1) + '\n' + "Var vide : " + str(var2))
     # Calculer la différence moyenne dans le cercle
     diff = cv2.absdiff(masked_square_img, masked_empty_square_img)
     diff_value = np.mean(diff)
@@ -263,11 +263,11 @@ def was_square_full(img, empty_board, coords, threshold, debug=False):
     var_case2 = masked_variance(empty_square)
 
     if debug:
-        print("\n DETERMINE CAPTURE:")
-        print('var case image:' + str(var_case1) + '\n' + "var case empty: " + str(var_case2))
+        print("\nDETERMINE CAPTURE:")
+        print('var case image : ' + str(var_case1) + '\n' + "var case empty : " + str(var_case2))
 
     # Si les variances sont proches, alors les deux cases sont vides
-    # Return True si la case est pas vide 
+    # Return True si la case est pas vide
     if abs(var_case1-var_case2) > 500:
         return True
     else:
@@ -373,7 +373,7 @@ def is_roque(top_4_cases, debug):
             print("GRAND ROQUE BLANC detected")
     else:
         if debug:
-            print("ROQUE: Aucune correspondance avec un roque.")
+            print("Aucune correspondance avec un roque.")
         return None
     
     return (roque_type, roque_color, origin, destination)
@@ -396,8 +396,8 @@ def is_en_passant(top_4_cases, threshold, debug=False):
     # Vérifier qu'il y a au moins 3 cases valides
     if len(valid_cases) < 3:
         if debug:
-            print("Moins de 3 cases dépassent le seuil. Pas de prise en passant.")
-        return False, "a3"
+            print("Moins de 3 cases depassent le seuil. Pas de prise en passant.")
+        return False, "A1", "A1"
     
     # Check si il y a redondance de lignes et de colonnes dans les 3 cases
     # lignes et colonnes extraites des cases
@@ -418,28 +418,41 @@ def is_en_passant(top_4_cases, threshold, debug=False):
     if not (lignes_redondantes and colonnes_redondantes):
         if debug:
             print("Pas de redondances suffisantes. Pas de prise en passant.")
-        return False, 'A1'
+        return False, "A1", "A1"
     
     # ----Determiner case d'origine ---    
     # Vérifier si deux lignes consécutives pertinentes existent
     is_valid = (5 in lignes and 6 in lignes) or (4 in lignes and 3 in lignes)
     
     # Identifier la colonne unique ("origin")
-    colonnes = [case[0] for case, _ in valid_cases]
     unique_colonnes = [colonne for colonne in colonnes if colonnes.count(colonne) == 1]
-    
+    unique_lignes = [ligne for ligne in lignes if lignes.count(ligne) == 1]
+
+    # if debug:
+    #     print(f"Colonne unique: {unique_colonnes}")
+    #     print(f"Ligne unique: {unique_lignes}")
+
     if unique_colonnes:
         # Trouver la case complète correspondant à la colonne unique
         for case, _ in valid_cases:
             if case[0] in unique_colonnes:
                 origin = case
                 break
+
+    if unique_lignes:
+        # Trouver la case complète correspondant à la colonne unique
+        for case, ligne in valid_cases:
+            if ligne in unique_lignes:
+                destination = case
+                break
     
     if debug:
-        print(f"Colonnes uniques: {unique_colonnes}, Case d'origine: {origin}")
+        print(f"Colonne unique: {unique_colonnes}, Case d'origine: {origin}")
+        print(f"Ligne unique: {unique_lignes}, Case de destination: {destination}")
+
         print(f"Prise en passant detected: {is_valid}\n")
     
-    return is_valid, origin
+    return is_valid, origin, destination
 
 ###############################################
 ###### Verifier que la photo est valide ######
@@ -447,4 +460,3 @@ def is_en_passant(top_4_cases, threshold, debug=False):
 
 # Verifier si la photo est valide, cad que l'echiquier est bien visible
 # Cela renforce si jamais une main cache l'echiquier
-

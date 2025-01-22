@@ -96,10 +96,11 @@ def oracle(img1,img2, reference_image, debug = True):
    # ----EN-PASSANT ----
    # -------------------
     top_cases = [modified_cases[0], modified_cases[1], modified_cases[2]] #, modified_cases[3], modified_cases[4]]
-    en_passant, new_origin = is_en_passant(top_cases, threshold_diff,debug)
+    en_passant, new_origin, new_destination = is_en_passant(top_cases, threshold_diff,debug)
 
     if en_passant :
         origin = new_origin
+        destination = new_destination
         move_type = 'EN PASSANT' 
     else:
         pass
@@ -108,7 +109,7 @@ def oracle(img1,img2, reference_image, debug = True):
    # -------------------
    # ----PROMOTION -----
    # -------------------
-    
+
 
 # ------------------------------------------------
     print("\n-------------------------------------------------------------------")
@@ -123,8 +124,8 @@ def main():
     #Load empty checkboard
     reference_image = cv2.imread("Vision/photos_test/img0.png", cv2.IMREAD_COLOR)
     # Load example images
-    img1 = cv2.imread("Vision/photos_en_passant/pose3.png", cv2.IMREAD_COLOR)
-    img2 = cv2.imread("Vision/photos_en_passant/pose4.png", cv2.IMREAD_COLOR)
+    img1 = cv2.imread("Vision/photos/roque2.png", cv2.IMREAD_COLOR)
+    img2 = cv2.imread("Vision/photos/roque3.png", cv2.IMREAD_COLOR)
 
     # Process the move
     origin, destination, move_type, color = oracle(img1, img2, reference_image)
