@@ -94,8 +94,9 @@ def robot_play(moveStr, cautious = False):
 	
 	
 	m = b.create_move(moveStr[:4])
-	if not g.play(moveStr): return False
+	if not b.is_legal(m): return False
 	robot.play_move(b, m, cautious, promotion)
+	g.play(moveStr)
 	if m.isPromoting() : manage_promotion(promotion, m)
 	return True
 	
@@ -212,7 +213,7 @@ while True:
 		if vision:
 			allegedMove, type, color = see(playCount)
 			if allegedMove != moveStr:
-				print("Warning : Coup détécté" + allegedMove + " != coup joué " + moveStr)
+				print("Warning : Coup détécté " + allegedMove + " != coup joué " + moveStr)
 
 		# Verification du coup joué par le robot
 	else:

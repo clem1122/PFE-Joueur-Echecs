@@ -3,9 +3,9 @@ import cv2
 import numpy as np
 import pickle
 import os
-#from Scripts.Robot import Robot
-#from pyniryo.vision import uncompress_image, undistort_image, concat_imgs, show_img
-#from time import sleep
+from Scripts.Robot import Robot
+from pyniryo.vision import uncompress_image, undistort_image, concat_imgs, show_img
+from time import sleep
 
 
 clicked_points = []
@@ -104,6 +104,7 @@ def take_picture(robot, img_name):
     output_path = os.path.join(ImageDirectory, str(img_name) + '.png')
     cv2.imwrite(output_path, img_undistort)
     print(output_path)
+    robot.nyrio.play_sound("learning_trajectory.wav")
     return img_undistort
 
 def main():
