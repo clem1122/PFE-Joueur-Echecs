@@ -73,7 +73,7 @@ def analyze_squares(filtered_diff, cases, square_size, debug):
         print(f"\nTOP 2 CASES MODIFIEES: {modified_cases[:2]} \n")
         #print(f"\nTOP 4 CASES MODIFIEES: {modified_cases[:4]} \n")
 
-    return modified_cases[:5]
+    return modified_cases[:4]
 
 ###############################################
 ####### Determiner la direction du coup #######
@@ -122,7 +122,6 @@ def masked_variance(img, debug = False):
     masked_square_img = cv2.bitwise_and(img, img, mask=mask)
     return np.var(img[img > 0])
 
-
 def is_square_empty(square_img, empty_square_img, threshold, debug):
     """
     Détermine si une case est vide en comparant son contenu avec une image de référence vide,
@@ -159,25 +158,24 @@ def is_square_empty(square_img, empty_square_img, threshold, debug):
     if debug:
         print(f"Difference moyenne dans le cercle: {diff_value}, Seuil: {threshold}")
         
-        # Visualisation pour debug
-        # cv2.imshow("Masque circulaire sur la case actuelle", masked_square_img)
-        # cv2.imshow("Masque circulaire sur la case vide", masked_empty_square_img)
-        # cv2.imshow("Différence dans le cercle", diff)
-        # cv2.waitKey(0)
-        # cv2.destroyAllWindows()
-
     # Retourne True si la différence moyenne est inférieure au seuil
     return diff_value #< threshold
 
-def determine_movement_direction(img1, img2, empty_board, cases, top_modified_cases, threshold_empty, debug):
+def determine_movement_direction(img2, cases, top_modified_cases, debug):
     """
     Détermine le mouvement en comparant les cases avec l'échiquier vide.
     LA CASE QUI EST DEVENUE VIDE DANS IMG2 EST LA CASE DE DEPART
+
+    LOGIC:
+     - On compute les variances dans IMG2
+     - La plus petite variance EST LA CASE VIDE
+     - La case vide est l'origine, l'autre est la destination
     """
-    if len(top_modified_cases) != 2:
+    if len(top_modified_cases) < 2:
         return None, "Erreur 'determine_movement': moins de deux cases modifiées."
 
     case1, case2 = top_modified_cases[0][0], top_modified_cases[1][0]
+
     # Extraire les coordonnées des cases
     coords1 = cases[case1]
     coords2 = cases[case2]
@@ -186,66 +184,27 @@ def determine_movement_direction(img1, img2, empty_board, cases, top_modified_ca
     x1_start, x1_end, y1_start, y1_end = coords1
     x2_start, x2_end, y2_start, y2_end = coords2
 
-    #square1_img1 = img1[y1_start:y1_end, x1_start:x1_end]
+    # Extraction coordonnes cases 1 et 2 dans img2
     square1_img2 = img2[y1_start:y1_end, x1_start:x1_end]
-    # square1_empty = empty_board[y1_start:y1_end, x1_start:x1_end]
-
-    # square2_img1 = img1[y2_start:y2_end, x2_start:x2_end]
     square2_img2 = img2[y2_start:y2_end, x2_start:x2_end]
-    # square2_empty = empty_board[y2_start:y2_end, x2_start:x2_end]
 
-    # Calcul de la différence complète
-    #diff = cv2.absdiff(img2, empty_board)
-     # Visualisation de la différence avec surbrillance des cases
-    #if debug:
-    #    visualize_diff_with_highlight(img2, diff, cases, [case1, case2], debug)
-
-    # Déterminer dans image 2 quelle case est devenue vide
-    #square1_empty_after = is_square_empty(square1_img2, square1_empty, threshold_empty, debug)
-    #square2_empty_after = is_square_empty(square2_img2, square2_empty, threshold_empty, debug)
-
-    # Identifier l'origine et la destination
-    #if square1_empty_after:  # Case 1 est devenue vide
-     #   origin = case1
-     #destination = case2
-    #elif square2_empty_after:  # Case 2 est devenue vide
-    #origin = case2
-     #destination = case1
-    #else:
-        #return None, "Erreur: Aucune case ne semble etre devenue vide -> 'is square empty'."
-
-
+    # Calcul des variances
     var_case1 = masked_variance(square1_img2)
     var_case2 = masked_variance(square2_img2)
+
+    # Origine est la mininum variance
     origin = case1 if var_case1 == min(var_case1, var_case2) else case2
     destination = case1 if origin==case2 else case2
 
-    if debug: 
-        print('var 1 : ' + str(var_case1) + '\n' + "Var 2 : " + str(var_case2))
-        
+    if debug:
+        print("DETERMINE DIRECTION:")
+        print('Var case 1: ' + str(var_case1) + '\n' + "Var case 2: " + str(var_case2))
+        print('Origin:', origin, 'Destination:', destination)
     return origin, destination
 
 ###############################################
 # Determiner la capture ou le mouvement simple
 ###############################################
-
-#------------------------------------------------------
-# # La case destination etait-elle pleine dans l'image 1 ?
-# def was_square_full(img, empty_board, coords, threshold, debug=False):
-#     """
-#     Détermine si une case était pleine en comparant avec l'échiquier vide.
-#     """
-#     x_start, x_end, y_start, y_end = coords
-
-#     # Extraire la case dans l'image et dans l'échiquier vide
-#     square_img = img[y_start:y_end, x_start:x_end]
-#     empty_square = empty_board[y_start:y_end, x_start:x_end]
-
-#     # Calculer la différence moyenne entre les deux
-#     diff = np.mean(cv2.absdiff(square_img, empty_square))
-
-#     # Vérifier si la différence dépasse le seuil
-#     return diff > threshold
 
 #------------------------------------------------
 # La case destination etait-elle vide en image 1 ?
@@ -264,14 +223,19 @@ def was_square_full(img, empty_board, coords, threshold, debug=False):
 
     if debug:
         print("\nDETERMINE CAPTURE:")
-        print('var case image : ' + str(var_case1) + '\n' + "var case empty : " + str(var_case2))
+        print('Var case image : ' + str(var_case1) + '\n' + "Var case empty : " + str(var_case2))
+
 
     # Si les variances sont proches, alors les deux cases sont vides
     # Return True si la case est pas vide
     if abs(var_case1-var_case2) > 500:
+        if debug:
+            print('Var diff >500 => case pleine => capture')
         return True
     else:
-        return False 
+        if debug:
+            print('Var diff <500 => case vide => mouv simple')
+        return False
 
 def is_capture(img1, empty_board, destination_coords, threshold, debug=False):
     """
@@ -283,7 +247,6 @@ def is_capture(img1, empty_board, destination_coords, threshold, debug=False):
 ###############################################
 # Determiner la couleur de la piece jouee #####
 ###############################################
-
 # Verifions si la couleur de la case d'arriver differe de la case d'origine
 # on check la couleur presente dans un cercle de d=l/2 centre au milieu de la case
 def check_color(img, coords):
@@ -322,7 +285,6 @@ def determine_piece_color(circle_mean_intensity, threshold=50):
     """
     return "white" if circle_mean_intensity > threshold else "black"
 
-
 ###############################################
 ################ COUPS SPECIAUX ###############
 ###############################################
@@ -333,7 +295,8 @@ def is_roque(top_4_cases, debug):
     Regarde les 4 cases modifiees et determine si elles correspondent a la sequence du roque"
     """
     if debug :
-        print('\nROQUE: TOP4:', top_4_cases)
+        print('\nCHECK ROQUE:')
+        print('TOP4:', top_4_cases)
     
     # Définition des séquences attendues
     petit_roque_noir = ['E8', 'G8', 'H8', 'F8']
@@ -373,7 +336,7 @@ def is_roque(top_4_cases, debug):
             print("GRAND ROQUE BLANC detected")
     else:
         if debug:
-            print("Aucune correspondance avec un roque.")
+            print("Aucune correspondance avec un roque")
         return None
     
     return (roque_type, roque_color, origin, destination)
@@ -391,12 +354,12 @@ def is_en_passant(top_4_cases, threshold, debug=False):
     
     if debug:
         print('\nEN PASSANT :')
-        print(f"Cases valides apres filtrage par seuil ({threshold}%): {valid_cases}")
+        print(f"Cases valides apres filtrage ({threshold}%): {valid_cases}")
     
     # Vérifier qu'il y a au moins 3 cases valides
     if len(valid_cases) < 3:
         if debug:
-            print("Moins de 3 cases depassent le seuil. Pas de prise en passant.")
+            print("Moins de 3 cases depassent le seuil => NO prise en passant.")
         return False, "A1", "A1"
     
     # Check si il y a redondance de lignes et de colonnes dans les 3 cases
@@ -453,10 +416,3 @@ def is_en_passant(top_4_cases, threshold, debug=False):
         print(f"Prise en passant detected: {is_valid}\n")
     
     return is_valid, origin, destination
-
-###############################################
-###### Verifier que la photo est valide ######
-###############################################
-
-# Verifier si la photo est valide, cad que l'echiquier est bien visible
-# Cela renforce si jamais une main cache l'echiquier
