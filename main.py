@@ -21,7 +21,7 @@ roque_FEN = 'r...k..rpppq.ppp..npbn....b.p.....B.P.....NPBN..PPPQ.PPPR...K..R'
 prise_en_passant_FEN = '............p........p.......P...................q......K......k'
 promotion_FEN = 'r.b.kbnrpPpp.ppp..n.................p.q..P...N....PPPPPPRNBQKB.R'
 promotion_FEN2 = '............P........................p...........K.............k'
-fen = 'r....bnrp.pk..pp......p...p.P.B....p.P.......Q..PPP...PPR....RK.'
+fen = 'r.bqkbnr..p..pppp..p....Pp.Pp.......P........N..P.P..PPPRNBQKB.R'
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--move-to-square", "-m", type=str)
@@ -37,7 +37,7 @@ isWhite = False
 vision = not args.no_robot
 
 
-g = pc.Game(classic_FEN)
+g = pc.Game(roque_FEN)
 b = g.board
 b.print()
 flask = not (args.no_flask or args.take_picture)
@@ -94,10 +94,10 @@ def robot_play(moveStr, cautious = False):
 	
 	
 	m = b.create_move(moveStr[:4])
+	if not g.play(moveStr): return False
 	robot.play_move(b, m, cautious, promotion)
-	result = g.play(moveStr)
 	if m.isPromoting() : manage_promotion(promotion, m)
-	return result
+	return True
 	
 def robot_play_test(moveStr, h):
 	if len(moveStr) != 4:
@@ -221,7 +221,7 @@ while True:
 			pass
 
 		if vision:
-			input("Entrée quand le coup est joué...")
+			if args.no_flask: input("Entrée quand le coup est joué...")
 			allegedMove, type, color = see(playCount, human=True)
 			if not play(allegedMove):
 				print("Warning : Coup détécté " + allegedMove + " semble être erroné")

@@ -397,8 +397,8 @@ def is_en_passant(top_4_cases, threshold, debug=False):
     # Vérifier qu'il y a au moins 3 cases valides
     if len(valid_cases) < 3:
         if debug:
-            print("Moins de 3 cases dépassent le seuil de diff. Pas de prise en passant.")
-        return False, 'A1'
+            print("Moins de 3 cases dépassent le seuil. Pas de prise en passant.")
+        return False, "a3"
     
     # Check si il y a redondance de lignes et de colonnes dans les 3 cases
     # lignes et colonnes extraites des cases
