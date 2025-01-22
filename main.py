@@ -21,7 +21,7 @@ roque_FEN = 'r...k..rpppq.ppp..npbn....b.p.....B.P.....NPBN..PPPQ.PPPR...K..R'
 prise_en_passant_FEN = '............p........p.......P...................q......K......k'
 promotion_FEN = 'r.b.kbnrpPpp.ppp..n.................p.q..P...N....PPPPPPRNBQKB.R'
 promotion_FEN2 = '............P........................p...........K.............k'
-fen = 'r....bnrp.pk..pp......p...p.P.B....p.P.......Q..PPP...PPR....RK.'
+fen = 'r.bqkbnr..p..pppp..p....Pp.Pp.......P........N..P.P..PPPRNBQKB.R'
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--move-to-square", "-m", type=str)
@@ -37,7 +37,7 @@ isWhite = False
 vision = not args.no_robot
 
 
-g = pc.Game(classic_FEN)
+g = pc.Game(fen)
 b = g.board
 b.print()
 flask = not (args.no_flask or args.take_picture)

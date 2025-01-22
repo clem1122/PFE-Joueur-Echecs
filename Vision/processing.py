@@ -372,7 +372,7 @@ def is_en_passant(top_3_cases, threshold, debug=False):
     if len(valid_cases) < 3:
         if debug:
             print("Moins de 3 cases dépassent le seuil. Pas de prise en passant.")
-        return False
+        return False, "a3"
     
     # lignes extraites des cases
     lignes = [int(case[1]) for case, _ in valid_cases]
