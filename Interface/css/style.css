@@ -24,7 +24,7 @@ html {
   gap: 20px;
   /* Space between canvas and checkbox */
   height: 80%;
-  width : 100%;
+  width: 100%;
   /* border: 2px solid red; */
 }
 
@@ -32,26 +32,30 @@ html {
   /* border: 2px solid red;*/
   width: 300px;
 }
+
 /* Optional: Add border and specific size to canvas */
 #chessboard {
-  /* Style for canvas border */
-  max-width: 100%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.right-container {
+  position: absolute;
   display: flex;
-  justify-content: center;
-  /* Center horizontally */
   align-items: center;
-  /* Ensure canvas doesn't overflow */
-  height: auto;
-  /* Maintain aspect ratio */
-  position: relative;
-  /*border: 2px solid red*/
+  /* Centre verticalement */
+  top: 50%;
+  left: calc(50% + 300px);
+  transform: translateY(-50%);
 }
 
 /* Style the checkbox and label */
 .form-check {
+  margin-left: 10px;
   display: flex;
   align-items: center;
-  /* Center vertically */
 }
 
 
@@ -93,6 +97,7 @@ html {
 .chat-container {
   width: 100%;
   max-width: 300px;
+  min-width: 300px;
   height: 400px;
   background: #ffffff;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
@@ -116,7 +121,7 @@ html {
   overflow-y: auto;
   background: #ffffff;
 
-  
+
 }
 
 .message {
@@ -130,5 +135,3 @@ html {
   background-color: #e6e6e6;
   align-self: flex-start;
 }
-
-

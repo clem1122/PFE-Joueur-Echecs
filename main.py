@@ -21,7 +21,7 @@ roque_FEN = 'r...k..rpppq.ppp..npbn....b.p.....B.P.....NPBN..PPPQ.PPPR...K..R'
 prise_en_passant_FEN = '............p........p.......P...................q......K......k'
 promotion_FEN = 'r.b.kbnrpPpp.ppp..n.................p.q..P...N....PPPPPPRNBQKB.R'
 promotion_FEN2 = '............P........................p...........K.............k'
-fen = 'r....bnrp.pk..pp......p...p.P.B....p.P.......Q..PPP...PPR....RK.'
+fen = 'r.bqkbnr..p..pppp..p....Pp.Pp.......P........N..P.P..PPPRNBQKB.R'
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--move-to-square", "-m", type=str)
@@ -41,7 +41,11 @@ g = pc.Game(roque_FEN)
 b = g.board
 b.print()
 flask = not (args.no_flask or args.take_picture)
-imVide = cv2.imread("Images/calibration_img.png")
+try:
+	imVide = cv2.imread("Images/calibration_img.png")
+except e:
+	print("Warning : no calibration file")
+	
 del_im('Images/')
 	
 if flask:
@@ -50,6 +54,12 @@ if flask:
 	except Exception as e:
 		print("Error : Flask is not running")
 		exit(1)
+
+def have_human_played():
+	response = requests.get('http://127.0.0.1:5000/get-have-played')
+	have_played = response.json()
+
+	return have_played
 
 def send_board_FEN(board):
 	if(not flask):
@@ -84,10 +94,10 @@ def robot_play(moveStr, cautious = False):
 	
 	
 	m = b.create_move(moveStr[:4])
+	if not g.play(moveStr): return False
 	robot.play_move(b, m, cautious, promotion)
-	result = g.play(moveStr)
 	if m.isPromoting() : manage_promotion(promotion, m)
-	return result
+	return True
 	
 def robot_play_test(moveStr, h):
 	if len(moveStr) != 4:
@@ -100,12 +110,17 @@ def send_color_FEN(board):
 	if(not flask):
 		return
 	spec_rules = "b" +  board.special_rules()[1:]
-	best_move = get_stockfish_move(board.FEN(), spec_rules, board.en_passant_coord())
+	best_move = get_stockfish_move(board.FEN(), spec_rules, board.en_passant_coord(), display = False)
 	index_1 = board.coord_to_index(best_move[:2])
 	index_2 = board.coord_to_index(best_move[2:])
 	best_FEN = ['.']*64
-	best_FEN[index_1] = '1'
-	best_FEN[index_2] = '1'
+	if args.stockfish:
+		best_move = get_stockfish_move(board.FEN(), spec_rules, board.en_passant_coord())
+		index_1 = board.coord_to_index(best_move[:2])
+		index_2 = board.coord_to_index(best_move[2:])
+		best_FEN[index_1] = '1'
+		best_FEN[index_2] = '1'
+
 	url = "http://127.0.0.1:5000/set-color-FEN"
 	payload = {"threats": board.threats(isWhite), 
 			"playable": board.playable(isWhite), 
@@ -192,7 +207,7 @@ while True:
 
 	if isRobotTurn:
 		moveStr = get_move()
-		if not play(moveStr): break #While ?
+		if not play(moveStr): continue
 
 		if vision:
 			allegedMove, type, color = see(playCount)
@@ -202,15 +217,20 @@ while True:
 		# Verification du coup joué par le robot
 	else:
 		#moveStr = get_move()
-		input("Entrée quand le coup est joué...")
+		while not have_human_played() :
+			pass
 
 		if vision:
+			if args.no_flask: input("Entrée quand le coup est joué...")
 			allegedMove, type, color = see(playCount, human=True)
 			if not play(allegedMove):
 				print("Warning : Coup détécté " + allegedMove + " semble être erroné")
 				moveStr = get_move()
 				while not play(moveStr):
 					moveStr = get_move()
+		else: 
+			moveStr = get_move()
+			play(moveStr)
 				
 		
 	send_color_FEN(b)

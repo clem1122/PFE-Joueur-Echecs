@@ -1,10 +1,15 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
+import time
+import threading
 
 app = Flask(__name__)
 
 CORS(app)
-# Exemple de données à renvoyer
+
+global have_played_status
+have_played_status = False
+# Routes de base pour gérer le jeu et la flask
 
 @app.route('/new-game')
 def new_game():
@@ -28,6 +33,8 @@ def home():
     return "Le serveur flask tourne bien à cette URL"
 
 
+# Route pour les boutons à cocher du html
+
 @app.route('/get-info/<toggle_id>', methods=['GET'])
 def get_info(toggle_id):
     print(toggle_id)
@@ -40,7 +47,7 @@ def get_info(toggle_id):
     else:
         return jsonify({"error": "Bouton non trouvé"}), 404
 
-
+# Routes pour envoyer et recoir les FEN de couleur
 @app.route('/set-color-FEN', methods=['POST'])
 def set_color_FEN():
     global color_FEN
@@ -57,6 +64,7 @@ def get_color_FEN():
     print("color FEN envoyée avec succès")
     return jsonify(color_FEN)
 
+#Routes pour envoyer et recevoir le board
 @app.route('/set-board-FEN', methods=['POST'])
 def set_board_fen():
     global board_FEN 
@@ -83,7 +91,38 @@ def get_board_fen():
         return jsonify({"status": "success", "board_FEN": board_FEN}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+
+# Routes pour savoir quand est-ce que le joueur humain a joué
+
+@app.route('/set-have-played', methods=['POST'])
+def set_have_played():
+    global have_played_status
+    try:
+        data = request.get_json()  # Récupérer les données JSON
+        have_played = data.get('have_played')  # Extraire la valeur
+
+        if isinstance(have_played, bool):  # Vérifier que c'est bien un booléen
+            have_played_status = have_played
+            threading.Thread(target=reset_have_played).start()
+            return jsonify({"message": "Statut de have_played mis à jour"}), 200
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+@app.route('/get-have-played', methods=['GET'])
+def get_have_played():
+    return jsonify(have_played_status), 200
  
+ 
+def reset_have_played(delay=1):
+    global have_played_status
+    """Réinitialise la variable have_played après un délai."""
+    time.sleep(delay)
+    have_played_status = False
+    print("Statut réinitialisé à False.")
+
+
 if __name__ == '__main__':
     new_game()
     app.run(debug=True)
