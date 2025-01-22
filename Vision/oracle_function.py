@@ -33,7 +33,6 @@ def oracle(img1,img2, reference_image, debug = False):
             cases[case_name] = (x_start, x_end, y_start, y_end)
 
     # Calibration de l'echiquier
-    #reference_image = cv2.imread(reference_image)
     input_points = calibrate_corners(calibration_file, reference_image, output_size)
     tform = compute_transformation(input_points, output_size)
 
@@ -41,7 +40,7 @@ def oracle(img1,img2, reference_image, debug = False):
     rectified_reference = rectify_image(reference_image, tform, output_size)
     rectified_reference_gray = cv2.cvtColor(rectified_reference, cv2.COLOR_BGR2GRAY)
 
-    # Convertir les images en niveaux de gris
+    # Conversion niveaux de gris
     img1 = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
     img2 = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
 
@@ -66,10 +65,9 @@ def oracle(img1,img2, reference_image, debug = False):
 
     if len(modified_cases) >= 2:
         top_cases = [modified_cases[0], modified_cases[1]]
-        origin, destination = determine_movement_direction(rectified_img1, rectified_img2, rectified_reference_gray, cases, top_cases, threshold_empty, debug)
-        #print(f"\nDetected movement: {origin} -> {destination}")
+        origin, destination = determine_movement_direction(rectified_img2, cases, top_cases, debug)
     else:
-        print("Errror determining movment: not enough modified cases.")
+        print("Errror determining mouvement: not enough modified cases.")
 
     # ----------------------------------------------------------------------
     #---------- Déterminer si le mouvement est une capture -----------------
@@ -79,10 +77,8 @@ def oracle(img1,img2, reference_image, debug = False):
     capture_detected = is_capture(rectified_img1, rectified_reference_gray, destination_coords, threshold_diff, debug)
     if capture_detected:
         move_type = "CAPTURE"
-        #print(f"The move is a : CAPTURE")
     else:
         move_type = "SIMPLE"
-        #print(f"The move is a : SIMPLE MOVE")
 
     # ----------------------------------------------------------------------
     # -------------Determiner la couleur de la piece bougee ---------------
@@ -91,8 +87,6 @@ def oracle(img1,img2, reference_image, debug = False):
     origin_coords = cases[origin]
     circle_mean_intensity = check_color(rectified_img1, origin_coords)
     color = determine_piece_color(circle_mean_intensity)
-    #print(f"\nThe piece is {piece_color}.")
-
 
    # ----------------------------------------------------------------------
    # ------------------ CHECK FOR COUPS SPECIAUX --------------------------
