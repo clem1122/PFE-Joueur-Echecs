@@ -55,4 +55,6 @@ class Loss(nn.Module):
                 if not board.is_legal(move):
                     penalties += self.penalty 
 
+        penalties = penalties / len(predicted_moves)
+
         return self.alpha * pol_loss + self.beta * val_loss + penalties
