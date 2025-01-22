@@ -70,7 +70,10 @@ def send_board_FEN(board):
 		return
 	
 	url = "http://127.0.0.1:5000/set-board-FEN"
-	payload = {"board_FEN": board.FEN()}
+	payload = {"board_FEN": board.FEN(),
+				"Valhalla" : board.valhalla_FEN
+	
+	}
 	response = requests.post(url, json=payload)
 	if response.status_code == 200:
 		print("Board envoyé")
