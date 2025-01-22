@@ -37,7 +37,7 @@ isWhite = False
 vision = not args.no_robot
 
 
-g = pc.Game(roque_FEN)
+g = pc.Game(classic_FEN)
 b = g.board
 b.print()
 flask = not (args.no_flask or args.take_picture)
@@ -57,7 +57,9 @@ if flask:
 
 def have_human_played():
 	response = requests.get('http://127.0.0.1:5000/get-have-played')
-	have_played = response.json()
+	response.raise_for_status()
+	data = response.json()
+	have_played =  data["have_played"]
 
 	return have_played
 

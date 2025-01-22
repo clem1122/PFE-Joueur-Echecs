@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, Response, request, stream_with_context
 from flask_cors import CORS
 import time
 import threading
@@ -7,8 +7,8 @@ app = Flask(__name__)
 
 CORS(app)
 
-global have_played_status
 have_played_status = False
+
 # Routes de base pour gérer le jeu et la flask
 
 @app.route('/new-game')
@@ -104,7 +104,7 @@ def set_have_played():
 
         if isinstance(have_played, bool):  # Vérifier que c'est bien un booléen
             have_played_status = have_played
-            threading.Thread(target=reset_have_played).start()
+            #threading.Thread(target=reset_have_played).start()
             return jsonify({"message": "Statut de have_played mis à jour"}), 200
         
     except Exception as e:
@@ -112,7 +112,14 @@ def set_have_played():
     
 @app.route('/get-have-played', methods=['GET'])
 def get_have_played():
-    return jsonify(have_played_status), 200
+    def wait_for_action():
+        global have_played_status
+        while not have_played_status:
+            time.sleep(0.1)  # Attendre 100 ms avant de vérifier à nouveau
+        have_played_status = False  # Réinitialiser après l'action
+        yield jsonify({"have_played": True}).data  # Retourner la réponse JSON
+
+    return Response(stream_with_context(wait_for_action()), content_type='application/json')
  
  
 def reset_have_played(delay=1):
