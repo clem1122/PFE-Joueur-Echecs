@@ -50,7 +50,7 @@ def oracle(img1,img2, reference_image, debug = True):
     # Calculer les diff en utilisant la fonction de image_processing
     filtered_diff = detect_differences(rectified_img1, rectified_img2, threshold_diff, debug)
     modified_cases = analyze_squares(filtered_diff, cases, square_size, debug)
-
+    # print ('modified cases', modified_cases)
     # ---------------------------------------------------------------------
     # Déterminer le sens du mouvement
     if len(modified_cases) >= 2:
@@ -95,7 +95,7 @@ def oracle(img1,img2, reference_image, debug = True):
    # -------------------
    # ----EN-PASSANT ----
    # -------------------
-    top_cases = [modified_cases[0], modified_cases[1], modified_cases[2], modified_cases[3]]
+    top_cases = [modified_cases[0], modified_cases[1], modified_cases[2]] #, modified_cases[3], modified_cases[4]]
     en_passant, new_origin = is_en_passant(top_cases, threshold_diff,debug)
 
     if en_passant :
@@ -108,7 +108,7 @@ def oracle(img1,img2, reference_image, debug = True):
    # -------------------
    # ----PROMOTION -----
    # -------------------
-
+    
 
 # ------------------------------------------------
     print("\n-------------------------------------------------------------------")

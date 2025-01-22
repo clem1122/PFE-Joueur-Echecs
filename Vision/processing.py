@@ -74,7 +74,7 @@ def analyze_squares(filtered_diff, cases, square_size, debug):
         print(f"\nTOP 2 CASES MODIFIEES: {modified_cases[:2]} \n")
         print(f"\nTOP 4 CASES MODIFIEES: {modified_cases[:4]} \n")
 
-    return modified_cases[:4]
+    return modified_cases[:5]
 
 ###############################################
 ####### Determiner la direction du coup #######
