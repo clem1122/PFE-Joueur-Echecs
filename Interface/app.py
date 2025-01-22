@@ -1,13 +1,13 @@
 from flask import Flask, jsonify, Response, request, stream_with_context
 from flask_cors import CORS
 import time
-import threading
 
 app = Flask(__name__)
 
 CORS(app)
 
 have_played_status = False
+last_click_time = 0
 
 # Routes de base pour gérer le jeu et la flask
 
@@ -97,15 +97,17 @@ def get_board_fen():
 
 @app.route('/set-have-played', methods=['POST'])
 def set_have_played():
-    global have_played_status
+    global have_played_status, last_click_time
     try:
         data = request.get_json()  # Récupérer les données JSON
         have_played = data.get('have_played')  # Extraire la valeur
 
         if isinstance(have_played, bool):  # Vérifier que c'est bien un booléen
+            current_time = time.time()
             have_played_status = have_played
-            #threading.Thread(target=reset_have_played).start()
-            return jsonify({"message": "Statut de have_played mis à jour"}), 200
+            if current_time - last_click_time >= 2:
+                last_click_time = current_time
+                return jsonify({"message": "Statut de have_played mis à jour"}), 200
         
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -120,15 +122,12 @@ def get_have_played():
         yield jsonify({"have_played": True}).data  # Retourner la réponse JSON
 
     return Response(stream_with_context(wait_for_action()), content_type='application/json')
- 
- 
-def reset_have_played(delay=1):
-    global have_played_status
-    """Réinitialise la variable have_played après un délai."""
-    time.sleep(delay)
-    have_played_status = False
-    print("Statut réinitialisé à False.")
 
+@app.route('/reset-have-played', methods=['POST'])
+def reset_have_played():
+    global have_played_status
+    have_played_status = False  # Réinitialiser à False
+    return jsonify({"message": "Statut have_played réinitialisé"}), 200
 
 if __name__ == '__main__':
     new_game()

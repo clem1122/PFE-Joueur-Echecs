@@ -57,6 +57,7 @@ if flask:
 		exit(1)
 
 def have_human_played():
+	requests.post('http://127.0.0.1:5000/reset-have-played')
 	response = requests.get('http://127.0.0.1:5000/get-have-played')
 	response.raise_for_status()
 	data = response.json()
@@ -239,8 +240,7 @@ while True:
 		#moveStr = get_move()
 
 		if vision :
-			while not have_human_played() :
-				pass
+			have_human_played()
 
 		if vision:
 			if args.no_flask: input("Entrée quand le coup est joué...")

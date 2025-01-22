@@ -5,8 +5,8 @@ from Scripts.RoboticMove import RoboticMove, TestRoboticMove, create_complex_rob
 
 class Robot:
 
-	def __init__(self, ip = "192.168.176.1"):
-		self.ip = ip
+	def __init__(self):
+		self.ip = "192.168.176.1" #192.168.176.1
 		self.niryo = NiryoRobot(self.ip)
 		self.niryo.calibrate_auto()
 		self.niryo.set_arm_max_velocity(100)
