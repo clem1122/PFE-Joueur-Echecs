@@ -5,11 +5,9 @@ import pickle
 import os
 from Scripts.Robot import Robot
 from pyniryo.vision import uncompress_image, undistort_image, concat_imgs, show_img
-from time import sleep
 
 
 clicked_points = []
-print(os.path.abspath(os.path.curdir))
 directory = 'Vision/'
 # Fonction de rappel pour gérer les clics de la souris
 def mouse_callback(event, x, y, flags, param):
@@ -96,7 +94,6 @@ ImageDirectory ='Images'
 def take_picture(robot, img_name):
     
     mtx, dist = robot.niryo.get_camera_intrinsics()
-    sleep(1)
     img_compressed = robot.niryo.get_img_compressed()
     img_raw = uncompress_image(img_compressed)
     img_undistort = undistort_image(img_raw, mtx, dist)
@@ -104,7 +101,7 @@ def take_picture(robot, img_name):
     output_path = os.path.join(ImageDirectory, str(img_name) + '.png')
     cv2.imwrite(output_path, img_undistort)
     print(output_path)
-    robot.nyrio.play_sound("learning_trajectory.wav")
+    robot.niryo.play_sound("learning_trajectory.wav")
     return img_undistort
 
 def main():

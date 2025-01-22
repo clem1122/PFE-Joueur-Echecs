@@ -13,6 +13,7 @@ from sys import exit
 import argparse
 import requests
 import cv2
+import signal
 
 pieces_list = ['p','P','n','N','b','B	','r','R','q','Q','k','K']
 classic_FEN = 'rnbqkbnrpppppppp................................PPPPPPPPRNBQKBNR'
@@ -46,7 +47,7 @@ try:
 except e:
 	print("Warning : no calibration file")
 	
-del_im('Images/')
+
 	
 if flask:
 	try:
@@ -56,6 +57,7 @@ if flask:
 		exit(1)
 
 def have_human_played():
+	requests.post('http://127.0.0.1:5000/reset-have-played')
 	response = requests.get('http://127.0.0.1:5000/get-have-played')
 	response.raise_for_status()
 	data = response.json()
@@ -170,6 +172,10 @@ def see(photoId, human = False):
 
 	return origin + end, type, color
 
+
+
+
+
 if args.calibration:
 	calibration.main()
 	exit(0)
@@ -183,6 +189,16 @@ if args.take_picture:
 	take_picture(robot, name)
 	exit(0)
 
+
+def close(signal_received, frame):
+	print("\nSignal d'interruption reçu (Ctrl+C). Fermeture en cours...")
+	if not args.no_robot: 
+		robot.niryo.close_connection()
+	while True:
+		pass
+
+signal.signal(signal.SIGINT, close)
+
 if args.move_to_square :
 	robot = Robot()
 	robot.move_to_square(args.move_to_square)
@@ -192,6 +208,8 @@ if args.obs_pose:
 	robot = Robot()
 	robot.move_to_obs_pose()
 	exit(0)
+
+del_im('Images/')
 
 if not args.no_robot: 
 	robot = Robot()
@@ -220,8 +238,9 @@ while True:
 		# Verification du coup joué par le robot
 	else:
 		#moveStr = get_move()
-		while not have_human_played() :
-			pass
+
+		if vision :
+			have_human_played()
 
 		if vision:
 			if args.no_flask: input("Entrée quand le coup est joué...")
@@ -232,12 +251,11 @@ while True:
 				while not play(moveStr):
 					moveStr = get_move()
 		else: 
-			moveStr = get_move()
+			#moveStr = get_move()
+			moveStr = input("Move : ")
 			play(moveStr)
 				
 		
 	send_color_FEN(b)
 	send_board_FEN(b)
 
-
-robot.close()

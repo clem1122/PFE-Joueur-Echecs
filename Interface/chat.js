@@ -18,7 +18,7 @@ const StartMessages = [
 
 const Messages = {
     'checked': "Attention, tu es en echec, ton roi est attaqué !",
-    'checkmated': "J'ai gagné ! Tu t'es bien défendu, mais ton roi ne peut plus esquiver cette attaque",
+    'checkmated': "J'ai gagné ! Tu t'es bien défendu(e), mais ton roi ne peut plus esquiver cette attaque",
     'check': "Joli ! Tu attaques mon roi.",
     'checkmate': "Tu as gagné ! Je m'incline, mon roi est définitivement perdu...",
     'threats': "Regarde, voici les pièces que je te menace.",
