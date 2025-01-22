@@ -220,8 +220,10 @@ while True:
 		# Verification du coup joué par le robot
 	else:
 		#moveStr = get_move()
-		while not have_human_played() :
-			pass
+
+		if vision :
+			while not have_human_played() :
+				pass
 
 		if vision:
 			if args.no_flask: input("Entrée quand le coup est joué...")
@@ -232,7 +234,8 @@ while True:
 				while not play(moveStr):
 					moveStr = get_move()
 		else: 
-			moveStr = get_move()
+			#moveStr = get_move()
+			moveStr = input("Move : ")
 			play(moveStr)
 				
 		
