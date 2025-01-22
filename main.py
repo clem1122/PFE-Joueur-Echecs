@@ -13,6 +13,7 @@ from sys import exit
 import argparse
 import requests
 import cv2
+import signal
 
 pieces_list = ['p','P','n','N','b','B	','r','R','q','Q','k','K']
 classic_FEN = 'rnbqkbnrpppppppp................................PPPPPPPPRNBQKBNR'
@@ -46,7 +47,7 @@ try:
 except e:
 	print("Warning : no calibration file")
 	
-del_im('Images/')
+
 	
 if flask:
 	try:
@@ -170,6 +171,10 @@ def see(photoId, human = False):
 
 	return origin + end, type, color
 
+
+
+
+
 if args.calibration:
 	calibration.main()
 	exit(0)
@@ -183,6 +188,16 @@ if args.take_picture:
 	take_picture(robot, name)
 	exit(0)
 
+
+def close(signal_received, frame):
+	print("\nSignal d'interruption reçu (Ctrl+C). Fermeture en cours...")
+	if not args.no_robot: 
+		robot.nyrio.close_connection()
+
+	exit(0)
+
+signal.signal(signal.SIGINT, close)
+
 if args.move_to_square :
 	robot = Robot()
 	robot.move_to_square(args.move_to_square)
@@ -192,6 +207,8 @@ if args.obs_pose:
 	robot = Robot()
 	robot.move_to_obs_pose()
 	exit(0)
+
+del_im('Images/')
 
 if not args.no_robot: 
 	robot = Robot()
@@ -239,5 +256,3 @@ while True:
 	send_color_FEN(b)
 	send_board_FEN(b)
 
-
-robot.close()
