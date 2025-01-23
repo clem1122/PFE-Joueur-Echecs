@@ -4,6 +4,7 @@ let squareSize;
 let colors = ["#f3dbb4", "#b38c62"];
 let selectedColor = "#98c47e";
 let FEN = "rnbqkbnrpppppppp................................PPPPPPPPRNBQKBNR";
+let Valhalla = "QRBN...............qrbn..............."
 let pieceImages = {};
 let selectedSquare = null;
 let selectedPiece = null;
@@ -58,7 +59,7 @@ function draw() {
         updateFENs();
     }
     drawBoardWithLabels();
-    drawGraveyard();
+    //drawGraveyard();
     if (FEN_to_show['threats']) { draw_color_FEN(threats, color(150, 0, 0, 175)); }
     if (FEN_to_show['controlled']) { draw_color_FEN(controlled, color(0, 0, 150, 100)); }
     if (FEN_to_show['playable']) { draw_color_FEN(playable, color(0, 150, 0, 100)); }
@@ -136,23 +137,7 @@ function drawPieces() {
         }
     }
 }
-function drawGraveyard() {
-    let graveyardX = width + 10; // Position of the graveyard on the right
-    let graveyardY = 10; // Top margin of the graveyard
-    let graveyardSize = squareSize / 1.5; // Size of the graveyard squares
 
-    fill("#d3d3d3");
-    rect(graveyardX - 5, graveyardY - 5, graveyardSize * 4 + 10, graveyardSize * 4 + 10); // Background for the graveyard
-
-    for (let i = 0; i < 4; i++) {
-        for (let j = 0; j < 4; j++) {
-            let x = graveyardX + j * graveyardSize;
-            let y = graveyardY + i * graveyardSize;
-            fill(colors[(i + j) % 2]);
-            rect(x, y, graveyardSize, graveyardSize);
-        }
-    }
-}
 
 
 function mousePressed() {
@@ -188,6 +173,9 @@ async function getBoardFEN() {
     const response = await fetch(url_board);
     const data = await response.json();
     FEN = data.board_FEN;
+    Valhallaa = data.valhalla_FEN ;
+    drawGraveyard() ;
+   // return Valhalla = data.valhalla_FEN;
 }
 
 async function getColorFEN() {
@@ -196,23 +184,3 @@ async function getColorFEN() {
     const color_FEN = await response.json();
     return color_FEN;
 }
-
-
-function makeMove(start, end) {
-    // Exemple de détection de capture (adapter à votre logique d'échiquier)
-    const capturedPiece = checkForCapture(start, end);
-  
-    if (capturedPiece) {
-      capturePiece(capturedPiece); // Appel de la fonction pour ajouter la pièce au Valhalla
-    }
-  
-    // Logique pour mettre à jour l'échiquier
-    updateBoard(start, end);
-  }
-  
- // Exemple de fonction pour détecter une capture
-function checkForCapture(start, end) {
-    // Votre logique pour détecter une capture
-    // Exemple simple : retourne une pièce capturée simulée
-    return 'p'; // Supposons qu'un pion noir a été capturé
-  }

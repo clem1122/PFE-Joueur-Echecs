@@ -36,3 +36,21 @@ html {
     display: flex;
     border: 2px solid blue; /* Bordure pour voir container2 */
 }
+
+.cemetery-container {
+    width: 200px;
+    background-color: #f5f5f5;
+    padding: 10px;
+    border: 1px solid #ccc;
+}
+
+.valhalla {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 5px;
+}
+
+.valhalla img {
+    width: 40px;
+    height: 40px;
+}
