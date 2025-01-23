@@ -11,8 +11,8 @@ from processing import (
 def oracle(img1,img2, reference_image, debug = True):
  
     # ------------------------------ PARAMETERS ----------------------------------
-    threshold_diff = 30 #dans 'detect_difference' : Seuil pour la diff de pixels 
-    threshold_empty = 20 #dans 'is square_empty': Seuil pour diff entre case et case empty
+    threshold_diff = 40 #dans 'detect_difference' : Seuil pour la diff de pixels 
+    threshold_en_passant = 10 #dans 'is square_empty': Seuil pour diff entre case et case empty
     
     # ------------------------------- SETUP --------------------------------------
     calibration_file = "chessboard_calibration.pkl"
@@ -45,6 +45,7 @@ def oracle(img1,img2, reference_image, debug = True):
     #Redresser les images en utilisant l'image ref (tform)
     rectified_img1 = rectify_image(img1, tform, output_size)
     rectified_img2 = rectify_image(img2, tform, output_size)
+
 
     # if debug:
     #     cv2.imshow('rectified_img1', rectified_img1)
@@ -106,7 +107,7 @@ def oracle(img1,img2, reference_image, debug = True):
    # ----EN-PASSANT ----
    # -------------------
     top_cases = [modified_cases[0], modified_cases[1], modified_cases[2]] #, modified_cases[3], modified_cases[4]]
-    en_passant, new_origin, new_destination = is_en_passant(top_cases, threshold_diff,debug)
+    en_passant, new_origin, new_destination = is_en_passant(top_cases, threshold_en_passant,debug)
 
     if en_passant :
         origin = new_origin
@@ -114,34 +115,13 @@ def oracle(img1,img2, reference_image, debug = True):
     else:
         pass
 
-#    # -------------------
-#    # ----PROMOTION -----
-#    # -------------------
-
-#    # Decoupe du valhalla
-#     prom_calibration_file = "valhalla_calibration.pkl"
-#     prom_output_size = (800, 400)
-#     prom_square_size = prom_output_size[0] // 5
-    
-
-#     # Dictionnaire des coordonnées des cases
-#     prom_cases = {}
-#     for row in range(8):
-#         for col in range(8):
-#             x_start = col * square_size
-#             x_end = (col + 1) * square_size
-#             y_start = (7 - row) * square_size
-#             y_end = (8 - row) * square_size
-#             case_name = f"{chr(65 + col)}{row + 1}"
-#             cases[case_name] = (x_start, x_end, y_start, y_end)
-
-
-
 # -----------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------
-    print("---------------------------------------------")
-    print(f"Origin: {origin}, Destination: {destination}")
-    print("---------------------------------------------")
+
+    if debug:
+        print("\n----------OUTPUT----------")
+        print(f"Origin: {origin}, Destination: {destination}")
+        print("-----------------------------")
 
     return origin.lower(), destination.lower()
 
@@ -151,8 +131,8 @@ def main():
     #Load empty checkboard
     reference_image = cv2.imread("Vision/photos_test/img0.png", cv2.IMREAD_COLOR)
     # Load example images
-    img1 = cv2.imread("Vision/photos_test/15.png", cv2.IMREAD_COLOR)
-    img2 = cv2.imread("Vision/photos_test/16.png", cv2.IMREAD_COLOR)
+    img1 = cv2.imread("Vision/photos/roque1.png", cv2.IMREAD_COLOR)
+    img2 = cv2.imread("Vision/photos/roque2.png", cv2.IMREAD_COLOR)
 
     # Process the move
     origin, destination  = oracle(img1, img2, reference_image)

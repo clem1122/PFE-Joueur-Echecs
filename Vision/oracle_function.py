@@ -12,8 +12,8 @@ from Vision.processing import (
 def oracle(img1,img2, reference_image, debug = False):
  
     # ------------------------------ PARAMETERS ----------------------------------
-    threshold_diff = 30 #dans 'detect_difference' : Seuil pour la diff de pixels 
-    threshold_empty = 20 #dans 'is square_empty': Seuil pour diff entre case et case empty
+    threshold_diff = 40 #dans 'detect_difference' : Seuil pour la diff de pixels 
+    threshold_en_passant = 10 #dans 'is square_empty': Seuil pour diff entre case et case empty
     
     # ------------------------------- SETUP --------------------------------------
     calibration_file = "chessboard_calibration.pkl"
@@ -47,9 +47,9 @@ def oracle(img1,img2, reference_image, debug = False):
     rectified_img1 = rectify_image(img1, tform, output_size)
     rectified_img2 = rectify_image(img2, tform, output_size)
 
-    if debug:
-        cv2.imshow('rectified_img1', rectified_img1)
-        cv2.imshow('rectified_img2', rectified_img2)
+    # if debug:
+    #     cv2.imshow('rectified_img1', rectified_img1)
+    #     cv2.imshow('rectified_img2', rectified_img2)
 
     #---------------------------------------------------------------------
     #------------------  Calculer les differences-------------------------
@@ -107,18 +107,13 @@ def oracle(img1,img2, reference_image, debug = False):
    # ----EN-PASSANT ----
    # -------------------
     top_cases = [modified_cases[0], modified_cases[1], modified_cases[2]] #, modified_cases[3], modified_cases[4]]
-    en_passant, new_origin, new_destination = is_en_passant(top_cases, threshold_diff,debug)
+    en_passant, new_origin, new_destination = is_en_passant(top_cases, threshold_en_passant,debug)
 
     if en_passant :
         origin = new_origin
         destination = new_destination
     else:
         pass
-
-   # -------------------
-   # ----PROMOTION -----
-   # -------------------
-
 
 # -----------------------------------------------------------------------------------
     #print("-------------------------------------------------------------------")
