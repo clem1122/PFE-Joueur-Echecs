@@ -6,7 +6,6 @@ import matplotlib.pyplot as plt
 from Vision.calibration import calibrate_corners, compute_transformation, rectify_image
 from Vision.processing import (
     detect_differences, analyze_squares, determine_movement_direction, 
-    is_capture, determine_piece_color, check_color,
     is_roque, is_en_passant
 )
 
@@ -73,20 +72,20 @@ def oracle(img1,img2, reference_image, debug = False):
     #---------- Déterminer si le mouvement est une capture -----------------
     # ----------------------------------------------------------------------
 
-    destination_coords = cases[destination]
-    capture_detected = is_capture(rectified_img1, rectified_reference_gray, destination_coords, threshold_diff, debug)
-    if capture_detected:
-        move_type = "CAPTURE"
-    else:
-        move_type = "SIMPLE"
+    # destination_coords = cases[destination]
+    # capture_detected = is_capture(rectified_img1, rectified_reference_gray, destination_coords, threshold_diff, debug)
+    # if capture_detected:
+    #     move_type = "CAPTURE"
+    # else:
+    #     move_type = "SIMPLE"
 
     # ----------------------------------------------------------------------
     # -------------Determiner la couleur de la piece bougee ---------------
     # ----------------------------------------------------------------------
 
-    origin_coords = cases[origin]
-    circle_mean_intensity = check_color(rectified_img1, origin_coords)
-    color = determine_piece_color(circle_mean_intensity)
+    # origin_coords = cases[origin]
+    # circle_mean_intensity = check_color(rectified_img1, origin_coords)
+    # color = determine_piece_color(circle_mean_intensity)
 
    # ----------------------------------------------------------------------
    # ------------------ CHECK FOR COUPS SPECIAUX --------------------------
@@ -100,7 +99,7 @@ def oracle(img1,img2, reference_image, debug = False):
 
     # Si un roque is detected
     if roque is not None:
-        move_type, color, origin, destination = is_roque(top_4_cases, debug)
+        origin, destination = is_roque(top_4_cases, debug)
     else:
         pass
 
@@ -113,7 +112,6 @@ def oracle(img1,img2, reference_image, debug = False):
     if en_passant :
         origin = new_origin
         destination = new_destination
-        move_type = 'EN PASSANT' 
     else:
         pass
 
@@ -127,7 +125,7 @@ def oracle(img1,img2, reference_image, debug = False):
     #print(f"Origin: {origin}, Destination: {destination}, Move Type: {move_type}, Piece Color: {color}")
     #print("-------------------------------------------------------------------")
 
-    return origin.lower(), destination.lower(), move_type, color
+    return origin.lower(), destination.lower()
 
 # ---------------------------------------------------------------------- 
 # Example usage:
@@ -140,7 +138,7 @@ def main():
     img2 = cv2.imread("photos3\pose3.png", cv2.IMREAD_COLOR)
 
     # Process the move
-    origin, destination, move_type, color = oracle(img1, img2, reference_image)
+    origin, destination = oracle(img1, img2, reference_image)
 
 if __name__ == "__main__":
     main()

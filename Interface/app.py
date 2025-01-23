@@ -67,14 +67,22 @@ def get_color_FEN():
 #Routes pour envoyer et recevoir le board
 @app.route('/set-board-FEN', methods=['POST'])
 def set_board_fen():
-    global board_FEN 
+    global board_FEN, valhalla_FEN
     try:
         data = request.get_json()
         if "board_FEN" not in data:
             return jsonify({"error": "Key 'board_FEN' is missing"}), 400
-        
-        print("Payload reçu par flask :", data["board_FEN"])
+        if "valhalla" not in data:
+            return jsonify({"error": "Key 'valhalla' is missing"}), 400
+    
         board_FEN = data["board_FEN"]
+        valhalla_FEN = data["valhalla"]
+
+        print("Payload reçu par Flask :")
+        print("Board FEN :", board_FEN)
+        print("Valhalla Cemetery :", valhalla_FEN)
+
+
         return jsonify({"status": "success", "received": board_FEN}), 200 
     
     except Exception as e:
@@ -82,13 +90,15 @@ def set_board_fen():
 
 @app.route('/get-board-FEN', methods=['GET'])
 def get_board_fen():
-    global board_FEN
+    global board_FEN, valhalla_FEN 
     try:
         if 'board_FEN' not in globals() or board_FEN is None:
             return jsonify({"error": "No board_FEN available"}), 501
+        if 'valhalla_FEN' not in globals() or valhalla_FEN is None:
+            return jsonify({"error": "No valhalla data available"}), 501
         
-        print("Board reçu avec succès")
-        return jsonify({"status": "success", "board_FEN": board_FEN}), 200
+        print("Board et Valhalla reçus avec succès")
+        return jsonify({"status": "success", "board_FEN": board_FEN, "valhalla" : valhalla_FEN}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
@@ -133,3 +143,4 @@ if __name__ == '__main__':
     new_game()
     app.run(debug=True)
     
+
