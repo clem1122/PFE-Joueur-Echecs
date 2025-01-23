@@ -6,7 +6,7 @@ from Scripts.RoboticMove import RoboticMove, TestRoboticMove, create_complex_rob
 class Robot:
 
 	def __init__(self):
-		self.ip = "192.168.176.1" #192.168.176.1
+		self.ip = "10.10.10.10" #192.168.176.1
 		self.niryo = NiryoRobot(self.ip)
 		self.niryo.calibrate_auto()
 		self.niryo.set_arm_max_velocity(100)
@@ -24,7 +24,13 @@ class Robot:
 	
 	def move_to_obs_pose(self):
 		self.niryo.move_joints(space.observation_joints)
-		
+	
+	def move_to_V_pose(self):
+		self.niryo.move_joints(space.w_valhalla_joints)
+
+	def move_to_v_pose(self):
+		self.niryo.move_joints(space.b_valhalla_joints)
+
 	def move_to_square(self, square):
 		if len(square) != 2:
 			raise Exception("Uncorrect Move argument")
