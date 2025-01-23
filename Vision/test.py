@@ -6,13 +6,14 @@ from calibration import calibrate_corners, compute_transformation, rectify_image
 from processing import (
     detect_differences, analyze_squares, determine_movement_direction, 
     is_roque, is_en_passant,
+    normalize_hsv_global
 )
 
 def oracle(img1,img2, reference_image, debug = True):
  
     # ------------------------------ PARAMETERS ----------------------------------
-    threshold_diff = 30 #dans 'detect_difference' : Seuil pour la diff de pixels 
-    threshold_empty = 20 #dans 'is square_empty': Seuil pour diff entre case et case empty
+    threshold_diff = 40 #dans 'detect_difference' : Seuil pour la diff de pixels 
+    threshold_en_passant = 10 #dans 'is square_empty': Seuil pour diff entre case et case empty
     
     # ------------------------------- SETUP --------------------------------------
     calibration_file = "chessboard_calibration.pkl"
@@ -38,13 +39,46 @@ def oracle(img1,img2, reference_image, debug = True):
     rectified_reference = rectify_image(reference_image, tform, output_size)
     rectified_reference_gray = cv2.cvtColor(rectified_reference, cv2.COLOR_BGR2GRAY)
 
+    # --------------- Uniformisation HSV ------------------
+
+#     # Convertir les images en HSV
+#     hsv1 = cv2.cvtColor(img1, cv2.COLOR_BGR2HSV).astype(np.float32)
+#     hsv2 = cv2.cvtColor(img2, cv2.COLOR_BGR2HSV).astype(np.float32)
+
+#     # Calcul des moyennes et écarts-types globaux
+#     all_pixels = np.concatenate([hsv1.reshape(-1, 3), hsv2.reshape(-1, 3)], axis=0)
+#     global_means = np.mean(all_pixels, axis=0)
+#     global_stds = np.std(all_pixels, axis=0)
+
+#   # Normaliser les deux images
+#     normalized_img1 = normalize_hsv_global(img1, global_means, global_stds)
+#     normalized_img2 = normalize_hsv_global(img2, global_means, global_stds)
+
+#     # Afficher les résultats
+#     cv2.imshow("Original Image 1", img1)
+#     cv2.imshow("Original Image 2", img2)
+#     cv2.imshow("Normalized Image 1", normalized_img1)
+#     cv2.imshow("Normalized Image 2", normalized_img2)
+#     cv2.waitKey(0)
+#     cv2.destroyAllWindows()
+
+#------------------------------------------
+
     # Conversion niveaux de gris
     img1 = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
     img2 = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
 
+    # Égalisation de l'histogramme pour uniformiser le contraste
+    img1 = cv2.equalizeHist(img1)
+    img2 = cv2.equalizeHist(img2)
+
+    cv2.imshow("img1", img1)
+    cv2.imshow("img2", img2)
+
     #Redresser les images en utilisant l'image ref (tform)
     rectified_img1 = rectify_image(img1, tform, output_size)
     rectified_img2 = rectify_image(img2, tform, output_size)
+
 
     # if debug:
     #     cv2.imshow('rectified_img1', rectified_img1)
@@ -106,7 +140,7 @@ def oracle(img1,img2, reference_image, debug = True):
    # ----EN-PASSANT ----
    # -------------------
     top_cases = [modified_cases[0], modified_cases[1], modified_cases[2]] #, modified_cases[3], modified_cases[4]]
-    en_passant, new_origin, new_destination = is_en_passant(top_cases, threshold_diff,debug)
+    en_passant, new_origin, new_destination = is_en_passant(top_cases, threshold_en_passant,debug)
 
     if en_passant :
         origin = new_origin
@@ -114,34 +148,13 @@ def oracle(img1,img2, reference_image, debug = True):
     else:
         pass
 
-#    # -------------------
-#    # ----PROMOTION -----
-#    # -------------------
-
-#    # Decoupe du valhalla
-#     prom_calibration_file = "valhalla_calibration.pkl"
-#     prom_output_size = (800, 400)
-#     prom_square_size = prom_output_size[0] // 5
-    
-
-#     # Dictionnaire des coordonnées des cases
-#     prom_cases = {}
-#     for row in range(8):
-#         for col in range(8):
-#             x_start = col * square_size
-#             x_end = (col + 1) * square_size
-#             y_start = (7 - row) * square_size
-#             y_end = (8 - row) * square_size
-#             case_name = f"{chr(65 + col)}{row + 1}"
-#             cases[case_name] = (x_start, x_end, y_start, y_end)
-
-
-
 # -----------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------
-    print("---------------------------------------------")
-    print(f"Origin: {origin}, Destination: {destination}")
-    print("---------------------------------------------")
+
+    if debug:
+        print("\n----------OUTPUT----------")
+        print(f"Origin: {origin}, Destination: {destination}")
+        print("-----------------------------")
 
     return origin.lower(), destination.lower()
 
@@ -151,8 +164,8 @@ def main():
     #Load empty checkboard
     reference_image = cv2.imread("Vision/photos_test/img0.png", cv2.IMREAD_COLOR)
     # Load example images
-    img1 = cv2.imread("Vision/photos_test/15.png", cv2.IMREAD_COLOR)
-    img2 = cv2.imread("Vision/photos_test/16.png", cv2.IMREAD_COLOR)
+    img1 = cv2.imread("Vision/photos_test/4.png", cv2.IMREAD_COLOR)
+    img2 = cv2.imread("Vision/photos_test/5.png", cv2.IMREAD_COLOR)
 
     # Process the move
     origin, destination  = oracle(img1, img2, reference_image)

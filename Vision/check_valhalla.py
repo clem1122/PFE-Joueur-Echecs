@@ -21,8 +21,8 @@ def check_valhalla(img, reference_image, debug=True):
     calibration_file = "valhalla_calibration.pkl"
 
     square_size = 100  # Taille d'une case carrée en pixels
-    output_size = (4 * square_size, 5 * square_size)  # Dimensions totales (largeur, hauteur)
-    rows, cols = 4, 5  # Dimensions de la grille (lignes x colonnes)
+    output_size = (5 * square_size, 4 * square_size)  # Dimensions totales (largeur, hauteur)
+    rows, cols = 5, 4  # Dimensions de la grille (lignes x colonnes)
 
     # Dictionnaire des coordonnées des cases
     cases = {}
@@ -76,7 +76,7 @@ def check_valhalla(img, reference_image, debug=True):
     for case_name, coords in cases.items():
         if is_case_empty(rectified_img_gray, rectified_reference_gray, coords, threshold=500, debug=debug):               
             if debug:
-                print(f"La premiere case vide est : {case_name}")
+                print(f"\nLa premiere case vide est : {case_name}")
             return case_name
         
     
@@ -96,8 +96,6 @@ def main():
 
     # Process the move
     empty_valhalla_case = check_valhalla(img, reference_image)
-
-    print("Case vide valhalla", empty_valhalla_case)
 
 if __name__ == "__main__":
     main()

@@ -2,6 +2,36 @@ import cv2
 import numpy as np
 
 ################################################
+############## NORMALIZATION HSV  ##############
+################################################
+
+def normalize_hsv_global(img, global_means, global_stds):
+    """
+    Normalise une image en fonction des moyennes et écarts-types globaux (par canal HSV).
+    """
+    # Convertir l'image en HSV
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV).astype(np.float32)
+
+    # Normaliser chaque canal (H, S, V)
+    for i in range(3):
+        channel = hsv[:, :, i]
+        mean_img = np.mean(channel)
+        std_img = np.std(channel)
+
+        # Transformation linéaire pour correspondre aux stats globales
+        hsv[:, :, i] = (channel - mean_img) * (global_stds[i] / (std_img + 1e-6)) + global_means[i]
+
+        # Clipping des valeurs pour rester dans les plages HSV valides
+        if i == 0:  # Hue (H) : 0-179
+            hsv[:, :, i] = np.clip(hsv[:, :, i], 0, 179)
+        else:  # Saturation et Value (S, V) : 0-255
+            hsv[:, :, i] = np.clip(hsv[:, :, i], 0, 255)
+
+    # Retourner l'image en BGR
+    return cv2.cvtColor(hsv.astype(np.uint8), cv2.COLOR_HSV2BGR)
+
+
+################################################
 ######### Trouver les cases modifiees ##########
 ################################################
 
@@ -357,9 +387,6 @@ def is_en_passant(top_4_cases, threshold, debug=False):
     unique_colonnes = [colonne for colonne in colonnes if colonnes.count(colonne) == 1]
     unique_lignes = [ligne for ligne in lignes if lignes.count(ligne) == 1]
 
-    # if debug:
-    #     print(f"Colonne unique: {unique_colonnes}")
-    #     print(f"Ligne unique: {unique_lignes}")
 
     if unique_colonnes:
         # Trouver la case complète correspondant à la colonne unique
@@ -411,5 +438,5 @@ def is_case_empty(img, empty_valhalla, coords, threshold, debug=False):
         return True
     else:
         if debug:
-            print("Variance différente => case pleine.")
+            print("Variance differente => case pleine.")
         return False
