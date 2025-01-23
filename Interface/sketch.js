@@ -196,3 +196,23 @@ async function getColorFEN() {
     const color_FEN = await response.json();
     return color_FEN;
 }
+
+
+function makeMove(start, end) {
+    // Exemple de détection de capture (adapter à votre logique d'échiquier)
+    const capturedPiece = checkForCapture(start, end);
+  
+    if (capturedPiece) {
+      capturePiece(capturedPiece); // Appel de la fonction pour ajouter la pièce au Valhalla
+    }
+  
+    // Logique pour mettre à jour l'échiquier
+    updateBoard(start, end);
+  }
+  
+ // Exemple de fonction pour détecter une capture
+function checkForCapture(start, end) {
+    // Votre logique pour détecter une capture
+    // Exemple simple : retourne une pièce capturée simulée
+    return 'p'; // Supposons qu'un pion noir a été capturé
+  }

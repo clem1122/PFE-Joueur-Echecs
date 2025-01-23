@@ -9,14 +9,22 @@
   <!-- Lien vers Bootstrap -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
-  <!-- Lien vers ton CSS personnalisé -->
   <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
   <div class="background">
-    <div id="container">
+    <div id="container" class="d-flex">
+      <!-- Cimetière (Valhalla) -->
+      <div id="cemetery" class="cemetery-container">
+        <h5 class="text-center">Cimetière</h5>
+        <div id="valhalla" class="valhalla"></div>
+      </div>
+
+      <!-- Échiquier -->
       <div id="chessboard" width="1500" height="1500"></div>
+
+      <!-- Section droite -->
       <div class="right-container">
         <div class="chat-container">
           <div class="chat-header">Nini</div>
@@ -49,13 +57,95 @@
         </div>
       </div>
     </div>
+
+    <!-- Bouton central -->
     <div class="container text-center mt-5">
       <a class="btn btn-primary btn-lg" onclick="have_played()">J'ai joué</a>
     </div>
   </div>
 </body>
+
+<script>
+  let valhalla_FEN = []; // Liste des pièces capturées et pièces de promotion
+
+  // Fonction pour mettre à jour le cimetière
+  function updateCemetery() {
+    const valhallaDiv = document.getElementById('valhalla');
+    valhallaDiv.innerHTML = ''; // Réinitialise le contenu
+    valhalla_FEN.forEach(piece => {
+      const pieceDiv = document.createElement('div');
+      pieceDiv.className = 'piece';
+      pieceDiv.textContent = piece;
+      valhallaDiv.appendChild(pieceDiv);
+    });
+  }
+
+  // Fonction déclenchée automatiquement lorsqu'une pièce est capturée
+  function capturePiece(capturedPiece) {
+    valhalla_FEN.push(capturedPiece);
+    updateCemetery();
+  }
+
+  // Initialisation des pièces de promotion dans le cimetière
+  function initializeCemetery() {
+    const promotionPieces = ['q', 'r', 'b', 'n', 'Q', 'R', 'B', 'N']; // Pièces de promotion standard
+    valhalla_FEN = [...promotionPieces]; // Ajoute les pièces de promotion au cimetière
+    updateCemetery();
+  }
+
+  // Appelle l'initialisation au chargement de la page
+  window.onload = function () {
+    initializeCemetery();
+  };
+
+  // Simulation d'un mouvement où une pièce est capturée
+  function simulateCapture() {
+    // Exemple : le joueur capture un pion noir
+    const capturedPiece = 'p'; // Changez cette valeur selon la pièce capturée
+    capturePiece(capturedPiece);
+  }
+</script>
+
+<!-- Scripts -->
 <script src="sketch.js"></script>
 <script src="boutons.js"></script>
 <script src="chat.js"></script>
+
+<!-- Style -->
+<style>
+  #container {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin: 20px;
+  }
+
+  .cemetery-container {
+    width: 150px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f8f9fa;
+    margin-right: 20px;
+  }
+
+  .valhalla {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    justify-content: center;
+  }
+
+  .valhalla .piece {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #e0e0e0;
+    border-radius: 3px;
+    font-weight: bold;
+  }
+</style>
 
 </html>
