@@ -14,6 +14,7 @@ import argparse
 import requests
 import cv2
 import signal
+from time import sleep
 
 pieces_list = ['p','P','n','N','b','B	','r','R','q','Q','k','K']
 classic_FEN = 'rnbqkbnrpppppppp................................PPPPPPPPRNBQKBNR'
@@ -42,21 +43,20 @@ g = pc.Game(classic_FEN)
 b = g.board
 b.print()
 flask = not (args.no_flask or args.take_picture)
+
 try:
 	imVide = cv2.imread("Images/calibration_img.png")
-except e:
+except:
 	print("Warning : no calibration file")
-	
 
-	
 if flask:
 	try:
 		requests.post("http://127.0.0.1:5000")
 	except Exception as e:
 		print("Error : Flask is not running")
 		exit(1)
-
 def have_human_played():
+	return True
 	requests.post('http://127.0.0.1:5000/reset-have-played')
 	response = requests.get('http://127.0.0.1:5000/get-have-played')
 	response.raise_for_status()
@@ -71,9 +71,7 @@ def send_board_FEN(board):
 	
 	url = "http://127.0.0.1:5000/set-board-FEN"
 	payload = {"board_FEN": board.FEN(),
-				"Valhalla" : board.valhalla_FEN
-	
-	}
+				"valhalla": board.valhalla_FEN()}
 	response = requests.post(url, json=payload)
 	if response.status_code == 200:
 		print("Board envoyé")
@@ -98,7 +96,6 @@ def robot_play(moveStr, cautious = False):
 		if moveStr[4] in pieces_list :
 			promotion = moveStr[4] if moveStr[3] == '1' else moveStr[4].upper()
 		else : raise Exception(moveStr + " is not a valid 5-length move")
-	
 	
 	m = b.create_move(moveStr[:4])
 	if not b.is_legal(m): return False
@@ -175,10 +172,6 @@ def see(photoId, human = False):
 
 	return origin + end, type, color
 
-
-
-
-
 if args.calibration:
 	calibration.main()
 	exit(0)
@@ -192,13 +185,11 @@ if args.take_picture:
 	take_picture(robot, name)
 	exit(0)
 
-
 def close(signal_received, frame):
 	print("\nSignal d'interruption reçu (Ctrl+C). Fermeture en cours...")
 	if not args.no_robot: 
 		robot.niryo.close_connection()
-	while True:
-		pass
+	exit(0)
 
 signal.signal(signal.SIGINT, close)
 
@@ -218,6 +209,7 @@ if not args.no_robot:
 	robot = Robot()
 	robot.move_to_obs_pose()
 	if vision:
+		
 		im_pre_robot = take_picture(robot, 0)
 		im_post_robot = im_pre_robot
 
@@ -232,7 +224,6 @@ while True:
 	if isRobotTurn:
 		moveStr = get_move()
 		if not play(moveStr): continue
-
 		if vision:
 			allegedMove, type, color = see(playCount)
 			if allegedMove != moveStr:
