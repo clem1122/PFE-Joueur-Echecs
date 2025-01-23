@@ -12,8 +12,8 @@ from Vision.processing import (
 def oracle(img1,img2, reference_image, debug = False):
  
     # ------------------------------ PARAMETERS ----------------------------------
-    threshold_diff = 40 #dans 'detect_difference' : Seuil pour la diff de pixels 
-    threshold_en_passant = 10 #dans 'is square_empty': Seuil pour diff entre case et case empty
+    threshold_diff = 40 #dans 'detect_difference' : Seuil pour la diff de pixels
+    threshold_en_passant = 10 #dans 'is_en_passant': Seuil % pour considerer top3 cases
     
     # ------------------------------- SETUP --------------------------------------
     calibration_file = "chessboard_calibration.pkl"
