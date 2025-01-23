@@ -133,7 +133,7 @@ def determine_movement_direction(img2, cases, top_modified_cases, debug):
     Détermine le mouvement en comparant les cases avec l'échiquier vide.
     LA CASE QUI EST DEVENUE VIDE DANS IMG2 EST LA CASE DE DEPART
 
-    LOGIC:
+    LOGIQUE:
      - On compute les variances dans IMG2
      - La plus petite variance EST LA CASE VIDE
      - La case vide est l'origine, l'autre est la destination
@@ -382,3 +382,34 @@ def is_en_passant(top_4_cases, threshold, debug=False):
         print(f"Prise en passant detected: {is_valid}\n")
     
     return is_valid, origin, destination
+
+################## PROMOTION ###################
+
+def is_case_empty(img, empty_valhalla, coords, threshold, debug=False):
+    """
+    Vérifie si une case est vide en comparant sa variance à celle de la case vide de référence.
+    """
+    x_start, x_end, y_start, y_end = coords
+
+    # Extraire la région d'intérêt pour les deux images
+    img_case = img[y_start:y_end, x_start:x_end]
+    empty_case = empty_valhalla[y_start:y_end, x_start:x_end]
+
+    # Calculer les variances
+    var_case1 = masked_variance(img_case)
+    var_case2 = masked_variance(empty_case)
+
+    if debug:
+        print('\nPROMOTION-VALHALLA:')
+        print(f"Case coords: {coords}")
+        print(f"Variance case img: {var_case1}, Variance case ref: {var_case2}")
+
+    # Comparer les variances
+    if abs(var_case1 - var_case2) < threshold:
+        if debug:
+            print("Variance proche => case vide.")
+        return True
+    else:
+        if debug:
+            print("Variance différente => case pleine.")
+        return False

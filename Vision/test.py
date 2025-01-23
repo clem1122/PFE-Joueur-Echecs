@@ -114,11 +114,30 @@ def oracle(img1,img2, reference_image, debug = True):
     else:
         pass
 
-   # -------------------
-   # ----PROMOTION -----
-   # -------------------
+#    # -------------------
+#    # ----PROMOTION -----
+#    # -------------------
+
+#    # Decoupe du valhalla
+#     prom_calibration_file = "valhalla_calibration.pkl"
+#     prom_output_size = (800, 400)
+#     prom_square_size = prom_output_size[0] // 5
+    
+
+#     # Dictionnaire des coordonnées des cases
+#     prom_cases = {}
+#     for row in range(8):
+#         for col in range(8):
+#             x_start = col * square_size
+#             x_end = (col + 1) * square_size
+#             y_start = (7 - row) * square_size
+#             y_end = (8 - row) * square_size
+#             case_name = f"{chr(65 + col)}{row + 1}"
+#             cases[case_name] = (x_start, x_end, y_start, y_end)
 
 
+
+# -----------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------
     print("---------------------------------------------")
     print(f"Origin: {origin}, Destination: {destination}")
