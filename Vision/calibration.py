@@ -5,7 +5,7 @@ import pickle
 import os
 from Scripts.Robot import Robot
 from pyniryo.vision import uncompress_image, undistort_image, concat_imgs, show_img
-
+from Vision.delete_images import del_pkl
 
 clicked_points = []
 directory = 'Vision/'
@@ -105,8 +105,17 @@ def take_picture(robot, img_name):
     return img_undistort
 
 def main():
+    del_pkl(directory)
     robot = Robot()
+    robot.move_to_obs_pose()
     take_picture(robot, "calibration_img")
     calibrate_corners("chessboard_calibration.pkl", cv2.imread("Images/calibration_img.png"), (800, 800))
+    robot.move_to_V_pose()
+    take_picture(robot, "V_calibration_img")
+    calibrate_corners("V_calibration.pkl", cv2.imread("Images/V_calibration_img.png"), (400, 500))
+    robot.move_to_v_pose()
+    take_picture(robot, "v_calibration_img")
+    calibrate_corners("v_calibration.pkl", cv2.imread("Images/v_calibration_img.png"), (400, 500))
+    
 
     

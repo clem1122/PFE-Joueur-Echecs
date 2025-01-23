@@ -5,11 +5,11 @@
 import cv2
 import numpy as np
 
-from calibration import calibrate_corners, compute_transformation, rectify_image
-from processing import is_case_empty
+from Vision.calibration import calibrate_corners, compute_transformation, rectify_image
+from Vision.processing import is_case_empty
 
 
-def check_valhalla(img, reference_image, debug=True):
+def check_valhalla(img, reference_image, isWhite, debug=True):
     """
     Analyse les différences entre l'image valhalla et l'image valhalla vide un   
     On veut savoir quelle case est vide (la pemiere dans l'ordre 1-20
@@ -18,7 +18,9 @@ def check_valhalla(img, reference_image, debug=True):
     # ----------------------------------------------------------------------------
     # ----------------------------- SETUP GRILLE----------------------------------
     # ----------------------------------------------------------------------------
-    calibration_file = "valhalla_calibration.pkl"
+
+    string = "V" if isWhite else "v"
+    calibration_file = string + "_calibration.pkl"
 
     square_size = 100  # Taille d'une case carrée en pixels
     output_size = (5 * square_size, 4 * square_size)  # Dimensions totales (largeur, hauteur)
