@@ -3,8 +3,8 @@ import cv2
 import numpy as np
 import pickle
 import os
-from Scripts.Robot import Robot
-from pyniryo.vision import uncompress_image, undistort_image, concat_imgs, show_img
+#from Scripts.Robot import Robot
+#from pyniryo.vision import uncompress_image, undistort_image, concat_imgs, show_img
 
 
 clicked_points = []

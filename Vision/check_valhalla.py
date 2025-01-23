@@ -21,8 +21,8 @@ def check_valhalla(img, reference_image, debug=True):
     calibration_file = "valhalla_calibration.pkl"
 
     square_size = 100  # Taille d'une case carrée en pixels
-    output_size = (4 * square_size, 5 * square_size)  # Dimensions totales (largeur, hauteur)
-    rows, cols = 4, 5  # Dimensions de la grille (lignes x colonnes)
+    output_size = (5 * square_size, 4 * square_size)  # Dimensions totales (largeur, hauteur)
+    rows, cols = 5, 4  # Dimensions de la grille (lignes x colonnes)
 
     # Dictionnaire des coordonnées des cases
     cases = {}
