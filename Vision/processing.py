@@ -1,7 +1,6 @@
 import cv2
 import numpy as np
 
-
 ################################################
 ############## NORMALIZATION HSV  ##############
 ################################################
@@ -30,9 +29,6 @@ def normalize_hsv_global(img, global_means, global_stds):
 
     # Retourner l'image en BGR
     return cv2.cvtColor(hsv.astype(np.uint8), cv2.COLOR_HSV2BGR)
-
-
-
 
 
 ################################################
@@ -391,9 +387,6 @@ def is_en_passant(top_4_cases, threshold, debug=False):
     unique_colonnes = [colonne for colonne in colonnes if colonnes.count(colonne) == 1]
     unique_lignes = [ligne for ligne in lignes if lignes.count(ligne) == 1]
 
-    # if debug:
-    #     print(f"Colonne unique: {unique_colonnes}")
-    #     print(f"Ligne unique: {unique_lignes}")
 
     if unique_colonnes:
         # Trouver la case complète correspondant à la colonne unique
