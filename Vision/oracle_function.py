@@ -42,7 +42,6 @@ def oracle(img1,img2, reference_image, debug = False):
     # Conversion niveaux de gris
     img1 = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
     img2 = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
-
     
     # Égalisation de l'histogramme pour uniformiser le contraste
     img1 = cv2.equalizeHist(img1)
@@ -73,24 +72,6 @@ def oracle(img1,img2, reference_image, debug = False):
     else:
         print("Errror determining mouvement: not enough modified cases.")
 
-    # ----------------------------------------------------------------------
-    #---------- Déterminer si le mouvement est une capture -----------------
-    # ----------------------------------------------------------------------
-
-    # destination_coords = cases[destination]
-    # capture_detected = is_capture(rectified_img1, rectified_reference_gray, destination_coords, threshold_diff, debug)
-    # if capture_detected:
-    #     move_type = "CAPTURE"
-    # else:
-    #     move_type = "SIMPLE"
-
-    # ----------------------------------------------------------------------
-    # -------------Determiner la couleur de la piece bougee ---------------
-    # ----------------------------------------------------------------------
-
-    # origin_coords = cases[origin]
-    # circle_mean_intensity = check_color(rectified_img1, origin_coords)
-    # color = determine_piece_color(circle_mean_intensity)
 
    # ----------------------------------------------------------------------
    # ------------------ CHECK FOR COUPS SPECIAUX --------------------------
@@ -120,25 +101,5 @@ def oracle(img1,img2, reference_image, debug = False):
     else:
         pass
 
-# -----------------------------------------------------------------------------------
-    #print("-------------------------------------------------------------------")
-    #print(f"Origin: {origin}, Destination: {destination}, Move Type: {move_type}, Piece Color: {color}")
-    #print("-------------------------------------------------------------------")
-
+    # Output ORACLE
     return origin.lower(), destination.lower()
-
-# ---------------------------------------------------------------------- 
-# Example usage:
-def main():
-
-    #Load empty checkboard
-    reference_image = cv2.imread("photos3\img0.png", cv2.IMREAD_COLOR)
-    # Load example images
-    img1 = cv2.imread("photos3\pose2.png", cv2.IMREAD_COLOR)
-    img2 = cv2.imread("photos3\pose3.png", cv2.IMREAD_COLOR)
-
-    # Process the move
-    origin, destination = oracle(img1, img2, reference_image)
-
-if __name__ == "__main__":
-    main()
