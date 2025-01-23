@@ -6,6 +6,7 @@ from calibration import calibrate_corners, compute_transformation, rectify_image
 from processing import (
     detect_differences, analyze_squares, determine_movement_direction, 
     is_roque, is_en_passant,
+    normalize_hsv_global
 )
 
 def oracle(img1,img2, reference_image, debug = True):
@@ -38,9 +39,41 @@ def oracle(img1,img2, reference_image, debug = True):
     rectified_reference = rectify_image(reference_image, tform, output_size)
     rectified_reference_gray = cv2.cvtColor(rectified_reference, cv2.COLOR_BGR2GRAY)
 
+    # --------------- Uniformisation HSV ------------------
+
+#     # Convertir les images en HSV
+#     hsv1 = cv2.cvtColor(img1, cv2.COLOR_BGR2HSV).astype(np.float32)
+#     hsv2 = cv2.cvtColor(img2, cv2.COLOR_BGR2HSV).astype(np.float32)
+
+#     # Calcul des moyennes et écarts-types globaux
+#     all_pixels = np.concatenate([hsv1.reshape(-1, 3), hsv2.reshape(-1, 3)], axis=0)
+#     global_means = np.mean(all_pixels, axis=0)
+#     global_stds = np.std(all_pixels, axis=0)
+
+#   # Normaliser les deux images
+#     normalized_img1 = normalize_hsv_global(img1, global_means, global_stds)
+#     normalized_img2 = normalize_hsv_global(img2, global_means, global_stds)
+
+#     # Afficher les résultats
+#     cv2.imshow("Original Image 1", img1)
+#     cv2.imshow("Original Image 2", img2)
+#     cv2.imshow("Normalized Image 1", normalized_img1)
+#     cv2.imshow("Normalized Image 2", normalized_img2)
+#     cv2.waitKey(0)
+#     cv2.destroyAllWindows()
+
+#------------------------------------------
+
     # Conversion niveaux de gris
     img1 = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
     img2 = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
+
+    # Égalisation de l'histogramme pour uniformiser le contraste
+    img1 = cv2.equalizeHist(img1)
+    img2 = cv2.equalizeHist(img2)
+
+    cv2.imshow("img1", img1)
+    cv2.imshow("img2", img2)
 
     #Redresser les images en utilisant l'image ref (tform)
     rectified_img1 = rectify_image(img1, tform, output_size)
@@ -131,8 +164,8 @@ def main():
     #Load empty checkboard
     reference_image = cv2.imread("Vision/photos_test/img0.png", cv2.IMREAD_COLOR)
     # Load example images
-    img1 = cv2.imread("Vision/photos/roque1.png", cv2.IMREAD_COLOR)
-    img2 = cv2.imread("Vision/photos/roque2.png", cv2.IMREAD_COLOR)
+    img1 = cv2.imread("Vision/photos_test/4.png", cv2.IMREAD_COLOR)
+    img2 = cv2.imread("Vision/photos_test/5.png", cv2.IMREAD_COLOR)
 
     # Process the move
     origin, destination  = oracle(img1, img2, reference_image)

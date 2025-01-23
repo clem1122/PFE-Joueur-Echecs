@@ -1,6 +1,40 @@
 import cv2
 import numpy as np
 
+
+################################################
+############## NORMALIZATION HSV  ##############
+################################################
+
+def normalize_hsv_global(img, global_means, global_stds):
+    """
+    Normalise une image en fonction des moyennes et écarts-types globaux (par canal HSV).
+    """
+    # Convertir l'image en HSV
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV).astype(np.float32)
+
+    # Normaliser chaque canal (H, S, V)
+    for i in range(3):
+        channel = hsv[:, :, i]
+        mean_img = np.mean(channel)
+        std_img = np.std(channel)
+
+        # Transformation linéaire pour correspondre aux stats globales
+        hsv[:, :, i] = (channel - mean_img) * (global_stds[i] / (std_img + 1e-6)) + global_means[i]
+
+        # Clipping des valeurs pour rester dans les plages HSV valides
+        if i == 0:  # Hue (H) : 0-179
+            hsv[:, :, i] = np.clip(hsv[:, :, i], 0, 179)
+        else:  # Saturation et Value (S, V) : 0-255
+            hsv[:, :, i] = np.clip(hsv[:, :, i], 0, 255)
+
+    # Retourner l'image en BGR
+    return cv2.cvtColor(hsv.astype(np.uint8), cv2.COLOR_HSV2BGR)
+
+
+
+
+
 ################################################
 ######### Trouver les cases modifiees ##########
 ################################################
