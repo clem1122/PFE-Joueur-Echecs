@@ -411,5 +411,5 @@ def is_case_empty(img, empty_valhalla, coords, threshold, debug=False):
         return True
     else:
         if debug:
-            print("Variance différente => case pleine.")
+            print("Variance differente => case pleine.")
         return False

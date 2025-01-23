@@ -76,7 +76,7 @@ def check_valhalla(img, reference_image, debug=True):
     for case_name, coords in cases.items():
         if is_case_empty(rectified_img_gray, rectified_reference_gray, coords, threshold=500, debug=debug):               
             if debug:
-                print(f"La premiere case vide est : {case_name}")
+                print(f"\nLa premiere case vide est : {case_name}")
             return case_name
         
     
@@ -96,8 +96,6 @@ def main():
 
     # Process the move
     empty_valhalla_case = check_valhalla(img, reference_image)
-
-    print("Case vide valhalla", empty_valhalla_case)
 
 if __name__ == "__main__":
     main()
