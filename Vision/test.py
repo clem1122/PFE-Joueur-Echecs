@@ -6,7 +6,8 @@ from calibration import calibrate_corners, compute_transformation, rectify_image
 from processing import (
     detect_differences, analyze_squares, determine_movement_direction, 
     is_roque, is_en_passant,
-    normalize_hsv_global
+    normalize_hsv_global,
+    detect_circle_differences
 )
 
 def oracle(img1,img2, reference_image, debug = True):
@@ -72,9 +73,6 @@ def oracle(img1,img2, reference_image, debug = True):
     img1 = cv2.equalizeHist(img1)
     img2 = cv2.equalizeHist(img2)
 
-    cv2.imshow("img1", img1)
-    cv2.imshow("img2", img2)
-
     #Redresser les images en utilisant l'image ref (tform)
     rectified_img1 = rectify_image(img1, tform, output_size)
     rectified_img2 = rectify_image(img2, tform, output_size)
@@ -85,11 +83,21 @@ def oracle(img1,img2, reference_image, debug = True):
     #     cv2.imshow('rectified_img2', rectified_img2)
 
     #---------------------------------------------------------------------
+    #------------------  CERCLES DIFF-------------------------
+    #---------------------------------------------------------------------
+
+    min_radius = 30
+    max_radius = 100
+    modified_cases = detect_circle_differences(rectified_img1, rectified_img2, cases, min_radius, max_radius, debug)
+
+
+
+    #---------------------------------------------------------------------
     #------------------  Calculer les differences-------------------------
     #---------------------------------------------------------------------
 
-    filtered_diff = detect_differences(rectified_img1, rectified_img2, threshold_diff, debug)
-    modified_cases = analyze_squares(filtered_diff, cases, square_size, debug)
+    # filtered_diff = detect_differences(rectified_img1, rectified_img2, threshold_diff, debug)
+    # modified_cases = analyze_squares(filtered_diff, cases, square_size, debug)
 
     # ---------------------------------------------------------------------
     # ---------------- Déterminer le sens du mouvement --------------------

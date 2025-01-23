@@ -32,6 +32,75 @@ def normalize_hsv_global(img, global_means, global_stds):
 
 
 ################################################
+############## DETECT CIRCLES ##############
+################################################
+
+
+def detect_circles_in_case(image, x_start, y_start, square_size, min_radius, max_radius):
+    """
+    Détecte les cercles dans une case spécifique de l'échiquier.
+    """
+    # Extraire la sous-image correspondant à la case
+    case_roi = image[y_start:y_start+square_size, x_start:x_start+square_size]
+    # gray = case_roi
+    # blurred = cv2.GaussianBlur(gray, (9, 9), 2)
+    
+    # Détecter les cercles
+    circles = cv2.HoughCircles(
+        case_roi,
+        cv2.HOUGH_GRADIENT,
+        dp=1.0, #1.2
+        minDist=10, #10
+        param1=10, #50
+        param2=10, #30
+        minRadius=min_radius,
+        maxRadius=max_radius
+    )
+    
+    # Retourner le nombre de cercles détectés
+    return 0 if circles is None else len(circles[0])
+
+def detect_circle_differences(image1, image2, cases, min_radius, max_radius, debug):
+    """
+    Compare la présence de cercles dans les cases de deux images et retourne le pourcentage de différence.
+    """
+    modified_cases = []
+
+    for case_name, (x_start, x_end, y_start, y_end) in cases.items():
+        # Calculer la taille de la case si nécessaire
+        square_size = x_end - x_start
+
+        # Détecter les cercles dans chaque case pour les deux images
+        circles_img1 = detect_circles_in_case(image1, x_start, y_start, square_size, min_radius, max_radius)
+        circles_img2 = detect_circles_in_case(image2, x_start, y_start, square_size, min_radius, max_radius)
+
+        # Calculer la différence et le pourcentage
+        max_circles = max(circles_img1, circles_img2)
+        if max_circles > 0:  # Éviter une division par zéro
+            percentage_diff = int((abs(circles_img1 - circles_img2) / max_circles) * 100)
+        else:
+            percentage_diff = 0  # Si aucune pièce n'est présente dans les deux cases
+
+        if debug:
+            print(f"{case_name}: Img1={circles_img1}, Img2={circles_img2}, Diff={percentage_diff}%")
+
+        # Ajouter à la liste si différence détectée
+        if percentage_diff > 0:
+            modified_cases.append((case_name, percentage_diff))
+
+    # Trier par pourcentage décroissant
+    modified_cases.sort(key=lambda x: x[1], reverse=True)
+
+
+    if debug:
+        #print(f"\nTOP 2 CASES MODIFIEES: {modified_cases[:2]} \n")
+        print(f"\nTOP 4 CASES MODIFIEES: {modified_cases[:4]} \n") 
+
+    return modified_cases
+
+
+
+################################################
 ######### Trouver les cases modifiees ##########
 ################################################
 
@@ -122,7 +191,14 @@ def masked_variance(img, debug = False):
 
     # Appliquer le masque sur les deux images (case actuelle et case vide)
     masked_square_img = cv2.bitwise_and(img, img, mask=mask)
-    return np.var(img[img > 0])
+
+    #return np.var(img[img > 0])
+
+    # Extraire les pixels non nuls dans la région masquée
+    masked_pixels = masked_square_img[masked_square_img > 0]
+
+    # Calculer et retourner la variance dans la région masquée
+    return np.var(masked_pixels)
 
 # def is_square_empty(square_img, empty_square_img, threshold, debug):
 #     """
