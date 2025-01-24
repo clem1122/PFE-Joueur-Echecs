@@ -115,7 +115,7 @@ html {
 .chat-messages {
   flex: 1;
   padding: 10px;
-  height: 400px;
+  height: 350px;
   overflow-y: auto;
   background: #ffffff;
 

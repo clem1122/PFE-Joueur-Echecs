@@ -151,7 +151,13 @@ def reset_have_played():
 
 @app.route('/set-state', methods=['POST'])
 def set_state():
-    pass
+    global state
+    try:
+        state = request.get_json()
+
+        return jsonify({"status" : "success"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/get-state', methods=['GET'])
 def get_state():

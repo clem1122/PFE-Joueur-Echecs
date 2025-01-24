@@ -134,12 +134,10 @@ def send_color_FEN(board):
 	if(not flask):
 		return
 	spec_rules = "b" +  board.special_rules()[1:]
-	best_move = get_stockfish_move(board.FEN(), spec_rules, board.en_passant_coord(), display = False)
-	index_1 = board.coord_to_index(best_move[:2])
-	index_2 = board.coord_to_index(best_move[2:])
 	best_FEN = ['.']*64
 	if args.stockfish:
 		best_move = get_stockfish_move(board.FEN(), spec_rules, board.en_passant_coord())
+		if best_move == None: return
 		index_1 = board.coord_to_index(best_move[:2])
 		index_2 = board.coord_to_index(best_move[2:])
 		best_FEN[index_1] = '1'
@@ -157,6 +155,25 @@ def send_color_FEN(board):
 		print("Color FEN envoyées")
 	else:
 	    print(f"Erreur lors de l'envoi du board : {response.status_code}, {response.text}")
+
+def send_state(board):
+	
+	url = "http://127.0.0.1:5000/set-state"
+	whiteKingSquare = board.index_to_coord(board.find_king(True))
+	blackKingSquare = board.index_to_coord(board.find_king(False))
+
+	payload = {
+		"check": board.is_check(True, whiteKingSquare), 
+		"checkmate": board.is_checkmate(True), 
+		"checked": board.is_check(False, blackKingSquare),
+		"checkmated": board.is_checkmate(False)
+	}	
+	response = requests.post(url, json=payload)
+	if response.status_code == 200:
+		print("State envoyé")
+	else:
+	    print(f"Erreur lors de l'envoi du state : {response.status_code}, {response.text}")
+	
 
 def get_move():
 	if args.stockfish:
@@ -322,4 +339,5 @@ while True:
 		
 	send_color_FEN(b)
 	send_board_FEN(b)
+	send_state(b)
 
