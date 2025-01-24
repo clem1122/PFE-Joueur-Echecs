@@ -9,6 +9,7 @@ from Vision.delete_images import del_pkl
 
 clicked_points = []
 directory = 'Vision/'
+
 # Fonction de rappel pour gérer les clics de la souris
 def mouse_callback(event, x, y, flags, param):
     global clicked_points

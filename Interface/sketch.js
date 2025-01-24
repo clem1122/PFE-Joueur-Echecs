@@ -50,6 +50,7 @@ function setup() {
 
     noStroke();
     frameRate(10);
+    localStorage.setItem("FEN_to_show", JSON.stringify({'threats': false, 'controlled': false, 'playable': false, 'help': false, 'protected':false}));
 }
 
 function draw() {
