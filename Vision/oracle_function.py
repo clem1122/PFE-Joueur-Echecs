@@ -15,7 +15,7 @@ from Vision.processing import (
 def oracle(img1,img2, reference_image, debug = True):
  
     # ------------------------------ PARAMETERS ----------------------------------
-    threshold_diff = 40 #dans 'detect_difference' : Seuil pour la diff de pixels 
+    threshold_diff = 35 #dans 'detect_difference' : Seuil pour la diff de pixels 
     threshold_en_passant = 20 #dans 'is square_empty': Seuil pour diff entre case et case empty
     
     # ------------------------------- SETUP --------------------------------------
