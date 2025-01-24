@@ -196,8 +196,8 @@ def main():
     #Load empty checkboard
     reference_image = cv2.imread("Vision/photos_test/img0.png", cv2.IMREAD_COLOR)
     # Load example images
-    img1 = cv2.imread("Vision/photos/pep3.png", cv2.IMREAD_COLOR)
-    img2 = cv2.imread("Vision/photos/pep4.png", cv2.IMREAD_COLOR)
+    img1 = cv2.imread("Vision/photos/roque1.png", cv2.IMREAD_COLOR)
+    img2 = cv2.imread("Vision/photos/roque2.png", cv2.IMREAD_COLOR)
 
     # Process the move
     origin, destination  = oracle(img1, img2, reference_image)

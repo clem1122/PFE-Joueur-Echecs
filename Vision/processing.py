@@ -187,7 +187,7 @@ def analyze_squares(filtered_diff, cases, square_size, debug):
     modified_cases.sort(key=lambda x: x[1], reverse=True)
 
     if debug:
-        print(f"\nTOP 2 CASES MODIFIEES: {modified_cases[:2]} \n")
+        print(f"\nTOP 2 : {modified_cases[:2]} \n")
         #print(f"\nTOP 4 CASES MODIFIEES: {modified_cases[:4]} \n")
 
     return modified_cases[:4]
@@ -289,7 +289,7 @@ def determine_movement_direction(img2, cases, top_modified_cases, debug):
 
     if debug:
         print("DETERMINE DIRECTION:")
-        print('Var case 1: ' + str(var_case1) + '\n' + "Var case 2: " + str(var_case2))
+        print('Var case 1: ' + int(var_case1) + '\n' + "Var case 2: " + int(var_case2))
         print('Origin:', origin, 'Destination:', destination)
     return origin, destination
 
@@ -360,8 +360,8 @@ def determine_movement_direction_with_contours(img2, cases, top_modified_cases, 
     # Validation croisée
     if debug:
         print("DETERMINE DIRECTION:")
-        print('Var case 1:', var_case1, 'Contour case 1:', contour_case1)
-        print('Var case 2:', var_case2, 'Contour case 2:', contour_case2)
+        print('Var case 1:', int(var_case1), 'Contour case 1:', contour_case1)
+        print('Var case 2:', int(var_case2), 'Contour case 2:', contour_case2)
 
     if origin != origin_check:
         if debug:
@@ -560,7 +560,7 @@ def is_roque(top_4_cases, debug):
             print("GRAND ROQUE BLANC detected")
     else:
         if debug:
-            print("=> NO roquee")
+            print("=> NO ROQUE")
         return None
     
     return (origin, destination)
@@ -604,7 +604,8 @@ def is_en_passant(top_4_cases, threshold, debug=False):
     # Continuer seulement s'il y a redondances de lignes ET de colonnes
     if not (lignes_redondantes and colonnes_redondantes):
         if debug:
-            print("Pas de redondances suffisantes. Pas de prise en passant")
+            print("Pas de redondances suffisantes")
+            print("=> NO prise en passant")
         return False, "A1", "A1"
     
     # ----Determiner case d'origine ---    
