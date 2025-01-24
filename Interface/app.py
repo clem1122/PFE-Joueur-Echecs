@@ -15,17 +15,27 @@ last_click_time = 0
 def new_game():
     global color_FEN
     global board_FEN
+    global state
     color_FEN = {
-    "threats":    "................................................................",
-    "playable":   "................................................................",
-    "controlled": "................................................................",
-    "protected": "................................................................",
-    "help":       "................................................................"
-}
+        "threats":    "................................................................",
+        "playable":   "................................................................",
+        "controlled": "................................................................",
+        "protected": "................................................................",
+        "help":       "................................................................"
+    }
 
     board_FEN = "rnbqkbnrpppppppp................................PPPPPPPPRNBQKBNR"
+<<<<<<< Updated upstream
     valhalla_FEN = "QRBN...............qrbn..............."
 
+=======
+    state = {
+        "check": False,
+        "checkmate": False,
+        "checked": False,
+        "checkmated": False
+    }
+>>>>>>> Stashed changes
     return "FEN réinitialisées"
 
 @app.route('/')
@@ -98,8 +108,9 @@ def get_board_fen():
         if 'valhalla_FEN' not in globals() or valhalla_FEN is None:
             return jsonify({"error": "No valhalla data available"}), 501
         
-        print("Board et Valhalla reçus avec succès")
-        return jsonify({"status": "success", "board_FEN": board_FEN, "valhalla" : valhalla_FEN}), 200
+        print("Board et Valhalla envoyés avec succès")
+        print("Valhalla : " + valhalla_FEN)
+        return jsonify({"status": "success", "board_FEN": board_FEN, "valhalla_FEN" : valhalla_FEN}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
@@ -139,6 +150,22 @@ def reset_have_played():
     global have_played_status
     have_played_status = False  # Réinitialiser à False
     return jsonify({"message": "Statut have_played réinitialisé"}), 200
+
+@app.route('/set-state', methods=['POST'])
+def set_state():
+    pass
+
+@app.route('/get-state', methods=['GET'])
+def get_state():
+    global state 
+    try:
+        if 'state' not in globals() or state is None:
+            return jsonify({"error": "No state available"}), 501
+        
+        return jsonify(state), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 if __name__ == '__main__':
     new_game()
