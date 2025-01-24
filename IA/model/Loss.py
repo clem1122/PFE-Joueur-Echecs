@@ -52,8 +52,8 @@ class Loss(nn.Module):
             if move_uci: 
                 board = chess.Board(fen)
                 move = chess.Move.from_uci(move_uci)
-                if not board.is_legal(move):
-                    penalties += self.penalty 
+                if not(move in board.legal_moves):
+                    penalties += 100
 
         penalties = penalties / len(predicted_moves)
 
