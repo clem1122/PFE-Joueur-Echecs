@@ -58,7 +58,7 @@ function draw() {
     if (frameCount % 10 == 0) {
         updateFENs();
     }
-    drawGraveyard();
+    ///drawGraveyard();
     drawBoardWithLabels();
     if (FEN_to_show['threats']) { draw_color_FEN(threats, color(150, 0, 0, 175)); }
     if (FEN_to_show['controlled']) { draw_color_FEN(controlled, color(0, 0, 150, 100)); }
@@ -173,21 +173,26 @@ function mousePressed() {
     }
 }
 
+
 async function drawGraveyard() {
     const graveyardDiv = document.getElementById("valhalla");
-  //  graveyardDiv.innerHTML = ""; // Nettoyer le contenu existant
 
+    // Optionnel : Tu peux réinitialiser ici si nécessaire
+    graveyardDiv.innerHTML = ""; 
+
+    // Ajouter les pièces du Valhalla dynamiquement
     for (let i = 0; i < Valhalla.length; i++) {
         const piece = Valhalla[i];
         if (piece !== ".") {
             const img = document.createElement("img");
-            img.src = `Images/${piece.toUpperCase()}.png`; // Chemin vers l'image
+            img.src = `Images/${piece}.png`; // Chemin vers l'image
             img.alt = piece;
             img.classList.add("valhalla-piece"); // Ajouter une classe pour le style
             graveyardDiv.appendChild(img);
         }
     }
 }
+
 
 
 
