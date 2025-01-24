@@ -21,6 +21,7 @@ const Messages = {
     'checkmated': "J'ai gagné ! Tu t'es bien défendu(e), mais ton roi ne peut plus esquiver cette attaque",
     'check': "Joli ! Tu attaques mon roi.",
     'checkmate': "Tu as gagné ! Je m'incline, mon roi est définitivement perdu...",
+    'queen_threaten': "Prend garde à ta reine, elle est menacée",
     'threats': "Regarde, voici les pièces que je te menace.",
     'playable': "Voila toutes les cases que tu peux atteindre avec une de tes pièces",
     'controlled': "Prudence sur ces cases, je les controlle avec une de mes pièces.",

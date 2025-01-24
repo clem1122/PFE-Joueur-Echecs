@@ -36,7 +36,7 @@ parser.add_argument("--no-flask", "--nf", action="store_true")
 parser.add_argument("--cautious", "-c", action="store_true")
 parser.add_argument("--no-robot", "--nr", action="store_true")
 parser.add_argument("--stockfish", "-s", action="store_true")
-parser.add_argument("--take-picture", "--tp", "--tp", nargs="?", const=True)
+parser.add_argument("--take-picture", "--tp", nargs="?", const=True)
 parser.add_argument("--calibration", action="store_true")
 args = parser.parse_args()
 isWhite = False
@@ -76,7 +76,6 @@ def get_human_promotion_move(move, isWhite):
 
 
 def have_human_played():
-	return True
 	requests.post('http://127.0.0.1:5000/reset-have-played')
 	response = requests.get('http://127.0.0.1:5000/get-have-played')
 	response.raise_for_status()
@@ -203,9 +202,11 @@ def see(photoId, human = False):
 	if args.no_robot: return
 	global im_pre_robot, im_post_robot
 	if not human:
+		sleep(0.5)
 		im_post_robot = take_picture(robot, photoId)
 		origin, end = oracle(im_pre_robot, im_post_robot, imVide, debug=True)
 	else:
+		sleep(0.5)
 		im_pre_robot = take_picture(robot, photoId)
 		origin, end = oracle(im_post_robot, im_pre_robot, imVide, debug=True)
 
@@ -280,7 +281,7 @@ if not args.no_robot:
 	robot = Robot()
 	robot.move_to_obs_pose()
 	if vision:
-		
+		sleep(0.5)
 		im_pre_robot = take_picture(robot, 0)
 		im_post_robot = im_pre_robot
 
