@@ -25,6 +25,9 @@ def new_game():
     }
 
     board_FEN = "rnbqkbnrpppppppp................................PPPPPPPPRNBQKBNR"
+    valhalla_FEN = "QRBN...............qrbn..............."
+
+
     state = {
         "check": False,
         "checkmate": False,

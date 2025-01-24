@@ -5,11 +5,8 @@ import matplotlib.pyplot as plt
 
 from Vision.calibration import calibrate_corners, compute_transformation, rectify_image
 from Vision.processing import (
-    detect_differences, analyze_squares, determine_movement_direction, 
+    detect_differences, analyze_squares, determine_movement_direction_with_contours, 
     is_roque, is_en_passant,
-    normalize_hsv_global,
-    detect_circle_differences,
-    undistort_fisheye
 )
 
 def oracle(img1,img2, reference_image, debug = True):
@@ -22,18 +19,6 @@ def oracle(img1,img2, reference_image, debug = True):
     calibration_file = "chessboard_calibration.pkl"
     output_size = (800, 800) # A
     square_size = output_size[0] // 8
-
-    #------------------------------- UNDISTORT -----------------------------------
-    # Matrice intrinsèque et coefficients de distorsion
-    # K = np.array([[300, 0, 320],
-    #             [0, 300, 240],
-    #             [0, 0, 1]])
-    # D = np.array([-0.1, 0.01, 0, 0])
-
-    # img1 = undistort_fisheye(img1, K, D)
-    # img2 = undistort_fisheye(img2, K, D)
-
-    ###############
 
     # Dictionnaire des coordonnées des cases
     cases = {}
@@ -54,9 +39,30 @@ def oracle(img1,img2, reference_image, debug = True):
     rectified_reference = rectify_image(reference_image, tform, output_size)
     rectified_reference_gray = cv2.cvtColor(rectified_reference, cv2.COLOR_BGR2GRAY)
 
-    if debug:
-         cv2.imshow('img1', img1)
-         cv2.imshow('img2', img2)
+    # --------------- Uniformisation HSV ------------------
+
+#     # Convertir les images en HSV
+#     hsv1 = cv2.cvtColor(img1, cv2.COLOR_BGR2HSV).astype(np.float32)
+#     hsv2 = cv2.cvtColor(img2, cv2.COLOR_BGR2HSV).astype(np.float32)
+
+#     # Calcul des moyennes et écarts-types globaux
+#     all_pixels = np.concatenate([hsv1.reshape(-1, 3), hsv2.reshape(-1, 3)], axis=0)
+#     global_means = np.mean(all_pixels, axis=0)
+#     global_stds = np.std(all_pixels, axis=0)
+
+#   # Normaliser les deux images
+#     normalized_img1 = normalize_hsv_global(img1, global_means, global_stds)
+#     normalized_img2 = normalize_hsv_global(img2, global_means, global_stds)
+
+#     # Afficher les résultats
+#     cv2.imshow("Original Image 1", img1)
+#     cv2.imshow("Original Image 2", img2)
+#     cv2.imshow("Normalized Image 1", normalized_img1)
+#     cv2.imshow("Normalized Image 2", normalized_img2)
+#     cv2.waitKey(0)
+#     cv2.destroyAllWindows()
+
+#------------------------------------------
 
     # Conversion niveaux de gris
     img1 = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
@@ -71,71 +77,31 @@ def oracle(img1,img2, reference_image, debug = True):
     rectified_img2 = rectify_image(img2, tform, output_size)
 
 
+    # if debug:
+    #     cv2.imshow('rectified_img1', rectified_img1)
+    #     cv2.imshow('rectified_img2', rectified_img2)
+
+
     #---------------------------------------------------------------------
     #------------------  Calculer les differences-------------------------
     #---------------------------------------------------------------------
-
-    
-    ###### CERCLES DIFF
-    # min_radius = 5
-    # max_radius = 40
-    # modified_cases = detect_circle_differences(rectified_img1, rectified_img2, cases, min_radius, max_radius, debug)
-
-
-    ##### VERSION CLASSIQUE
-
-    # DEBUGGGG
-    #filtered_diff = detect_differences(img1, img2, threshold_diff, debug)
-####################
-
     filtered_diff = detect_differences(rectified_img1, rectified_img2, threshold_diff, debug)
     modified_cases = analyze_squares(filtered_diff, cases, square_size, debug)
 
     # ---------------------------------------------------------------------
     # ---------------- Déterminer le sens du mouvement --------------------
     # ---------------------------------------------------------------------
-
-    ###### CERCLES DIFF
-    # if len(modified_cases) >= 2:
-    #     top_cases = [modified_cases[0], modified_cases[1]]
-    #     origin, destination = determine_movement_direction_circles(rectified_img2, cases, top_cases, min_radius, max_radius, debug)
-    # else:
-    #     print("Errror determining mouvement: not enough modified cases.")
-
-
-    ##### VERSION CLASSIQUE
     if len(modified_cases) >= 2:
         top_cases = [modified_cases[0], modified_cases[1]]
-        origin, destination = determine_movement_direction(rectified_img2, cases, top_cases, debug)
+        origin, destination = determine_movement_direction_with_contours(rectified_img2, cases, top_cases, debug)
     else:
         print("Errror determining mouvement: not enough modified cases.")
-
-    # ----------------------------------------------------------------------
-    #---------- Déterminer si le mouvement est une capture -----------------
-    # ----------------------------------------------------------------------
-
-    # destination_coords = cases[destination]
-    # capture_detected = is_capture(rectified_img1, rectified_reference_gray, destination_coords, threshold_diff, debug)
-    # if capture_detected:
-    #     move_type = "CAPTURE"
-    # else:
-    #     move_type = "SIMPLE"
-
-    # ----------------------------------------------------------------------
-    # -------------Determiner la couleur de la piece bougee ---------------
-    # ----------------------------------------------------------------------
-
-    # origin_coords = cases[origin]
-    # circle_mean_intensity = check_color(rectified_img1, origin_coords)
-    # color = determine_piece_color(circle_mean_intensity)
 
    # ----------------------------------------------------------------------
    # ------------------ CHECK FOR COUPS SPECIAUX --------------------------
    # ----------------------------------------------------------------------
    
-   # -------------------
    # ------ROQUE -------
-   # -------------------
     top_4_cases = [modified_cases[0][0], modified_cases[1][0], modified_cases[2][0], modified_cases[3][0]]
     roque = is_roque(top_4_cases, debug)
 
@@ -145,9 +111,7 @@ def oracle(img1,img2, reference_image, debug = True):
     else:
         pass
 
-   # -------------------
    # ----EN-PASSANT ----
-   # -------------------
     top_cases = [modified_cases[0], modified_cases[1], modified_cases[2]] #, modified_cases[3], modified_cases[4]]
     en_passant, new_origin, new_destination = is_en_passant(top_cases, threshold_en_passant,debug)
 
@@ -158,8 +122,6 @@ def oracle(img1,img2, reference_image, debug = True):
         pass
 
 # -----------------------------------------------------------------------------------
-# -----------------------------------------------------------------------------------
-
     if debug:
         print("\n----------OUTPUT----------")
         print(f"Origin: {origin}, Destination: {destination}")
