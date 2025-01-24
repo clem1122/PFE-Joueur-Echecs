@@ -5,17 +5,15 @@ import matplotlib.pyplot as plt
 
 from Vision.calibration import calibrate_corners, compute_transformation, rectify_image
 from Vision.processing import (
-    detect_differences, analyze_squares, determine_movement_direction, 
+    detect_differences, analyze_squares, determine_movement_direction, determine_movement_direction_with_contours, 
     is_roque, is_en_passant,
-    normalize_hsv_global,
     detect_circle_differences,
-    undistort_fisheye
 )
 
 def oracle(img1,img2, reference_image, debug = True):
  
     # ------------------------------ PARAMETERS ----------------------------------
-    threshold_diff = 40 #dans 'detect_difference' : Seuil pour la diff de pixels 
+    threshold_diff = 35 #dans 'detect_difference' : Seuil pour la diff de pixels 
     threshold_en_passant = 20 #dans 'is square_empty': Seuil pour diff entre case et case empty
     
     # ------------------------------- SETUP --------------------------------------
@@ -29,6 +27,7 @@ def oracle(img1,img2, reference_image, debug = True):
     #             [0, 300, 240],
     #             [0, 0, 1]])
     # D = np.array([-0.1, 0.01, 0, 0])
+
 
     # img1 = undistort_fisheye(img1, K, D)
     # img2 = undistort_fisheye(img2, K, D)
@@ -132,7 +131,7 @@ def oracle(img1,img2, reference_image, debug = True):
     ##### VERSION CLASSIQUE
     if len(modified_cases) >= 2:
         top_cases = [modified_cases[0], modified_cases[1]]
-        origin, destination = determine_movement_direction(rectified_img2, cases, top_cases, debug)
+        origin, destination = determine_movement_direction_with_contours(rectified_img2, cases, top_cases, debug)
     else:
         print("Errror determining mouvement: not enough modified cases.")
 

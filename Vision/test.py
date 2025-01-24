@@ -4,17 +4,15 @@ import numpy as np
 
 from calibration import calibrate_corners, compute_transformation, rectify_image
 from processing import (
-    detect_differences, analyze_squares, determine_movement_direction, determine_movement_direction_circles,
+    detect_differences, analyze_squares, determine_movement_direction, determine_movement_direction_with_contours,
     is_roque, is_en_passant,
-    normalize_hsv_global,
     detect_circle_differences,
-    undistort_fisheye
 )
 
 def oracle(img1,img2, reference_image, debug = True):
  
     # ------------------------------ PARAMETERS ----------------------------------
-    threshold_diff = 40 #dans 'detect_difference' : Seuil pour la diff de pixels 
+    threshold_diff = 35 #dans 'detect_difference' : Seuil pour la diff de pixels 
     threshold_en_passant = 20 #dans 'is square_empty': Seuil pour diff entre case et case empty
     
     # ------------------------------- SETUP --------------------------------------
@@ -131,7 +129,7 @@ def oracle(img1,img2, reference_image, debug = True):
     ##### VERSION CLASSIQUE
     if len(modified_cases) >= 2:
         top_cases = [modified_cases[0], modified_cases[1]]
-        origin, destination = determine_movement_direction(rectified_img2, cases, top_cases, debug)
+        origin, destination = determine_movement_direction_with_contours(rectified_img2, cases, top_cases, debug)
     else:
         print("Errror determining mouvement: not enough modified cases.")
 
@@ -198,8 +196,8 @@ def main():
     #Load empty checkboard
     reference_image = cv2.imread("Vision/photos_test/img0.png", cv2.IMREAD_COLOR)
     # Load example images
-    img1 = cv2.imread("Vision/photos/pep2.png", cv2.IMREAD_COLOR)
-    img2 = cv2.imread("Vision/photos/pep3.png", cv2.IMREAD_COLOR)
+    img1 = cv2.imread("Vision/photos/pep3.png", cv2.IMREAD_COLOR)
+    img2 = cv2.imread("Vision/photos/pep4.png", cv2.IMREAD_COLOR)
 
     # Process the move
     origin, destination  = oracle(img1, img2, reference_image)
