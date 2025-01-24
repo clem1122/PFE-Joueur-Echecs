@@ -14,9 +14,9 @@ def mouse_callback(event, x, y, flags, param):
     global clicked_points
     if event == cv2.EVENT_LBUTTONDOWN:  # Clic gauche
         clicked_points.append([x, y])  # Ajouter les coordonnées du clic
-        print(f"Point selectee : {(x, y)}")
+        print(f"\nPoint selected : {(x, y)}")
         if len(clicked_points) == 4:
-            print("4 coins sélectionnés !")
+            print("\n4 coins sélectionnés !")
 
 # Fonction Calibration
 # INPUT: fichier pour enregistrer, chemin de l'image ref, taille image out
@@ -44,7 +44,7 @@ def calibrate_corners(calibration_file, reference_image, output_size):
         cv2.namedWindow('Calibration')
         cv2.setMouseCallback('Calibration', mouse_callback)
 
-        print("Veuillez cliquer sur les 4 coins de l'échiquier dans l'ordre :")
+        print("\nVeuillez cliquer sur les 4 coins de l'échiquier dans l'ordre :")
         print("1. Haut-gauche | 2. Haut-droit | 3. Bas-droit | 4. Bas-gauche")
 
         # Afficher l'image et attendre les 4 clics

@@ -30,12 +30,34 @@ def normalize_hsv_global(img, global_means, global_stds):
     # Retourner l'image en BGR
     return cv2.cvtColor(hsv.astype(np.uint8), cv2.COLOR_HSV2BGR)
 
+################################################
+############## UNDISTORT FISHEYE  ##############
+################################################
+
+def undistort_fisheye(image, K, D, balance=0.5):
+    """
+    Corrige la distorsion fisheye d'une image donnée.
+    """
+    h, w = image.shape[:2]
+    
+    # Calculer la nouvelle matrice intrinsèque
+    new_K = cv2.fisheye.estimateNewCameraMatrixForUndistortRectify(K, D, (w, h), np.eye(3), balance=balance)
+    
+    # Générer les cartes de transformation
+    map1, map2 = cv2.fisheye.initUndistortRectifyMap(K, D, np.eye(3), new_K, (w, h), cv2.CV_16SC2)
+    
+    # Appliquer la transformation
+    undistorted_image = cv2.remap(image, map1, map2, interpolation=cv2.INTER_LINEAR)
+    
+    return undistorted_image
+
 
 ################################################
+######### Trouver les cases modifiees ##########
+################################################
+
+
 ############## DETECT CIRCLES ##############
-################################################
-
-
 def detect_circles_in_case(image, x_start, y_start, square_size, min_radius, max_radius):
     """
     Détecte les cercles dans une case spécifique de l'échiquier.
@@ -52,7 +74,7 @@ def detect_circles_in_case(image, x_start, y_start, square_size, min_radius, max
         dp=1.0, #1.2
         minDist=10, #10
         param1=10, #50
-        param2=10, #30
+        param2=5, #30
         minRadius=min_radius,
         maxRadius=max_radius
     )
@@ -94,17 +116,13 @@ def detect_circle_differences(image1, image2, cases, min_radius, max_radius, deb
 
     if debug:
         #print(f"\nTOP 2 CASES MODIFIEES: {modified_cases[:2]} \n")
-        print(f"\nTOP 4 CASES MODIFIEES: {modified_cases[:4]} \n") 
+        print(f"\nTOP 4 CASES MODIFIEES (cercles): {modified_cases[:4]} \n") 
 
     return modified_cases
-
-
-
-################################################
-######### Trouver les cases modifiees ##########
 ################################################
 
-# Difference entre deux images
+
+# Difference entre deux images (version basique)
 def detect_differences(img1, img2, sensitivity_threshold, debug):
     diff = cv2.absdiff(img1, img2)
     # Filtre pour ignorer les diff en dessous du threshold
@@ -272,6 +290,52 @@ def determine_movement_direction(img2, cases, top_modified_cases, debug):
     if debug:
         print("DETERMINE DIRECTION:")
         print('Var case 1: ' + str(var_case1) + '\n' + "Var case 2: " + str(var_case2))
+        print('Origin:', origin, 'Destination:', destination)
+    return origin, destination
+
+#### CERLCES
+
+def determine_movement_direction_circles(img2, cases, top_modified_cases, min_radius, max_radius, debug):
+    """
+    Détermine le mouvement en comparant les cases avec l'échiquier vide.
+    LA CASE QUI EST DEVENUE VIDE DANS IMG2 EST LA CASE DE DEPART
+
+    LOGIQUE:
+     - On compute le # de cerlces dans IMG2 dans les deux cases
+     - Le plus petit nombre EST LA CASE VIDE
+     - La case vide est l'origine, l'autre est la destination
+    """
+
+    if len(top_modified_cases) < 2:
+        return None, "Erreur 'determine_movement': moins de deux cases modifiées."
+
+    case1, case2 = top_modified_cases[0][0], top_modified_cases[1][0]
+
+    # Extraire les coordonnées des cases
+    coords1 = cases[case1]
+    coords2 = cases[case2]
+
+    # Découper les régions correspondantes
+    x1_start, x1_end, y1_start, y1_end = coords1
+    x2_start, x2_end, y2_start, y2_end = coords2
+
+    square_size = x1_end - x1_start
+
+    # Extraction coordonnes cases 1 et 2 dans img2
+    square1_img2 = img2[y1_start:y1_end, x1_start:x1_end]
+    square2_img2 = img2[y2_start:y2_end, x2_start:x2_end]
+
+    # Détecter les cercles dans chaque case pour les deux cases dans l'image
+    circles_case1 = detect_circles_in_case(img2, x1_start, y1_start, square_size, min_radius, max_radius)
+    circles_case2 = detect_circles_in_case(img2, x2_start, y2_start, square_size, min_radius, max_radius)
+
+    # Origine est la mininum variance
+    origin = case1 if circles_case1 == min(circles_case1, circles_case2) else case2
+    destination = case1 if origin==case2 else case2
+
+    if debug:
+        print("DETERMINE DIRECTION (with circles):")
+        print('Circles case 1: ' + str(circles_case1) + '\n' + "Circles case 2: " + str(circles_case2))
         print('Origin:', origin, 'Destination:', destination)
     return origin, destination
 
