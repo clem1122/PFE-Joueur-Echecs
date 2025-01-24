@@ -54,30 +54,9 @@ def oracle(img1,img2, reference_image, debug = True):
     rectified_reference = rectify_image(reference_image, tform, output_size)
     rectified_reference_gray = cv2.cvtColor(rectified_reference, cv2.COLOR_BGR2GRAY)
 
-    # --------------- Uniformisation HSV ------------------
-
-#     # Convertir les images en HSV
-#     hsv1 = cv2.cvtColor(img1, cv2.COLOR_BGR2HSV).astype(np.float32)
-#     hsv2 = cv2.cvtColor(img2, cv2.COLOR_BGR2HSV).astype(np.float32)
-
-#     # Calcul des moyennes et écarts-types globaux
-#     all_pixels = np.concatenate([hsv1.reshape(-1, 3), hsv2.reshape(-1, 3)], axis=0)
-#     global_means = np.mean(all_pixels, axis=0)
-#     global_stds = np.std(all_pixels, axis=0)
-
-#   # Normaliser les deux images
-#     normalized_img1 = normalize_hsv_global(img1, global_means, global_stds)
-#     normalized_img2 = normalize_hsv_global(img2, global_means, global_stds)
-
-#     # Afficher les résultats
-#     cv2.imshow("Original Image 1", img1)
-#     cv2.imshow("Original Image 2", img2)
-#     cv2.imshow("Normalized Image 1", normalized_img1)
-#     cv2.imshow("Normalized Image 2", normalized_img2)
-#     cv2.waitKey(0)
-#     cv2.destroyAllWindows()
-
-#------------------------------------------
+    if debug:
+         cv2.imshow('img1', img1)
+         cv2.imshow('img2', img2)
 
     # Conversion niveaux de gris
     img1 = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
@@ -90,11 +69,6 @@ def oracle(img1,img2, reference_image, debug = True):
     #Redresser les images en utilisant l'image ref (tform)
     rectified_img1 = rectify_image(img1, tform, output_size)
     rectified_img2 = rectify_image(img2, tform, output_size)
-
-
-    # if debug:
-    #     cv2.imshow('rectified_img1', rectified_img1)
-    #     cv2.imshow('rectified_img2', rectified_img2)
 
 
     #---------------------------------------------------------------------

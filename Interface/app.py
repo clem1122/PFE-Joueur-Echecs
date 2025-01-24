@@ -25,17 +25,12 @@ def new_game():
     }
 
     board_FEN = "rnbqkbnrpppppppp................................PPPPPPPPRNBQKBNR"
-<<<<<<< Updated upstream
-    valhalla_FEN = "QRBN...............qrbn..............."
-
-=======
     state = {
         "check": False,
         "checkmate": False,
         "checked": False,
         "checkmated": False
     }
->>>>>>> Stashed changes
     return "FEN réinitialisées"
 
 @app.route('/')

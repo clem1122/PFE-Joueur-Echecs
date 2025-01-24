@@ -43,7 +43,7 @@ isWhite = False
 vision = not args.no_robot
 
 is_human_white = False
-g = pc.Game(promotion_FEN3)
+g = pc.Game(classic_FEN)
 b = g.board
 b.print()
 flask = not (args.no_flask or args.take_picture)
