@@ -18,17 +18,3 @@ class Model(nn.Module):
         out_value = self.value_head(x)
 
         return out_policy, out_value
-
-# input_channels = 112 
-# filters = 128  
-# blocks = 10
-# batch_size=16
-
-# model = Model(input_channels, filters, blocks)
-# x = torch.randn(batch_size, input_channels, 8, 8) 
-# out = model(x)
-# print("out_policy", out[0].shape)
-# print("out_value", out[1].shape)
-
-    
-

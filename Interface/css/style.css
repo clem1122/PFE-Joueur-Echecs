@@ -149,3 +149,25 @@ html {
   font-size: 1.5rem; /* Agrandit la taille du texte du bouton */
   padding: 1rem 2rem; /* Augmente la taille globale du bouton */
 }
+
+.cemetery-container {
+  display: flex;
+  flex-direction: column; /* Les pièces s'empilent verticalement */
+  align-items: center; /* Centrer les pièces horizontalement */
+  padding: 10px;
+  background-color: #f5f5f5; /* Couleur de fond */
+  border: 1px solid #ccc; /* Bordure pour démarquer le Valhalla */
+  width: 150px; /* Largeur fixe pour le cimetière */
+}
+
+.valhalla {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* 4 colonnes pour organiser les pièces */
+  gap: 5px; /* Espacement entre les pièces */
+}
+
+.valhalla-piece {
+  width: 80%; /* Taille réduite pour s'adapter à la case */
+  height: auto; /* Garde les proportions de l'image */
+  margin: auto; /* Centrer les images dans leurs cases */
+}

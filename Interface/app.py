@@ -24,6 +24,7 @@ def new_game():
 }
 
     board_FEN = "rnbqkbnrpppppppp................................PPPPPPPPRNBQKBNR"
+    valhalla_FEN = "QRBN...............qrbn..............."
 
     return "FEN réinitialisées"
 

@@ -4,6 +4,7 @@ let squareSize;
 let colors = ["#f3dbb4", "#b38c62"];
 let selectedColor = "#98c47e";
 let FEN = "rnbqkbnrpppppppp................................PPPPPPPPRNBQKBNR";
+let Valhalla = "QRBN...............qrbn..............."
 let pieceImages = {};
 let selectedSquare = null;
 let selectedPiece = null;
@@ -57,8 +58,8 @@ function draw() {
     if (frameCount % 10 == 0) {
         updateFENs();
     }
-    drawBoardWithLabels();
     drawGraveyard();
+    drawBoardWithLabels();
     if (FEN_to_show['threats']) { draw_color_FEN(threats, color(150, 0, 0, 175)); }
     if (FEN_to_show['controlled']) { draw_color_FEN(controlled, color(0, 0, 150, 100)); }
     if (FEN_to_show['playable']) { draw_color_FEN(playable, color(0, 150, 0, 100)); }
@@ -68,7 +69,12 @@ function draw() {
 }
 
 async function updateFENs() {
-    getBoardFEN();
+    const boardData = await getBoardFEN();
+    if (boardData) {
+        FEN = boardData.board_FEN;
+        Valhalla = boardData.valhalla_FEN; // Mettez à jour Valhalla ici
+        drawGraveyard();
+    }
     color_FEN = await getColorFEN();
     if (color_FEN !== undefined) {
         threats = color_FEN['threats'];
@@ -136,23 +142,7 @@ function drawPieces() {
         }
     }
 }
-function drawGraveyard() {
-    let graveyardX = width + 10; // Position of the graveyard on the right
-    let graveyardY = 10; // Top margin of the graveyard
-    let graveyardSize = squareSize / 1.5; // Size of the graveyard squares
 
-    fill("#d3d3d3");
-    rect(graveyardX - 5, graveyardY - 5, graveyardSize * 4 + 10, graveyardSize * 4 + 10); // Background for the graveyard
-
-    for (let i = 0; i < 4; i++) {
-        for (let j = 0; j < 4; j++) {
-            let x = graveyardX + j * graveyardSize;
-            let y = graveyardY + i * graveyardSize;
-            fill(colors[(i + j) % 2]);
-            rect(x, y, graveyardSize, graveyardSize);
-        }
-    }
-}
 
 
 function mousePressed() {
@@ -183,12 +173,40 @@ function mousePressed() {
     }
 }
 
+async function drawGraveyard() {
+    const graveyardDiv = document.getElementById("valhalla");
+  //  graveyardDiv.innerHTML = ""; // Nettoyer le contenu existant
+
+    for (let i = 0; i < Valhalla.length; i++) {
+        const piece = Valhalla[i];
+        if (piece !== ".") {
+            const img = document.createElement("img");
+            img.src = `Images/${piece.toUpperCase()}.png`; // Chemin vers l'image
+            img.alt = piece;
+            img.classList.add("valhalla-piece"); // Ajouter une classe pour le style
+            graveyardDiv.appendChild(img);
+        }
+    }
+}
+
+
+
+
 async function getBoardFEN() {
     const url_board = "http://127.0.0.1:5000/get-board-FEN";
     const response = await fetch(url_board);
-    const data = await response.json();
-    FEN = data.board_FEN;
+    if (response.ok) {
+        const data = await response.json();
+        return {
+            board_FEN: data.board_FEN,
+            valhalla_FEN: data.valhalla_FEN // Ajoutez valhalla_FEN ici
+        };
+    } else {
+        console.error("Erreur lors de la récupération de la FEN du plateau.");
+        return null;
+    }
 }
+
 
 async function getColorFEN() {
     const url_color_FEN = "http://127.0.0.1:5000/get-color-FEN";

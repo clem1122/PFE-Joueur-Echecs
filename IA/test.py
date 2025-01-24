@@ -71,7 +71,7 @@ def test_model(model_path, test_dataset, mapping, config):
 
     print("Testing the model...")
     with torch.no_grad():
-        for i, (board_tensors, target_vectors, value_targets, move_indices, tot_moves) in enumerate(test_loader):
+        for i, (board_tensors, target_vectors, value_targets, move_indices, tot_moves, fens) in enumerate(test_loader):
             board_tensors = board_tensors.float().to(device)
 
             outputs, value_preds = model(board_tensors)
@@ -83,7 +83,7 @@ def test_model(model_path, test_dataset, mapping, config):
 
             print("accuracy", vec_acc, val_acc)
 
-            break
+            
 
 if __name__ == "__main__":
     model_path = "model_checkpoint.pth" 
