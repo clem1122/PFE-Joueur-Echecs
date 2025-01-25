@@ -13,7 +13,8 @@ const StartMessages = [
     "Bonjour ! Je suis Niryo",
     "Je suis un robot pédagogique pour enseigner les échecs",
     "Tu veux jouer une partie avec moi ?",
-    "😊😊😊"
+    "😊😊😊",
+    "Pour information, les pièces déjà présentes dans le cimetière en début de partie sont simplement prévues en cas de promotion."
 ];
 
 const Messages = {

@@ -189,7 +189,7 @@ async function drawGraveyard() {
             img.src = `Images/${piece}.png`; // Chemin vers l'image
             img.alt = piece;
             img.classList.add("valhalla-piece"); // Ajouter une classe pour le style
-            //graveyardDiv.appendChild(img);
+            graveyardDiv.appendChild(img);
         }
     }
 }
