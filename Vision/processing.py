@@ -187,7 +187,7 @@ def analyze_squares(filtered_diff, cases, square_size, debug):
     modified_cases.sort(key=lambda x: x[1], reverse=True)
 
     if debug:
-        print(f"\nTOP 2 CASES MODIFIEES: {modified_cases[:2]} \n")
+        print(f"\nTOP 2 : {modified_cases[:2]} \n")
         #print(f"\nTOP 4 CASES MODIFIEES: {modified_cases[:4]} \n")
 
     return modified_cases[:4]
@@ -289,9 +289,117 @@ def determine_movement_direction(img2, cases, top_modified_cases, debug):
 
     if debug:
         print("DETERMINE DIRECTION:")
-        print('Var case 1: ' + str(var_case1) + '\n' + "Var case 2: " + str(var_case2))
+        print('Var case 1: ' + int(var_case1) + '\n' + "Var case 2: " + int(var_case2))
         print('Origin:', origin, 'Destination:', destination)
     return origin, destination
+
+
+################### CONTOUR ##############
+
+def detect_contours_metric(img):
+    """
+    Calcule une métrique basée sur les contours pour une image donnée.
+    """
+    # Conversion en niveaux de gris
+    gray = img
+
+    # Détection des contours avec un filtre de Sobel
+    sobel_x = cv2.Sobel(gray, cv2.CV_64F, 1, 0, ksize=3)
+    sobel_y = cv2.Sobel(gray, cv2.CV_64F, 0, 1, ksize=3)
+    sobel_magnitude = np.sqrt(sobel_x**2 + sobel_y**2)
+
+    # Binarisation pour extraire les contours
+    S_, binary = cv2.threshold(sobel_magnitude, 20, 255, cv2.THRESH_BINARY)
+
+    # Option : utiliser Canny à la place
+    #binary = cv2.Canny(gray, 50, 150)
+
+    # Calculer le nombre total de pixels de contour
+    contour_metric = np.sum(binary > 0)
+    return contour_metric
+
+ 
+def determine_movement_direction_with_contours(img2, cases, top_modified_cases, debug):
+    """
+    Détermine le mouvement en utilisant les contours pour valider la variance.
+    Si les résultats sont incohérents, la méthode avec le plus grand écart relatif est priorisée.
+    """
+    if len(top_modified_cases) < 2:
+        return None, "Erreur 'determine_movement': moins de deux cases modifiées."
+
+    case1, case2 = top_modified_cases[0][0], top_modified_cases[1][0]
+
+    # Extraire les coordonnées des cases
+    coords1 = cases[case1]
+    coords2 = cases[case2]
+
+    # Découper les régions correspondantes
+    x1_start, x1_end, y1_start, y1_end = coords1
+    x2_start, x2_end, y2_start, y2_end = coords2
+
+    # Extraction des images des cases dans img2
+    square1_img2 = img2[y1_start:y1_end, x1_start:x1_end]
+    square2_img2 = img2[y2_start:y2_end, x2_start:x2_end]
+
+    # Calcul des variances
+    var_case1 = masked_variance(square1_img2)
+    var_case2 = masked_variance(square2_img2)
+
+    # Calcul des métriques de contours
+    contour_case1 = detect_contours_metric(square1_img2)
+    contour_case2 = detect_contours_metric(square2_img2)
+
+    # Origine est déterminée par la variance minimale
+    origin_variance = case1 if var_case1 == min(var_case1, var_case2) else case2
+    destination_variance = case1 if origin_variance == case2 else case2
+
+    # Vérification avec les contours : moins de contours -> case vide
+    origin_contour = case1 if contour_case1 == min(contour_case1, contour_case2) else case2
+    destination_contour = case1 if origin_contour == case2 else case2
+
+    # Validation croisée
+    if debug:
+        print("DETERMINE DIRECTION:")
+        print('Var case 1:', int(var_case1), 'Contour case 1:', contour_case1)
+        print('Var case 2:', int(var_case2), 'Contour case 2:', contour_case2)
+
+    # En cas de divergence
+    if origin_variance != origin_contour:
+        if debug:
+            print("WARNING: Incoherence entre variance et contours!")
+
+        # Calcul des facteurs d'écart relatifs
+        factor_var = abs(var_case1 - var_case2) / min(var_case1, var_case2)
+        factor_contour = abs(contour_case1 - contour_case2) / min(contour_case1, contour_case2)
+        
+        if debug:
+            print("Facteur var = ", factor_var, "Facteur contour= ",factor_contour)
+
+        # Décider quelle méthode suivre selon le facteur d'écart
+        if factor_var > factor_contour:
+            origin = origin_variance
+            destination = destination_variance
+            if debug:
+                print("Variance prioriee -> écart plus grand")
+        else:
+            origin = origin_contour
+            destination = destination_contour
+            if debug:
+                print("Contours priorises -> écart plus grand")
+
+    else:
+        # Si les deux méthodes sont cohérentes
+        origin = origin_variance
+        destination = destination_variance
+        if debug:
+            print("Coherence entre variance et contours.")
+
+    if debug:
+        print('Origin:', origin, 'Destination:', destination)
+
+    return origin, destination
+
+########################################
 
 #### CERLCES
 
@@ -472,7 +580,7 @@ def is_roque(top_4_cases, debug):
             print("GRAND ROQUE BLANC detected")
     else:
         if debug:
-            print("Aucune correspondance avec un roque")
+            print("=> NO ROQUE")
         return None
     
     return (origin, destination)
@@ -495,7 +603,7 @@ def is_en_passant(top_4_cases, threshold, debug=False):
     # Vérifier qu'il y a au moins 3 cases valides
     if len(valid_cases) < 3:
         if debug:
-            print("Moins de 3 cases depassent le seuil => NO prise en passant.")
+            print("Moins de 3 cases depassent le seuil \n=> NO prise en passant.")
         return False, "A1", "A1"
     
     # Check si il y a redondance de lignes et de colonnes dans les 3 cases
@@ -516,7 +624,8 @@ def is_en_passant(top_4_cases, threshold, debug=False):
     # Continuer seulement s'il y a redondances de lignes ET de colonnes
     if not (lignes_redondantes and colonnes_redondantes):
         if debug:
-            print("Pas de redondances suffisantes. Pas de prise en passant.")
+            print("Pas assez de redondances")
+            print("=> NO prise en passant")
         return False, "A1", "A1"
     
     # ----Determiner case d'origine ---    
@@ -550,8 +659,7 @@ def is_en_passant(top_4_cases, threshold, debug=False):
     
     return is_valid, origin, destination
 
-################## PROMOTION ###################
-
+################## PROMOTION / VALHALLA ###################
 def is_case_empty(img, empty_valhalla, coords, threshold, debug=False):
     """
     Vérifie si une case est vide en comparant sa variance à celle de la case vide de référence.

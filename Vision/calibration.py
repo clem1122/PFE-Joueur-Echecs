@@ -9,6 +9,7 @@ from Vision.delete_images import del_pkl
 
 clicked_points = []
 directory = 'Vision/'
+
 # Fonction de rappel pour gérer les clics de la souris
 def mouse_callback(event, x, y, flags, param):
     global clicked_points
@@ -92,16 +93,17 @@ ImageDirectory ='Images'
 
 # Image directory
 def take_picture(robot, img_name):
-    
     mtx, dist = robot.niryo.get_camera_intrinsics()
     img_compressed = robot.niryo.get_img_compressed()
     img_raw = uncompress_image(img_compressed)
     img_undistort = undistort_image(img_raw, mtx, dist)
     # Sauvegarder l'image
+    
     output_path = os.path.join(ImageDirectory, str(img_name) + '.png')
     cv2.imwrite(output_path, img_undistort)
     print(output_path)
     robot.niryo.play_sound("learning_trajectory.wav")
+    
     return img_undistort
 
 def main():

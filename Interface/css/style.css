@@ -17,16 +17,14 @@ html {
 #container {
   display: flex;
   flex-direction: row;
-  justify-content: center;
-  /* Center horizontally */
+  justify-content: space-between; /* Équilibre le cimetière et le chatbot */
   align-items: center;
-  /* Center vertically */
-  gap: 20px;
-  /* Space between canvas and checkbox */
+  gap: 10px; /* Espacement entre les éléments */
   height: 80%;
-  width: 100%;
-  /* border: 2px solid red; */
+  width: 90%; /* Réduction pour ajouter des marges à gauche et à droite */
+  margin: auto; /* Centrer le conteneur dans la page */
 }
+
 
 .checkbox-container {
   /* border: 2px solid red;*/
@@ -117,7 +115,7 @@ html {
 .chat-messages {
   flex: 1;
   padding: 10px;
-  height: 400px;
+  height: 350px;
   overflow-y: auto;
   background: #ffffff;
 
@@ -150,24 +148,25 @@ html {
   padding: 1rem 2rem; /* Augmente la taille globale du bouton */
 }
 
-.cemetery-container {
-  display: flex;
-  flex-direction: column; /* Les pièces s'empilent verticalement */
-  align-items: center; /* Centrer les pièces horizontalement */
-  padding: 10px;
-  background-color: #f5f5f5; /* Couleur de fond */
-  border: 1px solid #ccc; /* Bordure pour démarquer le Valhalla */
-  width: 150px; /* Largeur fixe pour le cimetière */
-}
 
-.valhalla {
+.cemetery-container {
   display: grid;
-  grid-template-columns: repeat(4, 1fr); /* 4 colonnes pour organiser les pièces */
-  gap: 5px; /* Espacement entre les pièces */
+  grid-template-columns: repeat(5, 5); /* Grille de 5 colonnes */
+  gap: 10px; /* Espacement entre les pièces */
+  background-color: #f5f5f5; /* Couleur de fond */
+  border: 10px solid #ccc; /* Bordure */
+  width: 225px; /* Largeur fixe */
+  height: 500px; /* Hauteur fixe */
+  align-items: center; /* Centrer verticalement les pièces */
+  position: absolute; /* Permet un positionnement précis */
+  top: 50%; /* Centré verticalement par rapport à l'échiquier */
+  left: calc(50% - 600px); /* Positionné à gauche de l'échiquier */
+  transform: translateY(-50%); /* Ajuste le centrage vertical */
 }
 
 .valhalla-piece {
-  width: 80%; /* Taille réduite pour s'adapter à la case */
-  height: auto; /* Garde les proportions de l'image */
-  margin: auto; /* Centrer les images dans leurs cases */
+  width: 50px; /* Largeur des pièces */
+  height: 50px; /* Hauteur des pièces */
+  object-fit: contain; /* Conserve les proportions */
 }
+

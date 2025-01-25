@@ -36,14 +36,14 @@ parser.add_argument("--no-flask", "--nf", action="store_true")
 parser.add_argument("--cautious", "-c", action="store_true")
 parser.add_argument("--no-robot", "--nr", action="store_true")
 parser.add_argument("--stockfish", "-s", action="store_true")
-parser.add_argument("--take-picture", "--tp", "--tp", nargs="?", const=True)
+parser.add_argument("--take-picture", "--tp", nargs="?", const=True)
 parser.add_argument("--calibration", action="store_true")
 args = parser.parse_args()
 isWhite = False
 vision = not args.no_robot
 
 is_human_white = False
-g = pc.Game(promotion_FEN3)
+g = pc.Game(classic_FEN)
 b = g.board
 b.print()
 flask = not (args.no_flask or args.take_picture)
@@ -76,7 +76,6 @@ def get_human_promotion_move(move, isWhite):
 
 
 def have_human_played():
-	return True
 	requests.post('http://127.0.0.1:5000/reset-have-played')
 	response = requests.get('http://127.0.0.1:5000/get-have-played')
 	response.raise_for_status()
@@ -135,12 +134,10 @@ def send_color_FEN(board):
 	if(not flask):
 		return
 	spec_rules = "b" +  board.special_rules()[1:]
-	best_move = get_stockfish_move(board.FEN(), spec_rules, board.en_passant_coord(), display = False)
-	index_1 = board.coord_to_index(best_move[:2])
-	index_2 = board.coord_to_index(best_move[2:])
 	best_FEN = ['.']*64
 	if args.stockfish:
 		best_move = get_stockfish_move(board.FEN(), spec_rules, board.en_passant_coord())
+		if best_move == None: return
 		index_1 = board.coord_to_index(best_move[:2])
 		index_2 = board.coord_to_index(best_move[2:])
 		best_FEN[index_1] = '1'
@@ -158,6 +155,25 @@ def send_color_FEN(board):
 		print("Color FEN envoyées")
 	else:
 	    print(f"Erreur lors de l'envoi du board : {response.status_code}, {response.text}")
+
+def send_state(board):
+	
+	url = "http://127.0.0.1:5000/set-state"
+	whiteKingSquare = board.index_to_coord(board.find_king(True))
+	blackKingSquare = board.index_to_coord(board.find_king(False))
+
+	payload = {
+		"check": board.is_check(True, whiteKingSquare), 
+		"checkmate": board.is_checkmate(True), 
+		"checked": board.is_check(False, blackKingSquare),
+		"checkmated": board.is_checkmate(False)
+	}	
+	response = requests.post(url, json=payload)
+	if response.status_code == 200:
+		print("State envoyé")
+	else:
+	    print(f"Erreur lors de l'envoi du state : {response.status_code}, {response.text}")
+	
 
 def get_move():
 	if args.stockfish:
@@ -203,9 +219,11 @@ def see(photoId, human = False):
 	if args.no_robot: return
 	global im_pre_robot, im_post_robot
 	if not human:
+		sleep(0.5)
 		im_post_robot = take_picture(robot, photoId)
 		origin, end = oracle(im_pre_robot, im_post_robot, imVide, debug=True)
 	else:
+		sleep(0.5)
 		im_pre_robot = take_picture(robot, photoId)
 		origin, end = oracle(im_post_robot, im_pre_robot, imVide, debug=True)
 
@@ -280,7 +298,7 @@ if not args.no_robot:
 	robot = Robot()
 	robot.move_to_obs_pose()
 	if vision:
-		
+		sleep(0.5)
 		im_pre_robot = take_picture(robot, 0)
 		im_post_robot = im_pre_robot
 
@@ -321,4 +339,5 @@ while True:
 		
 	send_color_FEN(b)
 	send_board_FEN(b)
+	send_state(b)
 
