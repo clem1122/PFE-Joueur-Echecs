@@ -17,6 +17,7 @@ from datasets import load_dataset
 import json
 with open("mapping.json", "r") as json_file:
     new_mapping = json.load(json_file)
+
 from torch.utils.data import Subset
 import random
 
@@ -48,13 +49,8 @@ class Training:
             valout2=config["valout2"]
         ).to(device)
         
-        # if torch.cuda.device_count() > 1:
-        #     print(f"Utilisation de {torch.cuda.device_count()} GPUs")
-        #     self.model = nn.DataParallel(self.model)
-        
-        # self.model = self.model.to(device)
-
         self.num_epochs = config["num_epochs"]
+        self.current_epoch = 0  # Start from 0
         self.criterion = Loss()
         self.optimizer = optim.Adam(self.model.parameters(), lr=config["lr"])
         self.batch_size = config["batch_size"]
@@ -62,7 +58,11 @@ class Training:
         # Load model checkpoint if exists
         self.model_path = 'model_checkpoint.pth'
         if os.path.exists(self.model_path):
-            self.model.load_state_dict(torch.load(self.model_path))
+            checkpoint = torch.load(self.model_path)
+            self.model.load_state_dict(checkpoint["model_state_dict"])
+            self.optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
+            self.current_epoch = checkpoint["epoch"]
+            print(f"Checkpoint loaded. Resuming training from epoch {self.current_epoch + 1}.")
 
     def accuracy(self, outputs, targets, value_preds, value_targets):
 
@@ -84,7 +84,7 @@ class Training:
         chess_dataset = ChessDataset(dataset, mapping, fraction=fraction)
         train_loader = DataLoader(chess_dataset, batch_size=self.batch_size, collate_fn=collate_fn, shuffle=True)
 
-        for epoch in range(1, self.num_epochs + 1):
+        for epoch in range(self.current_epoch + 1, self.num_epochs + 1):
             self.model.train()
             running_loss = 0.0
             running_accuracy = 0.0
@@ -98,12 +98,12 @@ class Training:
 
                 self.optimizer.zero_grad()
                 
-                outputs, value_preds = self.model(board_tensors) #0.9s
+                outputs, value_preds = self.model(board_tensors)
                 outputs = outputs.float()
                 value_preds = value_preds.float()
                 
-                loss = self.criterion(board_fens, outputs, target_vectors, value_preds, value_targets, move_indices, tot_moves) #2s
-                loss.backward() #1.5s
+                loss = self.criterion(board_fens, outputs, target_vectors, value_preds, value_targets, move_indices, tot_moves)
+                loss.backward()
                 self.optimizer.step()
 
                 running_loss += loss.item()
@@ -111,10 +111,13 @@ class Training:
 
             print(f"[Epoch {epoch}] Loss: {running_loss:.4f}, Accuracy: {running_accuracy:.4f}")
 
+            # Save checkpoint
             checkpoint_path = self.model_path
-            if os.path.exists(checkpoint_path):
-                os.rename(checkpoint_path, checkpoint_path + datetime.now().strftime("%Y%m%d%H%M%S"))
-            torch.save(self.model.state_dict(), checkpoint_path)
+            torch.save({
+                "epoch": epoch,
+                "model_state_dict": self.model.state_dict(),
+                "optimizer_state_dict": self.optimizer.state_dict(),
+            }, checkpoint_path)
 
         print("Training Finished")
 
