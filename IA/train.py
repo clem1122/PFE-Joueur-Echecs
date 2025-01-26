@@ -55,6 +55,11 @@ class Training:
         self.optimizer = optim.Adam(self.model.parameters(), lr=config["lr"])
         self.batch_size = config["batch_size"]
 
+        # Variable to track the best accuracy
+        self.best_accuracy = 0.0
+        self.best_epoch = 0
+        self.best_model_path = 'best_model_checkpoint.pth'
+
         # Load model checkpoint if exists
         self.model_path = 'model_checkpoint.pth'
         if os.path.exists(self.model_path):
@@ -65,7 +70,6 @@ class Training:
             print(f"Checkpoint loaded. Resuming training from epoch {self.current_epoch + 1}.")
 
     def accuracy(self, outputs, targets, value_preds, value_targets):
-
         _, predicted_indices = torch.max(outputs, 1)  # Shape: [batch_size]
         _, predicted_values = torch.max(value_preds, 1)
     
@@ -109,17 +113,29 @@ class Training:
                 running_loss += loss.item()
                 running_accuracy += self.accuracy(outputs, target_vectors, value_preds, value_targets)[0]
 
-            print(f"[Epoch {epoch}] Loss: {running_loss:.4f}, Accuracy: {running_accuracy:.4f}")
+            avg_accuracy = running_accuracy / len(train_loader)
+            print(f"[Epoch {epoch}] Loss: {running_loss:.4f}, Accuracy: {avg_accuracy:.4f}")
 
-            # Save checkpoint
-            checkpoint_path = self.model_path
+            # If the current model's accuracy is better than the best accuracy, save the model
+            if avg_accuracy > self.best_accuracy:
+                self.best_accuracy = avg_accuracy
+                self.best_epoch = epoch
+                torch.save({
+                    "epoch": epoch,
+                    "model_state_dict": self.model.state_dict(),
+                    "optimizer_state_dict": self.optimizer.state_dict(),
+                    "accuracy": avg_accuracy
+                }, self.best_model_path)
+                print(f"New best model found at epoch {epoch} with accuracy {avg_accuracy:.4f}. Model saved.")
+
+            # Save checkpoint after every epoch
             torch.save({
                 "epoch": epoch,
                 "model_state_dict": self.model.state_dict(),
                 "optimizer_state_dict": self.optimizer.state_dict(),
-            }, checkpoint_path)
+            }, self.model_path)
 
-        print("Training Finished")
+        print(f"Training finished. Best model saved at epoch {self.best_epoch} with accuracy {self.best_accuracy:.4f}")
 
 
 def main():

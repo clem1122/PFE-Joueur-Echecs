@@ -45,7 +45,7 @@ class Loss(nn.Module):
         val_loss = self.ValueLoss(preds_val, targets_val, num_moves, tot_moves)
 
         predicted_moves_idx = torch.argmax(preds_pol, dim=1).cpu().tolist()
-        predicted_moves = [move for idx in predicted_moves_idx if (move := new_mapping.get(str(idx), None))]
+        predicted_moves = [move for move, idx in new_mapping.items() if idx in predicted_moves_idx]
 
         penalties = torch.tensor(0.0, device=device)
         for fen, move_uci in zip(board_fens, predicted_moves):
@@ -54,7 +54,5 @@ class Loss(nn.Module):
                 move = chess.Move.from_uci(move_uci)
                 if not(move in board.legal_moves):
                     penalties += 100
-
-        penalties = penalties / len(predicted_moves)
 
         return self.alpha * pol_loss + self.beta * val_loss + penalties

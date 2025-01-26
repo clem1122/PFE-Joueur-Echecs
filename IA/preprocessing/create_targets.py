@@ -7,6 +7,7 @@ with open("mapping.json", "r") as json_file:
     new_mapping = json.load(json_file)
 
 def create_target_vector(move, mapping):
+    move = str(move)
     target = torch.zeros(len(mapping), dtype=torch.float32)
     move_idx = mapping.get(move, -1)
     if move_idx != -1:
