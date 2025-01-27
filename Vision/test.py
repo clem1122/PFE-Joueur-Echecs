@@ -1,20 +1,20 @@
 import cv2
-import os
-import numpy as np
-
 from calibration import calibrate_corners, compute_transformation, rectify_image
 from processing import (
     detect_differences, analyze_squares, determine_movement_direction_with_contours,
-    is_roque, is_en_passant
-)
+    is_roque, is_en_passant)
 
 def oracle(img1,img2, reference_image, debug = True):
- 
-    # ------------------------------ PARAMETERS ----------------------------------
-    threshold_diff = 35 #dans 'detect_difference' : Seuil pour la diff de pixels 
-    threshold_en_passant = 20 #dans 'is square_empty': Seuil pour diff entre case et case empty
+
+    # ---------------------------------------------------------------------------
+    # ------------------------------ PARAMETERS ---------------------------------
+    # ---------------------------------------------------------------------------
+    threshold_diff = 35 #'detect_difference' : Seuil pour la diff de pixels 
+    threshold_en_passant = 20 #'is square_empty': Seuil pour diff entre case et case empty
     
-    # ------------------------------- SETUP --------------------------------------
+    # ---------------------------------------------------------------------------
+    # ------------------------------- SETUP -------------------------------------
+    # ---------------------------------------------------------------------------
     calibration_file = "chessboard_calibration.pkl"
     output_size = (800, 800) # A
     square_size = output_size[0] // 8
@@ -34,15 +34,11 @@ def oracle(img1,img2, reference_image, debug = True):
     input_points = calibrate_corners(calibration_file, reference_image, output_size)
     tform = compute_transformation(input_points, output_size)
 
-    # Redresser l'image de référence
-    rectified_reference = rectify_image(reference_image, tform, output_size)
-    rectified_reference_gray = cv2.cvtColor(rectified_reference, cv2.COLOR_BGR2GRAY)
-
     # Conversion niveaux de gris
     img1 = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
     img2 = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
 
-    # Égalisation de l'histogramme pour uniformiser le contraste
+    # Unifromisation du contraste
     img1 = cv2.equalizeHist(img1)
     img2 = cv2.equalizeHist(img2)
 
@@ -50,13 +46,8 @@ def oracle(img1,img2, reference_image, debug = True):
     rectified_img1 = rectify_image(img1, tform, output_size)
     rectified_img2 = rectify_image(img2, tform, output_size)
 
-    # if debug:
-    #     cv2.imshow('rectified_img1', rectified_img1)
-    #     cv2.imshow('rectified_img2', rectified_img2)
-
-
     #---------------------------------------------------------------------
-    #------------------  Calculer les differences-------------------------
+    #---------------- Calculer les diff entre images----------------------
     #---------------------------------------------------------------------
     filtered_diff = detect_differences(rectified_img1, rectified_img2, threshold_diff, debug)
     modified_cases = analyze_squares(filtered_diff, cases, square_size, debug)
@@ -70,11 +61,13 @@ def oracle(img1,img2, reference_image, debug = True):
     else:
         print("Errror determining mouvement: not enough modified cases.")
 
-   # ----------------------------------------------------------------------
-   # ------------------ CHECK FOR COUPS SPECIAUX --------------------------
-   # ----------------------------------------------------------------------
-   
+   # ------------------------------------------------------------
+   # ------------------ COUPS SPECIAUX --------------------------
+   # ------------------------------------------------------------
+
+   # -------------------
    # ------ROQUE -------
+   # ------------------
     top_4_cases = [modified_cases[0][0], modified_cases[1][0], modified_cases[2][0], modified_cases[3][0]]
     roque = is_roque(top_4_cases, debug)
 
@@ -83,8 +76,10 @@ def oracle(img1,img2, reference_image, debug = True):
         origin, destination = is_roque(top_4_cases, debug)
     else:
         pass
-
+    
+   # -------------------
    # ----EN-PASSANT ----
+   # -------------------
     top_cases = [modified_cases[0], modified_cases[1], modified_cases[2]] #, modified_cases[3], modified_cases[4]]
     en_passant, new_origin, new_destination = is_en_passant(top_cases, threshold_en_passant,debug)
 
@@ -94,7 +89,9 @@ def oracle(img1,img2, reference_image, debug = True):
     else:
         pass
 
-# -----------------------------------------------------------------------------------
+# ----------------------------------------------------------
+# ------------- OUTPUT : origin, destination ---------------
+# ----------------------------------------------------------
     if debug:
         print("\n----------OUTPUT----------")
         print(f"Origin: {origin}, Destination: {destination}")
@@ -102,9 +99,10 @@ def oracle(img1,img2, reference_image, debug = True):
 
     return origin.lower(), destination.lower()
 
-# Example usage:
-def main():
+# ------------------------------------------------------------
+# TEST USAGE
 
+def main():
     #Load empty checkboard
     reference_image = cv2.imread("Vision/photos_test/img0.png", cv2.IMREAD_COLOR)
     # Load example images
