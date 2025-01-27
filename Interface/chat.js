@@ -28,9 +28,8 @@ const Messages = {
     'controlled': "Prudence sur ces cases, je les controle avec une de mes pièces.",
     'protected': "Ces pièces sont protégées : si je les captures, tu pourras me capturer derrière.",
     'aide': "Si tu veux mon avis, le meilleur coup pour toi est ",
-    'unsure' : "J'ai détecté un coup de ta part qui n'est pas légal : <<<>>>. Est-ce que c'est ce que tu voulais jouer ? [O/N]",
-    'new_move' : "Ce coup n'est pas autorisé. Remets ta pièce sur sa case de départ, joue un nouveau coup, et écris-le moi.",
-    'ask_for_move' : "Quel est le coup que tu as joué sur l'échiquier alors ?"
+    'unsure' : "J'ai détecté un coup de ta part qui n'est pas légal : ",
+
 }
 
 // Simulate messages appearing one by one
@@ -39,8 +38,10 @@ let previous_state = {
     "check": false,
     "checkmate": false,
     "checked": false,
-    "checkmated": false
+    "checkmated": false,
+    "unsure" : "",
 }
+
 let previous_FEN_to_show = {'threats': false, 'controlled': false, 'playable': false, 'help': false, 'protected':false};
 
 setInterval(fetchAndAppendMessages, 1000);
@@ -73,11 +74,17 @@ async function fetchAndAppendMessages() {
 
         if (JSON.stringify(previous_state) !== JSON.stringify(state) || JSON.stringify(previous_FEN_to_show) !== JSON.stringify(FEN_to_show)) {
             while (i < keys.length) {
-                const [cle, message] = keys[i];
+                let [cle, message] = keys[i];
                 console.log(state[cle])
                 if (state[cle] || FEN_to_show[cle]){
                     console.log(cle)
                     console.log(message)
+                    if (cle == "unsure"){
+                        console.log("Robot unsure")
+                        message += state[cle]
+                        message += ". Ecris-moi le coup que tu souhaitais jouer."
+                    }
+
                     appendBotMessage(message);
                     break
                 }

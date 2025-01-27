@@ -157,7 +157,7 @@ def send_color_FEN(board):
 	else:
 	    print(f"Erreur lors de l'envoi du board : {response.status_code}, {response.text}")
 
-def send_state(board):
+def send_state(board, unsure = ""):
 	
 	url = "http://127.0.0.1:5000/set-state"
 	whiteKingSquare = board.index_to_coord(board.find_king(True))
@@ -167,7 +167,8 @@ def send_state(board):
 		"check": board.is_check(True, whiteKingSquare), 
 		"checkmate": board.is_checkmate(True), 
 		"checked": board.is_check(False, blackKingSquare),
-		"checkmated": board.is_checkmate(False)
+		"checkmated": board.is_checkmate(False),
+		"unsure" : unsure
 	}	
 	response = requests.post(url, json=payload)
 	if response.status_code == 200:
@@ -336,6 +337,7 @@ isRobotTurn = True
 
 while not g.isOver():	
 	playCount = g.play_count() + 1
+	unsure = ""
 
 	if isRobotTurn:
 		moveStr = get_move()
@@ -361,9 +363,10 @@ while not g.isOver():
 				if not play(reverseMove):
 					print("Mauvaise détection dans les deux sens. Demande au joueur.")
 					while not play(allegedMove):
-						print(allegedMove)
-						allegedMove = reask_for_move(allegedMove)
-						print(allegedMove)
+						unsure = allegedMove
+						send_state(b, unsure)
+						allegedMove = input("Ecris-moi ton move (qui doit être légal) : ")
+
 		else: 
 			#moveStr = get_move()
 			moveStr = input("Move : ")
