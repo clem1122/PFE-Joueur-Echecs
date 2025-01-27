@@ -8,14 +8,17 @@ determiner quelle case est vide et la renvoyer (dasn l'ordre de lecture)
 
 import cv2
 from Vision.calibration import calibrate_corners, compute_transformation, rectify_image
-from Vision.processing import is_case_empty, is_case_empty_contours
+from Vision.processing import is_case_empty
 
-def check_valhalla(img, reference_image, isWhite, debug=True):
+def check_valhalla(img, reference_image, isWhite, debug):
     """
     Analyse les différences entre l'image valhalla et l'image valhalla vide un   
     On veut savoir quelle case est vide (la pemiere dans l'ordre 1-20
     """
 
+    # THRESHOLD (min diff entre la variance des images pour considerer plein )
+    threshold = 200
+    
     # ---------------------------------------------------------------------
     # ----------------------------- SETUP----------------------------------
     # ---------------------------------------------------------------------
@@ -25,7 +28,7 @@ def check_valhalla(img, reference_image, isWhite, debug=True):
 
     # Grille echiquier
     square_size = 100  # Taille d'une case carrée en pixels
-    output_size = (5 * square_size, 4 * square_size)  # Dimensions totales (largeur, hauteur)
+    output_size = (5* square_size, 4 * square_size)  # Dimensions totales (largeur, hauteur)
     rows, cols = 5, 4  # Dimensions de la grille (lignes x colonnes)
 
     # Dictionnaire des coordonnées des cases
@@ -72,9 +75,9 @@ def check_valhalla(img, reference_image, isWhite, debug=True):
     # -----------------------------------------------------------------------------
     # ------------------------- TROUVER CASE VIDE ---------------------------------
     # -----------------------------------------------------------------------------
-    # Prendre la premiere case vide dans l'ordre 1-20
+    # Prendre la premiere case vide dans l'ordre 1-20, avec la variance 
     for case_name, coords in cases.items():
-        if is_case_empty(rectified_img_gray, rectified_reference_gray, coords, threshold=500, debug=debug):               
+        if is_case_empty(rectified_img_gray, rectified_reference_gray, coords, threshold, debug=debug):               
             if debug:
                 print(f"\nLa premiere case vide est : {case_name}")
             return case_name
@@ -83,16 +86,16 @@ def check_valhalla(img, reference_image, isWhite, debug=True):
     return None
 
 
-# --------------------------------
-# --------- TEST usage -----------
-# --------------------------------
+# --------------------------
+# --------- TEST -----------
+# --------------------------
 def main():
     #Load empty valhalla
     reference_image = cv2.imread("Images/valhalla_calibration.png", cv2.IMREAD_COLOR)
     # Load example images
     img = cv2.imread("Images/test_valhalla.png", cv2.IMREAD_COLOR)
     # Process the move
-    empty_valhalla_case = check_valhalla(img, reference_image)
+    empty_valhalla_case = check_valhalla(img, reference_image, isWhite=True, debug=True)
 
 if __name__ == "__main__":
     main()
