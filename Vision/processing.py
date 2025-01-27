@@ -86,8 +86,9 @@ def analyze_squares(filtered_diff, cases, square_size, debug):
 ####### Determiner la direction du coup #######
 ###############################################
 
+# ------------- Variance ------------
 def masked_variance(img, debug = False):
-     # Dimensions de la case
+    # Dimensions de la case
     square_height, square_width = img.shape
     center_x = square_width // 2
     center_y = square_height // 2
@@ -100,95 +101,16 @@ def masked_variance(img, debug = False):
     # Appliquer le masque sur les deux images (case actuelle et case vide)
     masked_square_img = cv2.bitwise_and(img, img, mask=mask)
 
-    #return np.var(img[img > 0])
-
     # Extraire les pixels non nuls dans la région masquée
     masked_pixels = masked_square_img[masked_square_img > 0]
 
     # Calculer et retourner la variance dans la région masquée
     return np.var(masked_pixels)
 
-# def is_square_empty(square_img, empty_square_img, threshold, debug):
-#     """
-#     Détermine si une case est vide en comparant son contenu avec une image de référence vide,
-#     en analysant uniquement un cercle centré dans la case.
-#     True si la case est vide, False sinon.
-#     """
-#     # Dimensions de la case
-#     square_height, square_width = square_img.shape
-#     center_x = square_width // 2
-#     center_y = square_height // 2
-#     radius = square_width // 4  # Rayon du cercle = largeur de la case / 4
-
-#     # Créer un masque circulaire
-#     mask = np.zeros_like(square_img, dtype=np.uint8)
-#     cv2.circle(mask, (center_x, center_y), radius, 255, -1)
-
-#     # Appliquer le masque sur les deux images (case actuelle et case vide)
-#     masked_square_img = cv2.bitwise_and(square_img, square_img, mask=mask)
-#     masked_empty_square_img = cv2.bitwise_and(empty_square_img, empty_square_img, mask=mask)
-
-#     var1 = np.var(masked_square_img[masked_square_img > 0])
-#     var2 = np.var(masked_empty_square_img[masked_empty_square_img > 0])
-
-#     #print('var pleine : ' + str(var1) + '\n' + "Var vide : " + str(var2))
-#     # Calculer la différence moyenne dans le cercle
-#     diff = cv2.absdiff(masked_square_img, masked_empty_square_img)
-#     diff_value = np.mean(diff)
-
-#     if debug:
-#         print(f"Difference moyenne dans le cercle: {diff_value}, Seuil: {threshold}")
-        
-#     # Retourne True si la différence moyenne est inférieure au seuil
-#     return diff_value #< threshold
-
-def determine_movement_direction(img2, cases, top_modified_cases, debug):
-    """
-    Détermine le mouvement en comparant les cases avec l'échiquier vide.
-    LA CASE QUI EST DEVENUE VIDE DANS IMG2 EST LA CASE DE DEPART
-
-    LOGIQUE:
-     - On compute les variances dans IMG2
-     - La plus petite variance EST LA CASE VIDE
-     - La case vide est l'origine, l'autre est la destination
-    """
-    if len(top_modified_cases) < 2:
-        return None, "Erreur 'determine_movement': moins de deux cases modifiées."
-
-    case1, case2 = top_modified_cases[0][0], top_modified_cases[1][0]
-
-    # Extraire les coordonnées des cases
-    coords1 = cases[case1]
-    coords2 = cases[case2]
-
-    # Découper les régions correspondantes
-    x1_start, x1_end, y1_start, y1_end = coords1
-    x2_start, x2_end, y2_start, y2_end = coords2
-
-    # Extraction coordonnes cases 1 et 2 dans img2
-    square1_img2 = img2[y1_start:y1_end, x1_start:x1_end]
-    square2_img2 = img2[y2_start:y2_end, x2_start:x2_end]
-
-    # Calcul des variances
-    var_case1 = masked_variance(square1_img2)
-    var_case2 = masked_variance(square2_img2)
-
-    # Origine est la mininum variance
-    origin = case1 if var_case1 == min(var_case1, var_case2) else case2
-    destination = case1 if origin==case2 else case2
-
-    if debug:
-        print("DETERMINE DIRECTION:")
-        print('Var case 1: ' + int(var_case1) + '\n' + "Var case 2: " + int(var_case2))
-        print('Origin:', origin, 'Destination:', destination)
-    return origin, destination
-
-
-################### CONTOUR ##############
-
+# ------------ Contour --------------
 def detect_contours_metric(img):
     """
-    Calcule une métrique basée sur les contours pour une image donnée.
+    Calcule une métrique basée sur les contours pour une image donnée
     """
     # Conversion en niveaux de gris
     gray = img
@@ -201,14 +123,14 @@ def detect_contours_metric(img):
     # Binarisation pour extraire les contours
     S_, binary = cv2.threshold(sobel_magnitude, 20, 255, cv2.THRESH_BINARY)
 
-    # Option : utiliser Canny à la place
+    # Option : utiliser Canny à la place de sobel
     #binary = cv2.Canny(gray, 50, 150)
 
     # Calculer le nombre total de pixels de contour
     contour_metric = np.sum(binary > 0)
     return contour_metric
 
- 
+# Double check Variance Contour
 def determine_movement_direction_with_contours(img2, cases, top_modified_cases, debug):
     """
     Détermine le mouvement en utilisant les contours pour valider la variance.
@@ -270,12 +192,12 @@ def determine_movement_direction_with_contours(img2, cases, top_modified_cases, 
             origin = origin_variance
             destination = destination_variance
             if debug:
-                print("Variance prioriee -> écart plus grand")
+                print("Variance priorisee -> écart plus grand")
         else:
             origin = origin_contour
             destination = destination_contour
             if debug:
-                print("Contours priorises -> écart plus grand")
+                print("Contours priorisee -> écart plus grand")
 
     else:
         # Si les deux méthodes sont cohérentes
@@ -289,144 +211,14 @@ def determine_movement_direction_with_contours(img2, cases, top_modified_cases, 
 
     return origin, destination
 
-########################################
-
-#### CERLCES
-
-def determine_movement_direction_circles(img2, cases, top_modified_cases, min_radius, max_radius, debug):
-    """
-    Détermine le mouvement en comparant les cases avec l'échiquier vide.
-    LA CASE QUI EST DEVENUE VIDE DANS IMG2 EST LA CASE DE DEPART
-
-    LOGIQUE:
-     - On compute le # de cerlces dans IMG2 dans les deux cases
-     - Le plus petit nombre EST LA CASE VIDE
-     - La case vide est l'origine, l'autre est la destination
-    """
-
-    if len(top_modified_cases) < 2:
-        return None, "Erreur 'determine_movement': moins de deux cases modifiées."
-
-    case1, case2 = top_modified_cases[0][0], top_modified_cases[1][0]
-
-    # Extraire les coordonnées des cases
-    coords1 = cases[case1]
-    coords2 = cases[case2]
-
-    # Découper les régions correspondantes
-    x1_start, x1_end, y1_start, y1_end = coords1
-    x2_start, x2_end, y2_start, y2_end = coords2
-
-    square_size = x1_end - x1_start
-
-    # Extraction coordonnes cases 1 et 2 dans img2
-    square1_img2 = img2[y1_start:y1_end, x1_start:x1_end]
-    square2_img2 = img2[y2_start:y2_end, x2_start:x2_end]
-
-    # Détecter les cercles dans chaque case pour les deux cases dans l'image
-    circles_case1 = detect_circles_in_case(img2, x1_start, y1_start, square_size, min_radius, max_radius)
-    circles_case2 = detect_circles_in_case(img2, x2_start, y2_start, square_size, min_radius, max_radius)
-
-    # Origine est la mininum variance
-    origin = case1 if circles_case1 == min(circles_case1, circles_case2) else case2
-    destination = case1 if origin==case2 else case2
-
-    if debug:
-        print("DETERMINE DIRECTION (with circles):")
-        print('Circles case 1: ' + str(circles_case1) + '\n' + "Circles case 2: " + str(circles_case2))
-        print('Origin:', origin, 'Destination:', destination)
-    return origin, destination
-
-###############################################
-# Determiner la capture ou le mouvement simple
-###############################################
-
-#------------------------------------------------
-# La case destination etait-elle vide en image 1 ?
-# def was_square_full(img, empty_board, coords, threshold, debug=False):
-#     """
-#     Détermine si une case était vide en utilisant la variance.
-#     """
-#     x_start, x_end, y_start, y_end = coords
-
-#     # Extraire la case dans l'image et dans l'échiquier vide
-#     square_img = img[y_start:y_end, x_start:x_end]
-#     empty_square = empty_board[y_start:y_end, x_start:x_end]
-
-#     var_case1 = masked_variance(square_img)
-#     var_case2 = masked_variance(empty_square)
-
-#     if debug:
-#         print("\nDETERMINE CAPTURE:")
-#         print('Var case image : ' + str(var_case1) + '\n' + "Var case empty : " + str(var_case2))
-
-#     # Si les variances sont proches, alors les deux cases sont vides
-#     # Return True si la case est pas vide
-#     if abs(var_case1-var_case2) > 500:
-#         if debug:
-#             print('Var diff >500 => case pleine => capture')
-#         return True
-#     else:
-#         if debug:
-#             print('Var diff <500 => case vide => mouv simple')
-#         return False
-
-# def is_capture(img1, empty_board, destination_coords, threshold, debug=False):
-#     """
-#     Détecte si un mouvement est une capture en analysant la case de destination.
-#     """
-#     # Vérifier si la case de destination était pleine avant le coup
-#     return was_square_full(img1, empty_board, destination_coords, threshold, debug)
-
-###############################################
-# Determiner la couleur de la piece jouee #####
-###############################################
-# Verifions si la couleur de la case d'arriver differe de la case d'origine
-# on check la couleur presente dans un cercle de d=l/2 centre au milieu de la case
-# def check_color(img, coords):
-#     """
-#     Analyse la couleur moyenne dans un cercle centré dans une case.
-#     img : Image en niveaux de gris.
-#     coords : Coordonnées de la case (x_start, x_end, y_start, y_end).
-#     """
-#     x_start, x_end, y_start, y_end = coords
-
-#     # Dimensions de la case
-#     square_width = x_end - x_start
-#     square_height = y_end - y_start
-#     center_x = x_start + square_width // 2
-#     center_y = y_start + square_height // 2
-#     radius = square_width // 4  # Diamètre = largeur / 2, donc rayon = largeur / 4
-
-#     # Créer un masque circulaire
-#     mask = np.zeros_like(img, dtype=np.uint8)
-#     cv2.circle(mask, (center_x, center_y), radius, 255, -1)
-
-#     # Appliquer le masque pour extraire les pixels du cercle
-#     masked_img = cv2.bitwise_and(img, img, mask=mask)
-
-#     # Calculer l'intensité moyenne dans le cercle
-#     circle_mean_intensity = cv2.mean(masked_img, mask=mask)[0]  # Moyenne des pixels dans le cercle
-    
-#     #print("couleur =:", circle_mean_intensity)
-#     return circle_mean_intensity
-
-# def determine_piece_color(circle_mean_intensity, threshold=50):
-#     """
-#     Détermine si la pièce est blanche ou noire en fonction de l'intensité moyenne.
-#     atours de 255 = banc
-#     proche de 0 = noir
-#     """
-#     return "white" if circle_mean_intensity > threshold else "black"
-
 ###############################################
 ################ COUPS SPECIAUX ###############
 ###############################################
 
-################## ROQUE ######################
+# ----------------- ROQUE ---------------------
 def is_roque(top_4_cases, debug):
     """"
-    Regarde les 4 cases modifiees et determine si elles correspondent a la sequence du roque"
+    Regarder les 4 cases modifiees et determiner si elles forment une sequence du roque"
     """
     if debug :
         print('\nCHECK ROQUE:')
@@ -475,8 +267,7 @@ def is_roque(top_4_cases, debug):
     
     return (origin, destination)
 
-
-################## EN PASSANT ###################
+# ----------------- EN PASSANT ----------------
 def is_en_passant(top_4_cases, threshold, debug=False):
     """
     Vérifie si une prise en passant a eu lieu.
@@ -549,8 +340,8 @@ def is_en_passant(top_4_cases, threshold, debug=False):
     
     return is_valid, origin, destination
 
-################## PROMOTION / VALHALLA ###################
-def is_case_empty(img, empty_valhalla, coords, threshold, debug=False):
+#---------------- PROMOTION - VALHALLA ----------------
+def is_case_empty(img, empty_valhalla, coords, threshold, debug):
     """
     Vérifie si une case est vide en comparant sa variance à celle de la case vide de référence.
     """
@@ -579,68 +370,9 @@ def is_case_empty(img, empty_valhalla, coords, threshold, debug=False):
             print("Variance differente => case pleine.")
         return False
 
-def is_case_empty_contours(img, empty_valhalla, coords, threshold, debug=False):
-    """
-    Vérifie si une case est vide en comparant sa variance et ses contours
-    à ceux de la case vide de référence.
-    """
-    x_start, x_end, y_start, y_end = coords
-
-    # Extraire la région d'intérêt pour les deux images
-    img_case = img[y_start:y_end, x_start:x_end]
-    empty_case = empty_valhalla[y_start:y_end, x_start:x_end]
-
-    # Calcul des variances
-    var_case_img = masked_variance(img_case)
-    var_case_empty = masked_variance(empty_case)
-
-    # Vérification basée sur la variance
-    variance_check = abs(var_case_img - var_case_empty) < threshold
-
-    # Calcul des métriques de contours à l'aide de la fonction existante
-    contour_case_img = detect_contours_metric(img_case)
-    contour_case_empty = detect_contours_metric(empty_case)
-
-    # Vérification basée sur les contours
-    contour_threshold = 0.1 * contour_case_empty  # Exemple : tolérance de 10 %
-    contour_check = abs(contour_case_img - contour_case_empty) < contour_threshold
-
-    # Décision finale : variance ou contours
-    is_empty = False
-    if variance_check and contour_check:
-        is_empty = True  # Les deux méthodes confirment que la case est vide
-    elif not variance_check and not contour_check:
-        is_empty = False  # Les deux méthodes confirment que la case est pleine
-    else:
-        # En cas de divergence, choisir selon le facteur d'écart relatif
-        factor_var = abs(var_case_img - var_case_empty) / min(var_case_img, var_case_empty)
-        factor_contour = abs(contour_case_img - contour_case_empty) / min(contour_case_img, contour_case_empty)
-
-        if factor_var > factor_contour:
-            # Prioriser la variance
-            is_empty = variance_check
-            if debug:
-                print("Variance priorisée (écart relatif plus grand).")
-        else:
-            # Prioriser les contours
-            is_empty = contour_check
-            if debug:
-                print("Contours priorisés (écart relatif plus grand).")
-
-    if debug:
-        print('\nDOUBLE-CHECK PROMOTION-VALHALLA:')
-        print(f"Case coords: {coords}")
-        print(f"Variance case img: {var_case_img}, Variance case ref: {var_case_empty}")
-        print(f"Contours case img: {contour_case_img}, Contours case ref: {contour_case_empty}")
-        print(f"Variance Check: {variance_check}, Contour Check: {contour_check}")
-        print("Résultat final:", "Case vide" if is_empty else "Case pleine")
-
-    return is_empty
-
-
-# -------------------------------------------------------------------------------------
-# -------------------------- FUNCTIONS GRAVEYARD (RIP) --------------------------------
-# -------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------
+# -------------------------------- FUNCTIONS GRAVEYARD (RIP) ------------------------------------
+# ------------------------------------------------------------------------------------------------
 
 # ----------------------------------------------
 # ------------ NORMALIZATION HSV  --------------
@@ -759,5 +491,272 @@ def is_case_empty_contours(img, empty_valhalla, coords, threshold, debug=False):
 #     return modified_cases
 
 
+###############################################
+# Determiner la couleur de la piece jouee #####
+###############################################
+# Verifions si la couleur de la case d'arriver differe de la case d'origine
+# on check la couleur presente dans un cercle de d=l/2 centre au milieu de la case
+# def check_color(img, coords):
+#     """
+#     Analyse la couleur moyenne dans un cercle centré dans une case.
+#     img : Image en niveaux de gris.
+#     coords : Coordonnées de la case (x_start, x_end, y_start, y_end).
+#     """
+#     x_start, x_end, y_start, y_end = coords
+
+#     # Dimensions de la case
+#     square_width = x_end - x_start
+#     square_height = y_end - y_start
+#     center_x = x_start + square_width // 2
+#     center_y = y_start + square_height // 2
+#     radius = square_width // 4  # Diamètre = largeur / 2, donc rayon = largeur / 4
+
+#     # Créer un masque circulaire
+#     mask = np.zeros_like(img, dtype=np.uint8)
+#     cv2.circle(mask, (center_x, center_y), radius, 255, -1)
+
+#     # Appliquer le masque pour extraire les pixels du cercle
+#     masked_img = cv2.bitwise_and(img, img, mask=mask)
+
+#     # Calculer l'intensité moyenne dans le cercle
+#     circle_mean_intensity = cv2.mean(masked_img, mask=mask)[0]  # Moyenne des pixels dans le cercle
+    
+#     #print("couleur =:", circle_mean_intensity)
+#     return circle_mean_intensity
+
+# def determine_piece_color(circle_mean_intensity, threshold=50):
+#     """
+#     Détermine si la pièce est blanche ou noire en fonction de l'intensité moyenne.
+#     atours de 255 = banc
+#     proche de 0 = noir
+#     """
+#     return "white" if circle_mean_intensity > threshold else "black"
 
 
+### Mouvement Direction
+
+# def is_square_empty(square_img, empty_square_img, threshold, debug):
+#     """
+#     Détermine si une case est vide en comparant son contenu avec une image de référence vide,
+#     en analysant uniquement un cercle centré dans la case.
+#     True si la case est vide, False sinon.
+#     """
+#     # Dimensions de la case
+#     square_height, square_width = square_img.shape
+#     center_x = square_width // 2
+#     center_y = square_height // 2
+#     radius = square_width // 4  # Rayon du cercle = largeur de la case / 4
+
+#     # Créer un masque circulaire
+#     mask = np.zeros_like(square_img, dtype=np.uint8)
+#     cv2.circle(mask, (center_x, center_y), radius, 255, -1)
+
+#     # Appliquer le masque sur les deux images (case actuelle et case vide)
+#     masked_square_img = cv2.bitwise_and(square_img, square_img, mask=mask)
+#     masked_empty_square_img = cv2.bitwise_and(empty_square_img, empty_square_img, mask=mask)
+
+#     var1 = np.var(masked_square_img[masked_square_img > 0])
+#     var2 = np.var(masked_empty_square_img[masked_empty_square_img > 0])
+
+#     #print('var pleine : ' + str(var1) + '\n' + "Var vide : " + str(var2))
+#     # Calculer la différence moyenne dans le cercle
+#     diff = cv2.absdiff(masked_square_img, masked_empty_square_img)
+#     diff_value = np.mean(diff)
+
+#     if debug:
+#         print(f"Difference moyenne dans le cercle: {diff_value}, Seuil: {threshold}")
+        
+#     # Retourne True si la différence moyenne est inférieure au seuil
+#     return diff_value #< threshold
+
+# def determine_movement_direction(img2, cases, top_modified_cases, debug):
+#     """
+#     Détermine le mouvement en comparant les cases avec l'échiquier vide.
+#     LA CASE QUI EST DEVENUE VIDE DANS IMG2 EST LA CASE DE DEPART
+
+#     LOGIQUE:
+#      - On compute les variances dans IMG2
+#      - La plus petite variance EST LA CASE VIDE
+#      - La case vide est l'origine, l'autre est la destination
+#     """
+#     if len(top_modified_cases) < 2:
+#         return None, "Erreur 'determine_movement': moins de deux cases modifiées."
+
+#     case1, case2 = top_modified_cases[0][0], top_modified_cases[1][0]
+
+#     # Extraire les coordonnées des cases
+#     coords1 = cases[case1]
+#     coords2 = cases[case2]
+
+#     # Découper les régions correspondantes
+#     x1_start, x1_end, y1_start, y1_end = coords1
+#     x2_start, x2_end, y2_start, y2_end = coords2
+
+#     # Extraction coordonnes cases 1 et 2 dans img2
+#     square1_img2 = img2[y1_start:y1_end, x1_start:x1_end]
+#     square2_img2 = img2[y2_start:y2_end, x2_start:x2_end]
+
+#     # Calcul des variances
+#     var_case1 = masked_variance(square1_img2)
+#     var_case2 = masked_variance(square2_img2)
+
+#     # Origine est la mininum variance
+#     origin = case1 if var_case1 == min(var_case1, var_case2) else case2
+#     destination = case1 if origin==case2 else case2
+
+#     if debug:
+#         print("DETERMINE DIRECTION:")
+#         print('Var case 1: ' + int(var_case1) + '\n' + "Var case 2: " + int(var_case2))
+#         print('Origin:', origin, 'Destination:', destination)
+#     return origin, destination
+
+
+
+#### CERLCES
+
+# def determine_movement_direction_circles(img2, cases, top_modified_cases, min_radius, max_radius, debug):
+#     """
+#     Détermine le mouvement en comparant les cases avec l'échiquier vide.
+#     LA CASE QUI EST DEVENUE VIDE DANS IMG2 EST LA CASE DE DEPART
+
+#     LOGIQUE:
+#      - On compute le # de cerlces dans IMG2 dans les deux cases
+#      - Le plus petit nombre EST LA CASE VIDE
+#      - La case vide est l'origine, l'autre est la destination
+#     """
+
+#     if len(top_modified_cases) < 2:
+#         return None, "Erreur 'determine_movement': moins de deux cases modifiées."
+
+#     case1, case2 = top_modified_cases[0][0], top_modified_cases[1][0]
+
+#     # Extraire les coordonnées des cases
+#     coords1 = cases[case1]
+#     coords2 = cases[case2]
+
+#     # Découper les régions correspondantes
+#     x1_start, x1_end, y1_start, y1_end = coords1
+#     x2_start, x2_end, y2_start, y2_end = coords2
+
+#     square_size = x1_end - x1_start
+
+#     # Extraction coordonnes cases 1 et 2 dans img2
+#     square1_img2 = img2[y1_start:y1_end, x1_start:x1_end]
+#     square2_img2 = img2[y2_start:y2_end, x2_start:x2_end]
+
+#     # Détecter les cercles dans chaque case pour les deux cases dans l'image
+#     circles_case1 = detect_circles_in_case(img2, x1_start, y1_start, square_size, min_radius, max_radius)
+#     circles_case2 = detect_circles_in_case(img2, x2_start, y2_start, square_size, min_radius, max_radius)
+
+#     # Origine est la mininum variance
+#     origin = case1 if circles_case1 == min(circles_case1, circles_case2) else case2
+#     destination = case1 if origin==case2 else case2
+
+#     if debug:
+#         print("DETERMINE DIRECTION (with circles):")
+#         print('Circles case 1: ' + str(circles_case1) + '\n' + "Circles case 2: " + str(circles_case2))
+#         print('Origin:', origin, 'Destination:', destination)
+#     return origin, destination
+
+
+###############################################
+# Determiner la capture ou le mouvement simple
+###############################################
+
+#------------------------------------------------
+# La case destination etait-elle vide en image 1 ?
+# def was_square_full(img, empty_board, coords, threshold, debug=False):
+#     """
+#     Détermine si une case était vide en utilisant la variance.
+#     """
+#     x_start, x_end, y_start, y_end = coords
+
+#     # Extraire la case dans l'image et dans l'échiquier vide
+#     square_img = img[y_start:y_end, x_start:x_end]
+#     empty_square = empty_board[y_start:y_end, x_start:x_end]
+
+#     var_case1 = masked_variance(square_img)
+#     var_case2 = masked_variance(empty_square)
+
+#     if debug:
+#         print("\nDETERMINE CAPTURE:")
+#         print('Var case image : ' + str(var_case1) + '\n' + "Var case empty : " + str(var_case2))
+
+#     # Si les variances sont proches, alors les deux cases sont vides
+#     # Return True si la case est pas vide
+#     if abs(var_case1-var_case2) > 500:
+#         if debug:
+#             print('Var diff >500 => case pleine => capture')
+#         return True
+#     else:
+#         if debug:
+#             print('Var diff <500 => case vide => mouv simple')
+#         return False
+
+# def is_capture(img1, empty_board, destination_coords, threshold, debug=False):
+#     """
+#     Détecte si un mouvement est une capture en analysant la case de destination.
+#     """
+#     # Vérifier si la case de destination était pleine avant le coup
+#     return was_square_full(img1, empty_board, destination_coords, threshold, debug)
+
+
+# VALHALLY IS EMPTY
+
+# def is_case_empty_contours(img, empty_valhalla, coords, threshold, debug):
+#     """
+#     Vérifie si une case est vide en comparant sa variance et ses contours
+#     à ceux de la case vide de référence.
+#     """
+#     x_start, x_end, y_start, y_end = coords
+
+#     # Extraire la région d'intérêt pour les deux images
+#     img_case = img[y_start:y_end, x_start:x_end]
+#     empty_case = empty_valhalla[y_start:y_end, x_start:x_end]
+
+#     # Calcul des variances
+#     var_case_img = masked_variance(img_case)
+#     var_case_empty = masked_variance(empty_case)
+
+#     # Vérification basée sur la variance
+#     variance_check = abs(var_case_img - var_case_empty) < threshold
+
+#     # Calcul des métriques de contours à l'aide de la fonction existante
+#     contour_case_img = detect_contours_metric(img_case)
+#     contour_case_empty = detect_contours_metric(empty_case)
+
+#     # Vérification basée sur les contours
+#     contour_threshold = 0.1 * contour_case_empty  # Exemple : tolérance de 10 %
+#     contour_check = abs(contour_case_img - contour_case_empty) < contour_threshold
+
+#     # Décision finale : variance ou contours
+#     is_empty = False
+#     if variance_check and contour_check:
+#         is_empty = True  # Les deux méthodes confirment que la case est vide
+#     elif not variance_check and not contour_check:
+#         is_empty = False  # Les deux méthodes confirment que la case est pleine
+#     else:
+#         # En cas de divergence, choisir selon le facteur d'écart relatif
+#         factor_var = abs(var_case_img - var_case_empty) / min(var_case_img, var_case_empty)
+#         factor_contour = abs(contour_case_img - contour_case_empty) / min(contour_case_img, contour_case_empty)
+
+#         if factor_var < factor_contour:
+#             # Prioriser la variance
+#             is_empty = variance_check
+#             if debug:
+#                 print("Variance priorisée (écart relatif plus grand).")
+#         else:
+#             # Prioriser les contours
+#             is_empty = contour_check
+#             if debug:
+#                 print("Contours priorisés (écart relatif plus grand).")
+
+#     if debug:
+#         print('\nDOUBLE-CHECK PROMOTION-VALHALLA:')
+#         print(f"Case coords: {coords}")
+#         print(f"Variance case img: {var_case_img}, Variance case ref: {var_case_empty}")
+#         print(f"Contours case img: {contour_case_img}, Contours case ref: {contour_case_empty}")
+#         print(f"Variance Check: {variance_check}, Contour Check: {contour_check}")
+#         print("Résultat final:", "Case vide" if is_empty else "Case pleine")
+
+#     return is_empty
