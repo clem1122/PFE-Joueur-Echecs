@@ -43,8 +43,8 @@ class Space:
 class Height:
 	def __init__(self):
 		self.LOW = 0.01
-		self.MID = 0.025
-		self.HIGH = 0.035
+		self.MID = 0.02
+		self.HIGH = 0.029
 		self.ABOVE = 0.155
 		self.pieces_height = self.generate_height_dictionary()
 		
@@ -52,7 +52,7 @@ class Height:
 		
 		height_dictionary = {}
 		pieces_list = ['r','n','b','q','k','p']
-		height_list = [self.LOW,self.LOW,self.MID,self.HIGH,self.HIGH,self.LOW]
+		height_list = [self.LOW,self.MID,self.MID,self.HIGH,self.HIGH,self.LOW]
 		
 		for i,piece in enumerate(pieces_list) :
 			height_dictionary[piece] = height_list[i]
