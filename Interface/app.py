@@ -32,7 +32,8 @@ def new_game():
         "check": False,
         "checkmate": False,
         "checked": False,
-        "checkmated": False
+        "checkmated": False,
+        "unsure" : "",
     }
     return "FEN réinitialisées"
 
@@ -171,6 +172,7 @@ def get_state():
         return jsonify({"error": str(e)}), 500
 
 
+    
 if __name__ == '__main__':
     new_game()
     app.run(debug=True)

@@ -18,16 +18,18 @@ const StartMessages = [
 ];
 
 const Messages = {
-    'checked': "Attention, tu es en echec, ton roi est attaqué !",
-    'checkmated': "J'ai gagné ! Tu t'es bien défendu(e), mais ton roi ne peut plus esquiver cette attaque",
-    'check': "Joli ! Tu attaques mon roi.",
     'checkmate': "Tu as gagné ! Je m'incline, mon roi est définitivement perdu...",
+    'checkmated': "J'ai gagné ! Tu t'es bien défendu(e), mais ton roi ne peut plus esquiver cette attaque",
+    'checked': "Attention, tu es en echec, ton roi est attaqué !",
+    'check': "Joli ! Tu attaques mon roi.",
     'queen_threat': "Prend garde à ta reine, elle est menacée",
     'threats': "Regarde, voici les pièces que je te menace.",
     'playable': "Voila toutes les cases que tu peux atteindre avec une de tes pièces",
     'controlled': "Prudence sur ces cases, je les controle avec une de mes pièces.",
     'protected': "Ces pièces sont protégées : si je les captures, tu pourras me capturer derrière.",
-    'aide': "Si tu veux mon avis, le meilleur coup pour toi est "
+    'aide': "Si tu veux mon avis, le meilleur coup pour toi est ",
+    'unsure' : "J'ai détecté un coup de ta part qui n'est pas légal : ",
+
 }
 
 // Simulate messages appearing one by one
@@ -36,8 +38,10 @@ let previous_state = {
     "check": false,
     "checkmate": false,
     "checked": false,
-    "checkmated": false
+    "checkmated": false,
+    "unsure" : "",
 }
+
 let previous_FEN_to_show = {'threats': false, 'controlled': false, 'playable': false, 'help': false, 'protected':false};
 
 setInterval(fetchAndAppendMessages, 1000);
@@ -64,26 +68,49 @@ async function fetchAndAppendMessages() {
         const state = await response.json();
         console.log("state : ", JSON.stringify(state));
         console.log("previous_state : ", JSON.stringify(previous_state));
+
+        const keys = Object.entries(Messages);
+        let i = 0;
+
         if (JSON.stringify(previous_state) !== JSON.stringify(state) || JSON.stringify(previous_FEN_to_show) !== JSON.stringify(FEN_to_show)) {
-            if (state['checkmated']) {
-                appendBotMessage(Messages['checkmated']);
-            } else if (state['checked']) {
-                appendBotMessage(Messages['checked']);
-            } else if (state['checkmate']) {
-                appendBotMessage(Messages['checkmate']);
-            } else if (state['check']) {
-                appendBotMessage(Messages['check']);
-            } else if (FEN_to_show['threats']) {
-                appendBotMessage(Messages['threats']);
-            } else if (FEN_to_show['playable']) {
-                appendBotMessage(Messages['playable']);
-            } else if (FEN_to_show['controlled']) {
-                appendBotMessage(Messages['controlled']);
-            } else if (FEN_to_show['protected']) {
-                appendBotMessage(Messages['protected']);
-            } else if (FEN_to_show['aide']) {
-                appendBotMessage(Messages['aide']);
-            }
+            while (i < keys.length) {
+                let [cle, message] = keys[i];
+                console.log(state[cle])
+                if (state[cle] || FEN_to_show[cle]){
+                    console.log(cle)
+                    console.log(message)
+                    if (cle == "unsure"){
+                        console.log("Robot unsure")
+                        message += state[cle]
+                        message += ". Ecris-moi le coup que tu souhaitais jouer."
+                    }
+
+                    appendBotMessage(message);
+                    break
+                }
+                i++;
+                }
+
+            // if (state['checkmated']) {
+            //     appendBotMessage(Messages['checkmated']);
+            // } else if (state['checked']) {
+            //     appendBotMessage(Messages['checked']);
+            // } else if (state['checkmate']) {
+            //     appendBotMessage(Messages['checkmate']);
+            // } else if (state['check']) {
+            //     appendBotMessage(Messages['check']);
+            // } else if (FEN_to_show['threats']) {
+            //     appendBotMessage(Messages['threats']);
+            // } else if (FEN_to_show['playable']) {
+            //     appendBotMessage(Messages['playable']);
+            // } else if (FEN_to_show['controlled']) {
+            //     appendBotMessage(Messages['controlled']);
+            // } else if (FEN_to_show['protected']) {
+            //     appendBotMessage(Messages['protected']);
+            // } else if (FEN_to_show['aide']) {
+            //     appendBotMessage(Messages['aide']);
+            // }
+
             previous_state = state;
             previous_FEN_to_show = FEN_to_show;
             

@@ -149,18 +149,18 @@ html {
 }
 
 
-.cemetery-container {
+#valhalla {
   display: grid;
   grid-template-columns: repeat(5, 5); /* Grille de 5 colonnes */
   gap: 10px; /* Espacement entre les pièces */
   background-color: #f5f5f5; /* Couleur de fond */
   border: 10px solid #ccc; /* Bordure */
-  width: 225px; /* Largeur fixe */
+  width: 400px; /* Largeur fixe */
   height: 500px; /* Hauteur fixe */
   align-items: center; /* Centrer verticalement les pièces */
   position: absolute; /* Permet un positionnement précis */
   top: 50%; /* Centré verticalement par rapport à l'échiquier */
-  left: calc(50% - 600px); /* Positionné à gauche de l'échiquier */
+  left: calc(50% - 800px); /* Positionné à gauche de l'échiquier */
   transform: translateY(-50%); /* Ajuste le centrage vertical */
 }
 

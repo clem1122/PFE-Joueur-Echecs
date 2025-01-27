@@ -18,6 +18,7 @@ import signal
 from time import sleep
 
 pieces_list = ['p','P','n','N','b','B	','r','R','q','Q','k','K']
+piece_dictionnary = {"p" : "pion", "P" : "pion", "n" : "cavalier", "N" : "cavalier", "b" : "fou",  "B" : "fou", "r" : "tour", "R" : "tour", "k" : "roi", "K" : "roi", "q" : "dame", "Q" : "dame"}
 classic_FEN = 'rnbqkbnrpppppppp................................PPPPPPPPRNBQKBNR'
 capture_FEN = 'rnbqkbnrppp.pppp........ ...p........P...........PPPP.PPPRNBQKBNR'
 roque_FEN = 'r...k..rpppq.ppp..npbn....b.p.....B.P.....NPBN..PPPQ.PPPR...K..R'
@@ -156,7 +157,7 @@ def send_color_FEN(board):
 	else:
 	    print(f"Erreur lors de l'envoi du board : {response.status_code}, {response.text}")
 
-def send_state(board):
+def send_state(board, unsure = ""):
 	
 	url = "http://127.0.0.1:5000/set-state"
 	whiteKingSquare = board.index_to_coord(board.find_king(True))
@@ -166,7 +167,8 @@ def send_state(board):
 		"check": board.is_check(True, whiteKingSquare), 
 		"checkmate": board.is_checkmate(True), 
 		"checked": board.is_check(False, blackKingSquare),
-		"checkmated": board.is_checkmate(False)
+		"checkmated": board.is_checkmate(False),
+		"unsure" : unsure
 	}	
 	response = requests.post(url, json=payload)
 	if response.status_code == 200:
@@ -182,16 +184,42 @@ def get_move():
 		return input("Move :")
 
 def reask_for_move(first_move) :
+	msg =  explain_illegality(first_move)
 	answer = input("Le coup détécté (" + first_move + ") n'est pas légal. Est-ce ce que vous vouliez jouer ? [o/n]")
 	while answer != "o" and answer != "n" :
 		answer = input("Le coup détécté (" + first_move + ") n'est pas légal. Est-ce ce que vous vouliez jouer ? [o/n]")
 	
 	if answer == "o" : 
-		new_move = input("Ce coup n'est pas légal parce que [insérez explication]. Remets ta pièce où elle était et écris un coup légal. ")
+		print(msg)
+		new_move = input("Ce coup n'est pas légal. " + msg + ". Remets ta pièce où elle était, joue un nouveau coup, et écris-le. ")
 	if answer == "n" :
 		new_move = input("Quel est le coup que tu as joué sur l'échiquier alors ? ")
 
 	return new_move
+
+def explain_illegality(moveStr):
+	move = b.create_move(moveStr[:4])
+	promotion_char = '.' if (len(moveStr) == 4) else moveStr[4]
+	p_type = move.moving_piece.type()
+	possessif = "ta" if p_type.lower() == "r" or p_type.lower() == "q" else "ton"
+	msg = "Tu ne peux pas bouger " + possessif + " depuis " + move.start() + " vers " + move.end() + ". Rappelle-toi que " + possessif
+
+	if p_type.lower() == 'p' :
+		msg += " "  + piece_dictionnary[p_type] + " ne peut se déplacer que d'une case en avant (ou deux si c'est son premier mouvement). Il ne peut capturer qu'en diagonale d'une case en avant."
+	if p_type.lower() == 'r' :
+		msg += " "  + piece_dictionnary[p_type] + " ne peut se déplacer que le long de sa ligne ou de sa colonne."
+	if p_type.lower() == 'b' :
+		msg += " "  + piece_dictionnary[p_type] + " ne peut se déplacer que le long de sa diagonale."
+	if p_type.lower() == 'q' :
+		msg += " "  + piece_dictionnary[p_type] + " ne peut se déplacer que le long d'une diagonale, ou le long de sa ligne ou de sa colone."
+	if p_type.lower() == 'k' :
+		msg += " "  + piece_dictionnary[p_type] + " ne peut se déplacer que d'une case, mais dans toutes les directions."
+	if p_type.lower() == 'n' :
+		msg += " "  + piece_dictionnary[p_type] + " se déplace en L : deux cases tout droit dans une direction, puis une case à droite ou à gauche. Il peut sauter par-dessus les autres pièces !"
+
+	msg += " Et n'oublie pas que ton roi ne doit pas être en échec à la fin de ton mouvement."
+
+	return msg
 
 def play(moveStr):
 	global isRobotTurn
@@ -221,11 +249,11 @@ def see(photoId, human = False):
 	if not human:
 		sleep(0.5)
 		im_post_robot = take_picture(robot, photoId)
-		origin, end = oracle(im_pre_robot, im_post_robot, imVide, debug=True)
+		origin, end = oracle(im_pre_robot, im_post_robot, imVide, debug=False)
 	else:
 		sleep(0.5)
 		im_pre_robot = take_picture(robot, photoId)
-		origin, end = oracle(im_post_robot, im_pre_robot, imVide, debug=True)
+		origin, end = oracle(im_post_robot, im_pre_robot, imVide, debug=False)
 
 	return origin + end
 
@@ -307,8 +335,9 @@ send_board_FEN(b)
 send_color_FEN(b)
 isRobotTurn = True
 
-while True:	
+while not g.isOver():	
 	playCount = g.play_count() + 1
+	unsure = ""
 
 	if isRobotTurn:
 		moveStr = get_move()
@@ -327,10 +356,17 @@ while True:
 			else : have_human_played()
 			allegedMove = see(playCount, human=True)
 
-			while not play(allegedMove):
-				print(allegedMove)
-				allegedMove = reask_for_move(allegedMove)
-				print(allegedMove)
+			#Try to reverse the move
+			if not play(allegedMove):
+				reverseMove = allegedMove[2:] + allegedMove[:2]
+				print("Coup détecté non légal, on essaie de jouer l'inverse : " + reverseMove)
+				if not play(reverseMove):
+					print("Mauvaise détection dans les deux sens. Demande au joueur.")
+					while not play(allegedMove):
+						unsure = allegedMove
+						send_state(b, unsure)
+						allegedMove = input("Ecris-moi ton move (qui doit être légal) : ")
+
 		else: 
 			#moveStr = get_move()
 			moveStr = input("Move : ")
