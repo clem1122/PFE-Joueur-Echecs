@@ -10,7 +10,7 @@ let selectedSquare = null;
 let selectedPiece = null;
 let port = "8080";
 let url = "http://localhost:" + port;
-let isWhite = false; // Boolean for board orientation, false for normal, true for 180° rotated
+let isWhite = true; // Boolean for board orientation, false for normal, true for 180° rotated
 let Box;
 let threats = '.'.repeat(64);
 let controlled = '.'.repeat(64);
