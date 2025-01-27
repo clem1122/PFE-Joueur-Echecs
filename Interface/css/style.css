@@ -45,7 +45,7 @@ html {
   align-items: center;
   /* Centre verticalement */
   top: 50%;
-  left: calc(50% + 300px);
+  left: calc(50% + 370px);
   transform: translateY(-50%);
 }
 
@@ -96,7 +96,7 @@ html {
   width: 100%;
   max-width: 300px;
   min-width: 300px;
-  height: 400px;
+  height: 500px;
   background: #ffffff;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   border-radius: 10px;
@@ -115,7 +115,7 @@ html {
 .chat-messages {
   flex: 1;
   padding: 10px;
-  height: 350px;
+  height: 450px;
   overflow-y: auto;
   background: #ffffff;
 
