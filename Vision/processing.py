@@ -1,134 +1,24 @@
+'''
+-- processing.py --
+Ce fichier comporte toutes les fonctions utiles a oracle_functionet check_valhalla
+'''
+
 import cv2
 import numpy as np
-
-################################################
-############## NORMALIZATION HSV  ##############
-################################################
-
-def normalize_hsv_global(img, global_means, global_stds):
-    """
-    Normalise une image en fonction des moyennes et écarts-types globaux (par canal HSV).
-    """
-    # Convertir l'image en HSV
-    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV).astype(np.float32)
-
-    # Normaliser chaque canal (H, S, V)
-    for i in range(3):
-        channel = hsv[:, :, i]
-        mean_img = np.mean(channel)
-        std_img = np.std(channel)
-
-        # Transformation linéaire pour correspondre aux stats globales
-        hsv[:, :, i] = (channel - mean_img) * (global_stds[i] / (std_img + 1e-6)) + global_means[i]
-
-        # Clipping des valeurs pour rester dans les plages HSV valides
-        if i == 0:  # Hue (H) : 0-179
-            hsv[:, :, i] = np.clip(hsv[:, :, i], 0, 179)
-        else:  # Saturation et Value (S, V) : 0-255
-            hsv[:, :, i] = np.clip(hsv[:, :, i], 0, 255)
-
-    # Retourner l'image en BGR
-    return cv2.cvtColor(hsv.astype(np.uint8), cv2.COLOR_HSV2BGR)
-
-################################################
-############## UNDISTORT FISHEYE  ##############
-################################################
-
-def undistort_fisheye(image, K, D, balance=0.5):
-    """
-    Corrige la distorsion fisheye d'une image donnée.
-    """
-    h, w = image.shape[:2]
-    
-    # Calculer la nouvelle matrice intrinsèque
-    new_K = cv2.fisheye.estimateNewCameraMatrixForUndistortRectify(K, D, (w, h), np.eye(3), balance=balance)
-    
-    # Générer les cartes de transformation
-    map1, map2 = cv2.fisheye.initUndistortRectifyMap(K, D, np.eye(3), new_K, (w, h), cv2.CV_16SC2)
-    
-    # Appliquer la transformation
-    undistorted_image = cv2.remap(image, map1, map2, interpolation=cv2.INTER_LINEAR)
-    
-    return undistorted_image
-
 
 ################################################
 ######### Trouver les cases modifiees ##########
 ################################################
 
-
-############## DETECT CIRCLES ##############
-def detect_circles_in_case(image, x_start, y_start, square_size, min_radius, max_radius):
-    """
-    Détecte les cercles dans une case spécifique de l'échiquier.
-    """
-    # Extraire la sous-image correspondant à la case
-    case_roi = image[y_start:y_start+square_size, x_start:x_start+square_size]
-    # gray = case_roi
-    # blurred = cv2.GaussianBlur(gray, (9, 9), 2)
-    
-    # Détecter les cercles
-    circles = cv2.HoughCircles(
-        case_roi,
-        cv2.HOUGH_GRADIENT,
-        dp=1.0, #1.2
-        minDist=10, #10
-        param1=10, #50
-        param2=5, #30
-        minRadius=min_radius,
-        maxRadius=max_radius
-    )
-    
-    # Retourner le nombre de cercles détectés
-    return 0 if circles is None else len(circles[0])
-
-def detect_circle_differences(image1, image2, cases, min_radius, max_radius, debug):
-    """
-    Compare la présence de cercles dans les cases de deux images et retourne le pourcentage de différence.
-    """
-    modified_cases = []
-
-    for case_name, (x_start, x_end, y_start, y_end) in cases.items():
-        # Calculer la taille de la case si nécessaire
-        square_size = x_end - x_start
-
-        # Détecter les cercles dans chaque case pour les deux images
-        circles_img1 = detect_circles_in_case(image1, x_start, y_start, square_size, min_radius, max_radius)
-        circles_img2 = detect_circles_in_case(image2, x_start, y_start, square_size, min_radius, max_radius)
-
-        # Calculer la différence et le pourcentage
-        max_circles = max(circles_img1, circles_img2)
-        if max_circles > 0:  # Éviter une division par zéro
-            percentage_diff = int((abs(circles_img1 - circles_img2) / max_circles) * 100)
-        else:
-            percentage_diff = 0  # Si aucune pièce n'est présente dans les deux cases
-
-        if debug:
-            print(f"{case_name}: Img1={circles_img1}, Img2={circles_img2}, Diff={percentage_diff}%")
-
-        # Ajouter à la liste si différence détectée
-        if percentage_diff > 0:
-            modified_cases.append((case_name, percentage_diff))
-
-    # Trier par pourcentage décroissant
-    modified_cases.sort(key=lambda x: x[1], reverse=True)
-
-
-    if debug:
-        #print(f"\nTOP 2 CASES MODIFIEES: {modified_cases[:2]} \n")
-        print(f"\nTOP 4 CASES MODIFIEES (cercles): {modified_cases[:4]} \n") 
-
-    return modified_cases
-################################################
-
-
-# Difference entre deux images (version basique)
+# Difference filtree entre deux images
 def detect_differences(img1, img2, sensitivity_threshold, debug):
+    """
+    Analyse les différences entre deux images avec un seuil applique
+    """
     diff = cv2.absdiff(img1, img2)
     # Filtre pour ignorer les diff en dessous du threshold
     _, filtered_diff = cv2.threshold(diff, sensitivity_threshold, 255, cv2.THRESH_BINARY)
     
-    # DEBUG
     if debug:
         # Verifier que l'echiquier n'as pas bouge entre deux prises
         cv2.imshow("Diff brute", diff)
@@ -138,17 +28,17 @@ def detect_differences(img1, img2, sensitivity_threshold, debug):
 
     return filtered_diff
 
-# Analyse repere cases modifiees
+# Analyse repere cases modifiees dans l'echiquier
 def analyze_squares(filtered_diff, cases, square_size, debug):
     """
-    Analyse les différences dans chaque case en ne tenant compte que d'un cercle centré.
+    Analyse les différences dans chaque case en ne tenant compte que d'un cercle centré
     """
     modified_cases = []  # Liste vide
 
-    # DEBUG
     if debug:
-        print("\nLISTE CASES MODIFIEES:")
+        print("\n-----LISTE CASES MODIFIEES:-----")
 
+    # For toutes les cases de l'echiquier 
     for case_name, coords in cases.items():
         # Extraire les coordonnées de la case
         x_start, x_end, y_start, y_end = coords
@@ -688,3 +578,186 @@ def is_case_empty(img, empty_valhalla, coords, threshold, debug=False):
         if debug:
             print("Variance differente => case pleine.")
         return False
+
+def is_case_empty_contours(img, empty_valhalla, coords, threshold, debug=False):
+    """
+    Vérifie si une case est vide en comparant sa variance et ses contours
+    à ceux de la case vide de référence.
+    """
+    x_start, x_end, y_start, y_end = coords
+
+    # Extraire la région d'intérêt pour les deux images
+    img_case = img[y_start:y_end, x_start:x_end]
+    empty_case = empty_valhalla[y_start:y_end, x_start:x_end]
+
+    # Calcul des variances
+    var_case_img = masked_variance(img_case)
+    var_case_empty = masked_variance(empty_case)
+
+    # Vérification basée sur la variance
+    variance_check = abs(var_case_img - var_case_empty) < threshold
+
+    # Calcul des métriques de contours à l'aide de la fonction existante
+    contour_case_img = detect_contours_metric(img_case)
+    contour_case_empty = detect_contours_metric(empty_case)
+
+    # Vérification basée sur les contours
+    contour_threshold = 0.1 * contour_case_empty  # Exemple : tolérance de 10 %
+    contour_check = abs(contour_case_img - contour_case_empty) < contour_threshold
+
+    # Décision finale : variance ou contours
+    is_empty = False
+    if variance_check and contour_check:
+        is_empty = True  # Les deux méthodes confirment que la case est vide
+    elif not variance_check and not contour_check:
+        is_empty = False  # Les deux méthodes confirment que la case est pleine
+    else:
+        # En cas de divergence, choisir selon le facteur d'écart relatif
+        factor_var = abs(var_case_img - var_case_empty) / min(var_case_img, var_case_empty)
+        factor_contour = abs(contour_case_img - contour_case_empty) / min(contour_case_img, contour_case_empty)
+
+        if factor_var > factor_contour:
+            # Prioriser la variance
+            is_empty = variance_check
+            if debug:
+                print("Variance priorisée (écart relatif plus grand).")
+        else:
+            # Prioriser les contours
+            is_empty = contour_check
+            if debug:
+                print("Contours priorisés (écart relatif plus grand).")
+
+    if debug:
+        print('\nDOUBLE-CHECK PROMOTION-VALHALLA:')
+        print(f"Case coords: {coords}")
+        print(f"Variance case img: {var_case_img}, Variance case ref: {var_case_empty}")
+        print(f"Contours case img: {contour_case_img}, Contours case ref: {contour_case_empty}")
+        print(f"Variance Check: {variance_check}, Contour Check: {contour_check}")
+        print("Résultat final:", "Case vide" if is_empty else "Case pleine")
+
+    return is_empty
+
+
+# -------------------------------------------------------------------------------------
+# -------------------------- FUNCTIONS GRAVEYARD (RIP) --------------------------------
+# -------------------------------------------------------------------------------------
+
+# ----------------------------------------------
+# ------------ NORMALIZATION HSV  --------------
+# ----------------------------------------------
+
+# def normalize_hsv_global(img, global_means, global_stds):
+#     """
+#     Normalise une image en fonction des moyennes et écarts-types globaux (par canal HSV).
+#     """
+#     # Convertir l'image en HSV
+#     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV).astype(np.float32)
+
+#     # Normaliser chaque canal (H, S, V)
+#     for i in range(3):
+#         channel = hsv[:, :, i]
+#         mean_img = np.mean(channel)
+#         std_img = np.std(channel)
+
+#         # Transformation linéaire pour correspondre aux stats globales
+#         hsv[:, :, i] = (channel - mean_img) * (global_stds[i] / (std_img + 1e-6)) + global_means[i]
+
+#         # Clipping des valeurs pour rester dans les plages HSV valides
+#         if i == 0:  # Hue (H) : 0-179
+#             hsv[:, :, i] = np.clip(hsv[:, :, i], 0, 179)
+#         else:  # Saturation et Value (S, V) : 0-255
+#             hsv[:, :, i] = np.clip(hsv[:, :, i], 0, 255)
+
+#     # Retourner l'image en BGR
+#     return cv2.cvtColor(hsv.astype(np.uint8), cv2.COLOR_HSV2BGR)
+
+
+################################################
+############## UNDISTORT FISHEYE  ##############
+################################################
+
+# def undistort_fisheye(image, K, D, balance=0.5):
+#     """
+#     Corrige la distorsion fisheye d'une image donnée.
+#     """
+#     h, w = image.shape[:2]
+    
+#     # Calculer la nouvelle matrice intrinsèque
+#     new_K = cv2.fisheye.estimateNewCameraMatrixForUndistortRectify(K, D, (w, h), np.eye(3), balance=balance)
+    
+#     # Générer les cartes de transformation
+#     map1, map2 = cv2.fisheye.initUndistortRectifyMap(K, D, np.eye(3), new_K, (w, h), cv2.CV_16SC2)
+    
+#     # Appliquer la transformation
+#     undistorted_image = cv2.remap(image, map1, map2, interpolation=cv2.INTER_LINEAR)
+    
+#     return undistorted_imag
+
+##############################################
+# ############## DETECT CIRCLES ##############
+##############################################
+# def detect_circles_in_case(image, x_start, y_start, square_size, min_radius, max_radius):
+#     """
+#     Détecte les cercles dans une case spécifique de l'échiquier.
+#     """
+#     # Extraire la sous-image correspondant à la case
+#     case_roi = image[y_start:y_start+square_size, x_start:x_start+square_size]
+#     # gray = case_roi
+#     # blurred = cv2.GaussianBlur(gray, (9, 9), 2)
+    
+#     # Détecter les cercles
+#     circles = cv2.HoughCircles(
+#         case_roi,
+#         cv2.HOUGH_GRADIENT,
+#         dp=1.0, #1.2
+#         minDist=10, #10
+#         param1=10, #50
+#         param2=5, #30
+#         minRadius=min_radius,
+#         maxRadius=max_radius
+#     )
+    
+#     # Retourner le nombre de cercles détectés
+#     return 0 if circles is None else len(circles[0])
+
+# def detect_circle_differences(image1, image2, cases, min_radius, max_radius, debug):
+#     """
+#     Compare la présence de cercles dans les cases de deux images et retourne le pourcentage de différence.
+#     """
+#     modified_cases = []
+
+#     for case_name, (x_start, x_end, y_start, y_end) in cases.items():
+#         # Calculer la taille de la case si nécessaire
+#         square_size = x_end - x_start
+
+#         # Détecter les cercles dans chaque case pour les deux images
+#         circles_img1 = detect_circles_in_case(image1, x_start, y_start, square_size, min_radius, max_radius)
+#         circles_img2 = detect_circles_in_case(image2, x_start, y_start, square_size, min_radius, max_radius)
+
+#         # Calculer la différence et le pourcentage
+#         max_circles = max(circles_img1, circles_img2)
+#         if max_circles > 0:  # Éviter une division par zéro
+#             percentage_diff = int((abs(circles_img1 - circles_img2) / max_circles) * 100)
+#         else:
+#             percentage_diff = 0  # Si aucune pièce n'est présente dans les deux cases
+
+#         if debug:
+#             print(f"{case_name}: Img1={circles_img1}, Img2={circles_img2}, Diff={percentage_diff}%")
+
+#         # Ajouter à la liste si différence détectée
+#         if percentage_diff > 0:
+#             modified_cases.append((case_name, percentage_diff))
+
+#     # Trier par pourcentage décroissant
+#     modified_cases.sort(key=lambda x: x[1], reverse=True)
+
+
+#     if debug:
+#         #print(f"\nTOP 2 CASES MODIFIEES: {modified_cases[:2]} \n")
+#         print(f"\nTOP 4 CASES MODIFIEES (cercles): {modified_cases[:4]} \n") 
+
+#     return modified_cases
+
+
+
+
