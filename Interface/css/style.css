@@ -149,7 +149,7 @@ html {
 }
 
 
-#valhalla {
+#cemetery {
   display: grid;
   grid-template-columns: repeat(5, 5); /* Grille de 5 colonnes */
   gap: 10px; /* Espacement entre les pièces */
