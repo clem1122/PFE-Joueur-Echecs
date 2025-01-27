@@ -359,6 +359,7 @@ while not g.isOver():
 			#Try to reverse the move
 			if not play(allegedMove):
 				reverseMove = allegedMove[2:] + allegedMove[:2]
+				if len(allegedMove) == 5 : reverseMove += allegedMove[4]
 				print("Coup détecté non légal, on essaie de jouer l'inverse : " + reverseMove)
 				if not play(reverseMove):
 					print("Mauvaise détection dans les deux sens. Demande au joueur.")
@@ -366,6 +367,7 @@ while not g.isOver():
 						unsure = allegedMove
 						send_state(b, unsure)
 						allegedMove = input("Ecris-moi ton move (qui doit être légal) : ")
+				take_picture(robot, playCount)
 
 		else: 
 			#moveStr = get_move()
