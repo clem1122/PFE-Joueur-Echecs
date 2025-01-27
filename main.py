@@ -144,12 +144,17 @@ def send_color_FEN(board):
 		best_FEN[index_1] = '1'
 		best_FEN[index_2] = '1'
 
+	checking_pieces = ['.']*64
+	if board.checking(isWhite).count('1') != 1:
+		checking_pieces = board.checking(isWhite)
+
 	url = "http://127.0.0.1:5000/set-color-FEN"
 	payload = {"threats": board.threats(isWhite), 
 			"playable": board.playable(isWhite), 
 			"controlled": board.controlled(isWhite),
 			"protected": board.protected(isWhite),
-			"help": best_FEN}
+			"help": best_FEN,
+			"checking": checking_pieces}
 	
 	response = requests.post(url, json=payload)
 	if response.status_code == 200:
@@ -182,44 +187,6 @@ def get_move():
 		return get_stockfish_move(b.FEN(), b.special_rules(), b.en_passant_coord())
 	else:
 		return input("Move :")
-
-def reask_for_move(first_move) :
-	msg =  explain_illegality(first_move)
-	answer = input("Le coup détécté (" + first_move + ") n'est pas légal. Est-ce ce que vous vouliez jouer ? [o/n]")
-	while answer != "o" and answer != "n" :
-		answer = input("Le coup détécté (" + first_move + ") n'est pas légal. Est-ce ce que vous vouliez jouer ? [o/n]")
-	
-	if answer == "o" : 
-		print(msg)
-		new_move = input("Ce coup n'est pas légal. " + msg + ". Remets ta pièce où elle était, joue un nouveau coup, et écris-le. ")
-	if answer == "n" :
-		new_move = input("Quel est le coup que tu as joué sur l'échiquier alors ? ")
-
-	return new_move
-
-def explain_illegality(moveStr):
-	move = b.create_move(moveStr[:4])
-	promotion_char = '.' if (len(moveStr) == 4) else moveStr[4]
-	p_type = move.moving_piece.type()
-	possessif = "ta" if p_type.lower() == "r" or p_type.lower() == "q" else "ton"
-	msg = "Tu ne peux pas bouger " + possessif + " depuis " + move.start() + " vers " + move.end() + ". Rappelle-toi que " + possessif
-
-	if p_type.lower() == 'p' :
-		msg += " "  + piece_dictionnary[p_type] + " ne peut se déplacer que d'une case en avant (ou deux si c'est son premier mouvement). Il ne peut capturer qu'en diagonale d'une case en avant."
-	if p_type.lower() == 'r' :
-		msg += " "  + piece_dictionnary[p_type] + " ne peut se déplacer que le long de sa ligne ou de sa colonne."
-	if p_type.lower() == 'b' :
-		msg += " "  + piece_dictionnary[p_type] + " ne peut se déplacer que le long de sa diagonale."
-	if p_type.lower() == 'q' :
-		msg += " "  + piece_dictionnary[p_type] + " ne peut se déplacer que le long d'une diagonale, ou le long de sa ligne ou de sa colone."
-	if p_type.lower() == 'k' :
-		msg += " "  + piece_dictionnary[p_type] + " ne peut se déplacer que d'une case, mais dans toutes les directions."
-	if p_type.lower() == 'n' :
-		msg += " "  + piece_dictionnary[p_type] + " se déplace en L : deux cases tout droit dans une direction, puis une case à droite ou à gauche. Il peut sauter par-dessus les autres pièces !"
-
-	msg += " Et n'oublie pas que ton roi ne doit pas être en échec à la fin de ton mouvement."
-
-	return msg
 
 def play(moveStr):
 	global isRobotTurn

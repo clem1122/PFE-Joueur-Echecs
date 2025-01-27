@@ -10,11 +10,8 @@ function appendBotMessage(content) {
 
 // Example bot messages
 const StartMessages = [
-    "Bonjour ! Je suis Niryo",
-    "Je suis un robot pédagogique pour enseigner les échecs",
-    "Tu veux jouer une partie avec moi ?",
-    "😊😊😊",
-    "Pour information, les pièces déjà présentes dans le cimetière en début de partie sont simplement prévues en cas de promotion."
+    "Bonjour ! Je suis Niryo ! Je suis un robot pédagogique pour enseigner les échecs. On joue ? 😊"
+    //"Pour information, les pièces déjà présentes dans le cimetière en début de partie sont simplement prévues en cas de promotion."
 ];
 
 const Messages = {
@@ -27,7 +24,7 @@ const Messages = {
     'playable': "Voila toutes les cases que tu peux atteindre avec une de tes pièces",
     'controlled': "Prudence sur ces cases, je les controle avec une de mes pièces.",
     'protected': "Ces pièces sont protégées : si je les captures, tu pourras me capturer derrière.",
-    'aide': "Si tu veux mon avis, le meilleur coup pour toi est ",
+    'aide': "Si tu veux mon avis, le meilleur coup pour toi est de faire celui-ci.",
     'unsure' : "J'ai détecté un coup de ta part qui n'est pas légal : ",
 
 }
