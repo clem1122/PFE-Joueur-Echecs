@@ -35,7 +35,7 @@ class Robot:
 		if len(square) != 2:
 			raise Exception("Uncorrect Move argument")
 		list_coord = space.chessboard[square] + [2.36, 1.57, -3.14]
-		self.niryo.move_pose(self.get_pose(list_coord, height.LOW))
+		self.niryo.move_pose(self.get_pose(list_coord, height.HIGH))
 	
 
 	def get_pose(self, coord_list, h):

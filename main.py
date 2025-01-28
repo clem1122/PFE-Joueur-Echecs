@@ -1,7 +1,7 @@
 from Scripts import PChess as pc
 from Scripts.Space import height 
 from Scripts.Robot import Robot
-from Scripts.RoboticMove import get_valhalla_coord
+from Scripts.RoboticMove import get_valhalla_coord, RoboticMove
 from Scripts.lichess import get_stockfish_move
 
 from Vision import calibration
@@ -9,6 +9,7 @@ from Vision.calibration import take_picture
 from Vision.delete_images import del_im, del_pkl
 from Vision.oracle_function import oracle
 from Vision.check_valhalla import check_valhalla
+
 
 from sys import exit
 import argparse
@@ -20,6 +21,7 @@ from time import sleep
 pieces_list = ['p','P','n','N','b','B	','r','R','q','Q','k','K']
 piece_dictionnary = {"p" : "pion", "P" : "pion", "n" : "cavalier", "N" : "cavalier", "b" : "fou",  "B" : "fou", "r" : "tour", "R" : "tour", "k" : "roi", "K" : "roi", "q" : "dame", "Q" : "dame"}
 classic_FEN = 'rnbqkbnrpppppppp................................PPPPPPPPRNBQKBNR'
+h8_FEN = 'RnbqkbnR.pppppp.................................PPPPPPPPRNBQKBNR'
 capture_FEN = 'rnbqkbnrppp.pppp........ ...p........P...........PPPP.PPPRNBQKBNR'
 roque_FEN = 'r...k..rpppq.ppp..npbn....b.p.....B.P.....NPBN..PPPQ.PPPR...K..R'
 prise_en_passant_FEN = '............p........p.......P...................q......K......k'
@@ -39,12 +41,13 @@ parser.add_argument("--no-robot", "--nr", action="store_true")
 parser.add_argument("--stockfish", "-s", action="store_true")
 parser.add_argument("--take-picture", "--tp", nargs="?", const=True)
 parser.add_argument("--calibration", action="store_true")
+parser.add_argument("--didacticiel", "-d", action="store_true")
 args = parser.parse_args()
 isWhite = False
 vision = not args.no_robot
 
 is_human_white = False
-g = pc.Game('NK............................................................qk')
+g = pc.Game(h8_FEN)
 b = g.board
 b.print()
 flask = not (args.no_flask or args.take_picture)
@@ -243,7 +246,96 @@ def valhalla_see(isWhite):
 
 	return string + v_index_good_base
 
+def didac_move(board, robot, start_square,end_square) : 
+	rob_move = RoboticMove(start_square, end_square, board.piece_on_square(start_square),True)
+	board.modify_piece(end_square,board.piece_on_square(start_square).type())
+	board.modify_piece(start_square,'.')
+	robot.execute_move(rob_move)
 
+	send_color_FEN(board)
+	send_board_FEN(board)
+	send_state(board)
+
+def sequence_didacticiel():
+	FEN_vide = '................................................................'
+	valhalla_FEN = 'QRBNKP.............qrbnkp.............'
+	robot = Robot()
+	b = pc.Board(FEN_vide,valhalla_FEN)
+	b.print()
+	send_color_FEN(b)
+	send_board_FEN(b)
+	send_state(b)
+
+	didac_move(b, robot,"V5","b2")
+	print("Voici le roi blanc.")
+	didac_move(b, robot,"v5","g7")
+	print("Et voici le roi noir.")
+	print("Les rois ne peuvent se déplacer que d'une case, mais dans toutes les directions. Clique sur la coche Coups Possibles pour voir les cases accessibles.")
+	have_human_played()
+
+	print("Voyons maintenant une autre pièce. La tour.")
+	didac_move(b, robot,"v2","d4")
+	print("La tour se déplace d'autant de cases que l'on veut le long d'une ligne ou d'une colonne. Tu peux voir les cases qu'elle peut atteindre en cliquant sur Coups Possibles. ")
+	have_human_played()
+
+	print("Aux échecs cependant les pièces peuvent être bloquées dans leur mouvement.")
+	didac_move(b, robot,"v6","d7")
+	print("Les pièces alliées ne peuvent être traversées.")
+	have_human_played()
+
+	didac_move(b, robot,"V2","f4")
+	print("Les pièces ennemies aussi. Arriver sur la case d'un adversaire permet de prendre la pièce et de l'amener au cimetière. Comme ceci.")
+	have_human_played()
+	didac_move(b, robot,"d4","v2")
+	didac_move(b, robot,"f4","d4")
+	have_human_played()
+
+	print("Voyons maintenant d'autres pièces.")
+	didac_move(b, robot,"d4","V2")
+	didac_move(b, robot,"d7","v5")
+	didac_move(b, robot,"v3","c4")
+	print("Ceci est un fou. Il peut se déplacer d'autant de cases qu'il veut mais uniquement sur les diagonales.")
+	have_human_played()
+
+	didac_move(b, robot,"v3","c4")
+	didac_move(b, robot,"v1","c4")
+	print("Voyons maintenant la dame. C'est comme un mélange entre une tour et un fou : elle peut se déplacer d'autant de cases que tu le souhaites en diagonale, ou le long d'une ligne ou d'une colonne. C'est ta pièce la plus forte !")
+	have_human_played()
+
+	didac_move(b, robot,"c4","v1")
+	didac_move(b, robot,"v4","c4")
+	print("Et là, le cavalier : son mouvement est un peu particulier. Il bouge en L : il peut avancer de deux cases dans une direction, puis de une case à sa droite ou à sa gauche.")
+	#Dire qu'il  peut sauter par dessus les autres pièces
+	# Et il  ne peut prendre que sur sa dernière case
+	have_human_played()
+
+	# Le pion avance de deux cases en avant si il  est sur sa case de départ
+	# Sinon c'est que de une case
+	# Il capture uniquement en diagonale
+
+	#Tout vider sauf les rois
+
+	robot.move_to_obs_pose()
+	print("Coucou ! Je suis Nini, un robot pour t'apprendre à jouer aux échecs ! Commençons par apprendre les règles de base du jeu. Peux-tu mettre les pièces dans le cimetière comme indiqué sur l'écran ? Quand c'est fait, tu peux appuyer sur le bouton.")
+	have_human_played()
+	print("Ceci est le plateau de jeu, composé de 64 cases, moitié blanches moitiées noires. A chaque nouveau message, appuie sur le bouton pour que je continue à t'expliquer.")
+	have_human_played()
+	robot.move_to_square("d8")
+	print("Les colonnes sont indiquées par des lettres.")
+	have_human_played()
+	robot.move_to_square("h4")
+	print("Les lignes sont indiquées par des chiffres.")
+	have_human_played()
+	robot.move_to_square("d4")
+	print("Une case se définit en donnant sa colonne puis sa ligne : cette case est par exemple la case d4.")
+	have_human_played()
+	print("Voyons maintenant les pièces.")
+
+	return 
+
+if args.didacticiel:
+	sequence_didacticiel()
+	exit(0)
 
 if args.calibration:
 	calibration.main()
