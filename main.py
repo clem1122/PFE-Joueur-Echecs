@@ -246,8 +246,8 @@ def valhalla_see(isWhite):
 
 	return string + v_index_good_base
 
-def didac_move(board, robot, start_square,end_square) : 
-	rob_move = RoboticMove(start_square, end_square, board.piece_on_square(start_square),True)
+def didac_move(board, robot, start_square,end_square, end_move = False) : 
+	rob_move = RoboticMove(start_square, end_square, board.piece_on_square(start_square),end_move)
 	board.modify_piece(end_square,board.piece_on_square(start_square).type())
 	board.modify_piece(start_square,'.')
 	robot.execute_move(rob_move)
@@ -256,7 +256,13 @@ def didac_move(board, robot, start_square,end_square) :
 	send_board_FEN(board)
 	send_state(board)
 
-def sequence_didacticiel(robot, b):
+def say(robot, text):
+	requests.post("http://127.0.0.1:5000/set-message", json={"message":text})
+	robot.niryo.say(text, 1)
+	print(text)
+	
+def sequence_didacticiel():
+	
 	FEN_vide = '................................................................'
 	valhalla_FEN = 'QRBNKP.............qrbnkp.............'
 	robot = Robot()
@@ -266,70 +272,137 @@ def sequence_didacticiel(robot, b):
 	send_board_FEN(b)
 	send_state(b)
 
-	didac_move(b, robot,"V5","b2")
-	print("Voici le roi blanc.")
-	didac_move(b, robot,"v5","g7")
-	print("Et voici le roi noir.")
-	print("Les rois ne peuvent se déplacer que d'une case, mais dans toutes les directions. Clique sur la coche Coups Possibles pour voir les cases accessibles.")
-	have_human_played()
-
-	print("Voyons maintenant une autre pièce. La tour.")
-	didac_move(b, robot,"v2","d4")
-	print("La tour se déplace d'autant de cases que l'on veut le long d'une ligne ou d'une colonne. Tu peux voir les cases qu'elle peut atteindre en cliquant sur Coups Possibles. ")
-	have_human_played()
-
-	print("Aux échecs cependant les pièces peuvent être bloquées dans leur mouvement.")
-	didac_move(b, robot,"v6","d7")
-	print("Les pièces alliées ne peuvent être traversées.")
-	have_human_played()
-
-	didac_move(b, robot,"V2","f4")
-	print("Les pièces ennemies aussi. Arriver sur la case d'un adversaire permet de prendre la pièce et de l'amener au cimetière. Comme ceci.")
-	have_human_played()
-	didac_move(b, robot,"d4","v2")
-	didac_move(b, robot,"f4","d4")
-	have_human_played()
-
-	print("Voyons maintenant d'autres pièces.")
-	didac_move(b, robot,"d4","V2")
-	didac_move(b, robot,"d7","v5")
-	didac_move(b, robot,"v3","c4")
-	print("Ceci est un fou. Il peut se déplacer d'autant de cases qu'il veut mais uniquement sur les diagonales.")
-	have_human_played()
-
-	didac_move(b, robot,"v3","c4")
-	didac_move(b, robot,"v1","c4")
-	print("Voyons maintenant la dame. C'est comme un mélange entre une tour et un fou : elle peut se déplacer d'autant de cases que tu le souhaites en diagonale, ou le long d'une ligne ou d'une colonne. C'est ta pièce la plus forte !")
-	have_human_played()
-
-	didac_move(b, robot,"c4","v1")
-	didac_move(b, robot,"v4","c4")
-	print("Et là, le cavalier : son mouvement est un peu particulier. Il bouge en L : il peut avancer de deux cases dans une direction, puis de une case à sa droite ou à sa gauche.")
-	#Dire qu'il  peut sauter par dessus les autres pièces
-	# Et il  ne peut prendre que sur sa dernière case
-	have_human_played()
-
-	# Le pion avance de deux cases en avant si il  est sur sa case de départ
-	# Sinon c'est que de une case
-	# Il capture uniquement en diagonale
-
-	#Tout vider sauf les rois
-
+	# BASE
 	robot.move_to_obs_pose()
-	print("Coucou ! Je suis Nini, un robot pour t'apprendre à jouer aux échecs ! Commençons par apprendre les règles de base du jeu. Peux-tu mettre les pièces dans le cimetière comme indiqué sur l'écran ? Quand c'est fait, tu peux appuyer sur le bouton.")
+	say(robot, "Coucou ! Je suis Nini, un robot pour t'apprendre à jouer aux échecs ! Apprenons les règles de base. ")
+	say(robot, "Mets les pièces dans le cimetière comme montré sur l'écran. Une fois fait, appuies sur le bouton.")
 	have_human_played()
-	print("Ceci est le plateau de jeu, composé de 64 cases, moitié blanches moitiées noires. A chaque nouveau message, appuie sur le bouton pour que je continue à t'expliquer.")
-	have_human_played()
+	say(robot, "Ceci est le plateau de jeu, composé de 64 cases, moitié blanches moitiées noires.")
 	robot.move_to_square("d8")
-	print("Les colonnes sont indiquées par des lettres.")
-	have_human_played()
+	say(robot, "Les colonnes sont indiquées par des lettres.")
 	robot.move_to_square("h4")
-	print("Les lignes sont indiquées par des chiffres.")
-	have_human_played()
+	say(robot, "Les lignes sont indiquées par des chiffres.")
 	robot.move_to_square("d4")
-	print("Une case se définit en donnant sa colonne puis sa ligne : cette case est par exemple la case d4.")
+	say(robot, "Une case se définit en donnant sa colonne puis sa ligne : cette case est par exemple la case d4.")
+	say(robot, "Voyons maintenant les pièces.")
+	say(robot, "Lorsque je suis en haut, appuie sur le bouton pour voir la suite. ")
 	have_human_played()
-	print("Voyons maintenant les pièces.")
+
+	# ROI
+	didac_move(b, robot,"V5","b2")
+	say(robot, "Voici le roi blanc.")
+	didac_move(b, robot,"v5","g7")
+	say(robot, "Et voici le roi noir.")
+	say(robot, "Les rois ne peuvent se déplacer que d'une case, mais dans toutes les directions.")
+	say(robot, "Clique sur la coche Coups Possibles pour voir les cases accessibles.")
+	robot.move_to_obs_pose()
+	#say(robot, "Appuies sur le bouton pour voir la suite. ")
+	have_human_played()
+
+	# TOUR
+	say(robot, "Voyons maintenant une autre pièce, la tour.")
+	didac_move(b, robot,"v2","d4")
+	say(robot, "La tour se déplace d'autant de cases que l'on veut le long d'une ligne ou d'une colonne.")
+	didac_move(b, robot,"d4","d1")
+	say(robot, "Aux échecs cependant les pièces peuvent être bloquées dans leur mouvement.")
+	didac_move(b, robot,"v6","d7")
+	say(robot, "Les pièces alliées ne peuvent être traversées.")
+	didac_move(b, robot,"V2","f4")
+	say(robot, "Les pièces ennemies non plus.") 
+	say(robot, "Arriver sur la case d'un adversaire permet de la prendre. Comme ceci.")
+	didac_move(b, robot,"d4","v2")
+	didac_move(b, robot,"f4","d4", True)
+
+	# FOU
+	#say(robot, "Appuies sur le bouton pour voir la suite. ")
+	have_human_played()
+	didac_move(b, robot,"d4","V2")
+	didac_move(b, robot,"d7","v6")
+	say(robot, "Voyons maintenant d'autres pièces.")
+	didac_move(b, robot,"v3","c4")
+	say(robot, "Ceci est un fou.") 
+	didac_move(b, robot,"c4","e2")
+	say(robot, "Il peut se déplacer d'autant de cases qu'il veut mais uniquement sur les diagonales.")
+	didac_move(b, robot,"e2","v3", True)
+	have_human_played()
+	
+	# DAME
+	didac_move(b, robot, "v1", "c4")
+	say(robot, "Voyons maintenant la dame.")
+	say(robot, "C'est comme un mélange entre une tour et un fou. Elle peut se déplacer en diagonale...")
+	didac_move(b, robot, "c4", "g1")
+	say(robot, "... ou le long d'une ligne ou d'une colonne.")
+	didac_move(b, robot, "g1", "g5", True)
+	say(robot, "Prends-en soin, c'est ta pièce la plus forte !")
+	#say(robot, "Appuies sur le bouton pour voir la suite. ")
+	have_human_played()
+
+	# CAVALIER
+	didac_move(b, robot,"g5","v1")
+	say(robot, "Et maintenant, le cavalier. Son mouvement est un peu particulier puisqu'il bouge en L.")
+	didac_move(b, robot,"v4","d4")
+	say(robot, "Il avance de deux cases dans une direction, puis de une case à sa droite ou à sa gauche.")
+	didac_move(b, robot,"V6","d5")
+	say(robot, "Il a aussi une autre particularité : les autres pièces ne gênent pas son déplacement.")
+	didac_move(b, robot,"V1","c6")
+	say(robot, "Sa case d'arrivée doit cependant être vide, ou contenir un adversaire à prendre.")
+	didac_move(b, robot,"c6","V1")
+	didac_move(b, robot,"d4","c6", True)
+	#say(robot, "Appuies sur le bouton pour voir la suite. ")
+	have_human_played()
+	didac_move(b, robot,"c6","v4")
+	didac_move(b, robot,"d5","e3")
+	
+
+	# PION 
+
+	say(robot, "Terminons par le pion.")
+	didac_move(b, robot,"v6","d7")
+	say(robot, "Celui-ci peut se placer uniquement vers l'avant.")
+	say(robot, "S'il se situe sur sa case de départ, il peut avancer de une ou 2 cases.")
+	didac_move(b, robot,"d7","d5")
+	say(robot, "Dans le cas contraire, il ne peut se déplacer que de une case à la fois.")
+	didac_move(b, robot,"e3","e4")
+	say(robot, "Enfin, le pion ne peut capturer une pièce que de une case en diagonale, comme ceci.")
+	didac_move(b, robot,"e4","V6")
+	didac_move(b, robot,"d5","e4", True)
+	#say(robot, "Appuies sur le bouton pour voir la suite. ")
+	have_human_played()
+
+	say(robot, "Mais comment faire pour gagner ?")
+	say(robot, "Déjà, quand un roi peut être pris par une pièce, on dit qu'il est échec.")
+	didac_move(b, robot,"v2","b7")
+	say(robot, "Ici, la tour est en capacité de prendre le roi.")
+	say(robot, "Un joueur ne peut jamais finir son tour avec son roi en échec.")
+	say(robot, "Soit il le bouge pour le mettre hors de danger...")
+	didac_move(b, robot,"b2","c2")
+	say(robot, "... soit il intercale une pièce pour faire bouclier...")
+	didac_move(b, robot,"b7","c7")
+	didac_move(b, robot,"V2","c4")
+	say(robot, "... soit il élimine la menace.")
+	didac_move(b, robot,"c7","v2")
+	didac_move(b, robot,"c4","c7", True)
+	have_human_played()
+	didac_move(b, robot,"c7","V2")
+	say(robot, "Lorsqu'un joueur est en échec et qu'il n'a aucun moyen de l'enlever")
+	say(robot, "on dit qu'il est échec et mat.")
+	didac_move(b, robot,"v1","c3")
+	didac_move(b, robot,"v2","g1")
+	didac_move(b, robot,"v3","e5")
+	say(robot, "Voici un exemple.")
+	robot.move_to_obs_pose()
+	robot.move_to_square("c2", height.POINT)
+	say(robot, "Le roi blanc est ici.")
+	robot.move_to_obs_pose()
+	robot.move_to_square("c3", height.POINT)
+	say(robot, "Il est mis en échec par la reine noire.")
+	robot.move_to_obs_pose()
+	robot.move_to_square("g1", height.POINT)
+	say(robot, "Il ne peut se déplacer nulle part à cause de la reine et de la tour.")
+	robot.move_to_obs_pose()
+	robot.move_to_square("e5", height.POINT)
+	say(robot, "Et il ne peut pas prendre la dame : le fou le mettrait en échec.")
+	say(robot, "Le roi est alors dit échec et mat.")
 
 	return 
 
