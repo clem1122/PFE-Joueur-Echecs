@@ -14,11 +14,11 @@ try:
     while True:
         # Lire l'état du bouton
         button_state = lgpio.gpio_read(handle, button_pin)
-        
+        print("Etat : " + str(button_state))
         # Si le bouton est pressé (l'état est 0 pour un bouton poussoir avec pull-up)
-        if button_state == 0:
+        if button_state == 1:
             print("Bouton appuyé")
-            requests.post("http://127.0.0.1/set-have-played", json={"have_played": True})
+            requests.post("http://127.0.0.1:5000/set-have-played", json={"have_played": True})
         # Attendre un court instant pour ne pas surcharger le processeur
         time.sleep(0.1)
 
