@@ -1,8 +1,24 @@
 const chatMessages = document.getElementById('chat-messages');
+const chatInput = document.getElementById('chat-input');
+const sendButton = document.getElementById('send-button');
 
-function appendBotMessage(content) {
+sendButton.addEventListener('click', () => {
+    const userMessage = chatInput.value.trim();
+    if (userMessage) {
+        appendMessage(userMessage, 'user');
+        chatInput.value = '';
+    }
+});
+
+chatInput.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+        sendButton.click();
+    }
+});
+
+function appendMessage(content, sender) {
     const message = document.createElement('div');
-    message.classList.add('message', 'bot');
+    message.classList.add('message', sender);
     message.textContent = content;
     chatMessages.appendChild(message);
     chatMessages.scrollTop = chatMessages.scrollHeight; // Scroll to the bottom
@@ -42,10 +58,11 @@ let previous_state = {
 let previous_FEN_to_show = {'threats': false, 'controlled': false, 'playable': false, 'help': false, 'protected':false};
 
 setInterval(fetchAndAppendMessages, 1000);
+setInterval(getMessage, 1000);
 
 const interval = setInterval(() => {
     if (index < StartMessages.length) {
-        appendBotMessage(StartMessages[index]);
+        appendMessage(StartMessages[index], 'bot');
         index++;
     } else {
         clearInterval(interval);
@@ -123,4 +140,13 @@ async function getState() {
     const response = await fetch(url_state);
     const state = await response.json();
     return state;
+}
+
+async function getMessage() {
+    const url_state = "http://127.0.0.1:5000/get-message";
+    const response = await fetch(url_state);
+    const msg = await response.json();
+    if(msg['message'] != "") {
+        appendMessage(msg['message'], 'bot');
+    }
 }

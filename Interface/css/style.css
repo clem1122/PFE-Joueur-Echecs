@@ -115,7 +115,7 @@ html {
 .chat-messages {
   flex: 1;
   padding: 10px;
-  height: 450px;
+  height: 406px;
   overflow-y: auto;
   background: #ffffff;
 
@@ -130,8 +130,16 @@ html {
 }
 
 .message.bot {
-  background-color: #e6e6e6;
+  background-color: #dddddd;
   align-self: flex-start;
+}
+
+.message.user {
+  background-color: #007bff;
+  max-width: 20%;
+  color: white;
+  align-self: flex-end;
+  transform: translate(225px, 0);
 }
 
 .form-check-label {
@@ -170,3 +178,29 @@ html {
   object-fit: contain; /* Conserve les proportions */
 }
 
+
+.chat-input {
+  display: flex;
+  border-top: 1px solid #ccc;
+}
+
+.chat-input input {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  outline: none;
+  font-size: 1em;
+}
+
+.chat-input button {
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 1em;
+}
+
+.chat-input button:hover {
+  background-color: #0056b3;
+}
