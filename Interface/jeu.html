@@ -15,17 +15,36 @@
 
 <body>
   <div class="background">
-    <div id="container" class="d-flex">
-      <!-- Valhalla (cimetière) à gauche -->
+    <!-- Titre principal -->
+    <div class="text-center my-4">
+      <h1 class="display-4 fw-bold">ChessMate 1.0</h1>
+    </div>
 
-    
-      <div id="cemetery" class="cemetery-container me-3">
-          <h5 class="text-center">Cimetière</h5>
-          <div id="valhalla" class="valhalla"></div>
+    <div id = "container">
+      <div id="cemetery-top">
+        <!-- Valhalla (cimetière des pièces blanches) en haut -->
+        <div id="cemetery-top">
+          <div class="cemetery-title">Cimetière blanc</div>
+          <div id="valhalla-white" ></div>
+        </div>
+
+        <!-- Échiquier -->
+        <div id="chessboard"></div>
+        
+
+        <!-- Valhalla (cimetière des pièces noires) en bas -->
+        <div id="cemetery-bottom">
+          <div class="cemetery-title">Cimetière noir</div>
+          <div id="valhalla-black" class="valhalla"></div>
+        </div>
+        
       </div>
+    </div>
+        <div class="container text-center mt-5">
+      <a class="btn btn-primary btn-lg" onclick="have_played()">J'ai joué</a>
+    </div>
+  </div>
 
-      <!-- Échiquier -->
-      <div id="chessboard" class="me-3"></div>
 
       <!-- Section droite -->
       <div class="right-container">
@@ -40,6 +59,7 @@
             <button id="send-button">Envoyé</button>
         </div>
         </div>
+        
 
         <div class="checkbox-container">
           <div class="form-check form-switch">
@@ -65,11 +85,8 @@
         </div>
       </div>
     </div>
-
     <!-- Bouton central -->
-    <div class="container text-center mt-5">
-      <a class="btn btn-primary btn-lg" onclick="have_played()">J'ai joué</a>
-    </div>
+
   </div>
 
   <!-- Scripts -->
