@@ -8,6 +8,8 @@ CORS(app)
 
 have_played_status = False
 last_click_time = 0
+bot_message = ""
+answer = ""
 
 # Routes de base pour gérer le jeu et la flask
 
@@ -16,6 +18,7 @@ def new_game():
     global color_FEN
     global board_FEN
     global state
+    global bot_message, answer
     color_FEN = {
         "threats":    "................................................................",
         "playable":   "................................................................",
@@ -36,6 +39,8 @@ def new_game():
         "checkmated": False,
         "unsure" : "",
     }
+    message = ""
+    answer = ""
     return "FEN réinitialisées"
 
 @app.route('/')
@@ -173,8 +178,45 @@ def get_state():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route('/get-message', methods=['GET'])
+def get_message():
+    global bot_message
+    temp = bot_message
+    if bot_message != "":
+        bot_message = ""
+    return {"message": temp}
 
+
+@app.route('/set-message', methods=['POST'])
+def set_message():
+    global bot_message
+    try:
+        bot_message = request.get_json()['message']
+        return jsonify({"status" : "success"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 510
     
+@app.route('/set-answer', methods=['POST'])
+def set_answer():
+    global answer
+    try:
+        answer = request.get_json()['reponse']
+        return jsonify({"status" : "success"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 510
+
+@app.route('/get-answer', methods=['GET'])
+def get_answer():
+    def wait_for_action():
+        global answer
+        while not answer:
+            time.sleep(0.1)  # Attendre 100 ms avant de vérifier à nouveau
+        temp = answer
+        answer = ""  # Réinitialiser après l'action
+        yield jsonify({"reponse": temp}).data  # Retourner la réponse JSON
+
+    return Response(stream_with_context(wait_for_action()), content_type='application/json')
+
 if __name__ == '__main__':
     new_game()
     app.run(debug=True)
