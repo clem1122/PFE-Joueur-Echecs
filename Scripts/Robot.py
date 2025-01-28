@@ -6,7 +6,7 @@ from Scripts.RoboticMove import RoboticMove, TestRoboticMove, create_complex_rob
 class Robot:
 
 	def __init__(self):
-		self.ip = "192.168.176.1" #192.168.176.1
+		self.ip = "192.168.166.1" #192.168.176.1
 		self.niryo = NiryoRobot(self.ip)
 		self.niryo.calibrate_auto()
 		self.niryo.set_arm_max_velocity(100)
@@ -71,7 +71,7 @@ class Robot:
 	def execute_move(self, robotic_move):
 		square1 = robotic_move.take_pose
 		square2 = robotic_move.drop_pose
-		
+
 
 		pose1 = self.get_pose(square1, height.ABOVE).to_list()
 		pose2 = self.get_pose(square1, robotic_move.piece_height).to_list()
@@ -81,6 +81,7 @@ class Robot:
 		pose6 = self.get_pose(square2, height.ABOVE).to_list()
 
 		traj_to_piece  = [pose1, pose2]
+
 		traj_to_square = [pose3, pose4, pose5]
 
 
@@ -89,7 +90,7 @@ class Robot:
 		
 		self.niryo.execute_trajectory_from_poses_and_joints(traj_to_piece)
 		self.niryo.close_gripper()
-		self.niryo.execute_trajectory_from_poses_and_joints(traj_to_square, dist_smoothing = 0.5)
+		self.niryo.execute_trajectory_from_poses_and_joints(traj_to_square, dist_smoothing = 0.25)
 		self.niryo.open_gripper()
 		self.niryo.execute_trajectory_from_poses_and_joints(traj_to_home)
 

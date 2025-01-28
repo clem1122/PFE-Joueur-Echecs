@@ -45,7 +45,7 @@ class Height:
 		self.LOW = 0.01
 		self.MID = 0.02
 		self.HIGH = 0.029
-		self.ABOVE = 0.155
+		self.ABOVE = 0.15
 		self.pieces_height = self.generate_height_dictionary()
 		
 	def generate_height_dictionary(self):
