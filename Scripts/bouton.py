@@ -6,7 +6,7 @@ import requests
 handle = lgpio.gpiochip_open(0)  # Ouvre le premier GPIO chip
 
 # Définir GPIO 2 comme une entrée (pour le bouton)
-button_pin = 4
+button_pin = 17
 lgpio.gpio_claim_input(handle, button_pin)
 
 # Boucle infinie pour détecter l'appui sur le bouton
