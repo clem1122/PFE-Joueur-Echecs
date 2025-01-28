@@ -256,7 +256,7 @@ def didac_move(board, robot, start_square,end_square) :
 	send_board_FEN(board)
 	send_state(board)
 
-def sequence_didacticiel():
+def sequence_didacticiel(robot, b):
 	FEN_vide = '................................................................'
 	valhalla_FEN = 'QRBNKP.............qrbnkp.............'
 	robot = Robot()
@@ -334,7 +334,8 @@ def sequence_didacticiel():
 	return 
 
 if args.didacticiel:
-	sequence_didacticiel()
+	robot = Robot()
+	sequence_didacticiel(robot, b)
 	exit(0)
 
 if args.calibration:
@@ -425,7 +426,12 @@ while not g.isOver():
 					while not play(allegedMove):
 						unsure = allegedMove
 						send_state(b, unsure)
-						allegedMove = input("Ecris-moi ton move (qui doit être légal) : ")
+						if args.no_flask:
+							allegedMove = input("Ecris-moi ton move (qui doit être légal) : ")
+						else:
+							data = requests.get("http://127.0.0.1:5000/get-answer")
+							allegedMove = data.json()['reponse']
+							
 					take_picture(robot, playCount)
 
 		else: 
