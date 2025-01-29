@@ -1,22 +1,29 @@
+## ==== Importations ====
+
+# From folder Scripts
 from Scripts import PChess as pc
 from Scripts.Space import height 
 from Scripts.Robot import Robot
 from Scripts.RoboticMove import get_valhalla_coord, RoboticMove
 from Scripts.lichess import get_stockfish_move
 
+# From folder Visionn
 from Vision import calibration
 from Vision.calibration import take_picture
 from Vision.delete_images import del_im, del_pkl
 from Vision.oracle_function import oracle
 from Vision.check_valhalla import check_valhalla
 
-
+# From python libraries
 from sys import exit
 import argparse
 import requests
 import cv2
 import signal
 from time import sleep
+
+
+## ==== Defining utilitary functions ====
 
 def ecrire_lignes(nom_fichier, ligne1, ligne2):
     with open(nom_fichier, 'w') as f:
@@ -28,20 +35,20 @@ def lire_lignes(nom_fichier):
         lignes = f.readlines()
     return [ligne.strip() for ligne in lignes]
 
+def close(signal_received, frame):
+	print("\nSignal d'interruption reçu (Ctrl+C). Fermeture en cours...")
+	if not args.no_robot: 
+		robot.niryo.close_connection()
+	exit(0)
+
+signal.signal(signal.SIGINT, close)
 
 
-pieces_list = ['p','P','n','N','b','B	','r','R','q','Q','k','K']
-piece_dictionnary = {"p" : "pion", "P" : "pion", "n" : "cavalier", "N" : "cavalier", "b" : "fou",  "B" : "fou", "r" : "tour", "R" : "tour", "k" : "roi", "K" : "roi", "q" : "dame", "Q" : "dame"}
-classic_FEN = 'rnbqkbnrpppppppp................................PPPPPPPPRNBQKBNR'
-h8_FEN = 'RnbqkbnR.pppppp.................................PPPPPPPPRNBQKBNR'
-capture_FEN = 'rnbqkbnrppp.pppp........ ...p........P...........PPPP.PPPRNBQKBNR'
-roque_FEN = 'r...k..rpppq.ppp..npbn....b.p.....B.P.....NPBN..PPPQ.PPPR...K..R'
-prise_en_passant_FEN = '............p........p.......P...................q......K......k'
-promotion_FEN = 'r.b.kbnrpPpp.ppp..n.................p.q..P...N....PPPPPPRNBQKB.R'
-promotion_FEN2 = '............P........................p...........K.............k'
-promotion_FEN3 = '.nbqkbn..ppppppp................................pPPPPPPP.NBQKBN.'
-fen = 'r.bqkbnr..p..pppp..p....Pp.Pp.......P........N..P.P..PPPRNBQKB.R'
-classic_valhalla_FEN = 'QRBN...............qrbn...............'
+def save_backup(FEN,valhalla_FEN):
+	ecrire_lignes(backup_file,FEN,valhalla_FEN)
+
+
+## ==== Defining args to call from terminal ====
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--move-to-square", "-m", type=str)
@@ -62,20 +69,41 @@ parser.add_argument("--backup", action="store_true")
 parser.add_argument("--didacticiel2", "-D", action="store_true")
 
 args = parser.parse_args()
-board_FEN = classic_FEN
-board_valhalla_FEN = classic_valhalla_FEN
 
-backup_file = "backup.txt"
-if args.backup :
-	[board_FEN, board_valhalla_FEN] = lire_lignes(backup_file)
-isWhite = False
+## ==== Defining variables ====
+
+pieces_list = ['p','P','n','N','b','B	','r','R','q','Q','k','K']
+piece_dictionnary = {"p" : "pion", "P" : "pion", "n" : "cavalier", "N" : "cavalier", "b" : "fou",  "B" : "fou", "r" : "tour", "R" : "tour", "k" : "roi", "K" : "roi", "q" : "dame", "Q" : "dame"}
+classic_FEN = 'rnbqkbnrpppppppp................................PPPPPPPPRNBQKBNR'
+h8_FEN = 'RnbqkbnR.pppppp.................................PPPPPPPPRNBQKBNR'
+capture_FEN = 'rnbqkbnrppp.pppp........ ...p........P...........PPPP.PPPRNBQKBNR'
+roque_FEN = 'r...k..rpppq.ppp..npbn....b.p.....B.P.....NPBN..PPPQ.PPPR...K..R'
+prise_en_passant_FEN = '............p........p.......P...................q......K......k'
+promotion_FEN = 'r.b.kbnrpPpp.ppp..n.................p.q..P...N....PPPPPPRNBQKB.R'
+promotion_FEN2 = '............P........................p...........K.............k'
+promotion_FEN3 = '.nbqkbn..ppppppp................................pPPPPPPP.NBQKBN.'
+fen = 'r.bqkbnr..p..pppp..p....Pp.Pp.......P........N..P.P..PPPRNBQKB.R'
+classic_valhalla_FEN = 'QRBN...............qrbn...............'
+
+board_FEN = classic_FEN # Used board FEN
+board_valhalla_FEN = classic_valhalla_FEN # Used Valhalla FEN
+backup_file = "backup.txt" # Backuop file
+
 vision = not args.no_robot
+flask = not (args.no_flask or args.take_picture)
 
-is_human_white = False
+if args.backup : # In case of backup use
+	[board_FEN, board_valhalla_FEN] = lire_lignes(backup_file)
+
+isWhite = False # Defining humannn player color
+
+
+# Creating the game
 g = pc.Game(board_FEN, board_valhalla_FEN)
 b = g.board
 b.print()
-flask = not (args.no_flask or args.take_picture)
+
+## ==== Initialisation of vision and flask ====
 
 try:
 	imVide = cv2.imread("Images/calibration_img.png")
@@ -89,7 +117,29 @@ if flask:
 		print("Error : Flask is not running")
 		exit(1)
 
+
+## ==== Definition of game functions ====
+
+# Manage promotion functions
+def manage_promotion(promotion_piece, move):
+	"""
+    Gère à la main la promotion d'une pièce dans le board de PChess.
+	Modifie directement la FEN pour vider le valhalla et ajouter la bonne pièce à l'ancien emplacement du pion
+    """
+
+	if promotion_piece == None : raise Exception("No promotion type")
+
+	print("Demande de promotion sur la case " + move.end() + " en " + promotion_piece)
+	b.modify_piece(move.end(), promotion_piece)
+	valhalla_coord = get_valhalla_coord(promotion_piece, b)
+	print("valhalla coord : " + valhalla_coord)
+	b.modify_piece(valhalla_coord, '.')
+
 def get_human_promotion_move(move, isWhite):
+	"""
+    Gère le cas d'une promotion : transforme le move simple e2e1 en un move contenant 
+	le type de la pièce promotionnée (sur le nouvel emplacement vide du valhalla)
+    """
 
 	if move.isPromoting():
 		print("Le move " + move.start() + move.end() + " est une promotion")
@@ -105,6 +155,10 @@ def get_human_promotion_move(move, isWhite):
 
 
 def have_human_played():
+	"""
+    Vérifie si l'humain a joué : bloque le jeu tant qu'une requête n'a pas été faite à l'adresse get-have-played
+    """
+
 	requests.post('http://127.0.0.1:5000/reset-have-played')
 	response = requests.get('http://127.0.0.1:5000/get-have-played')
 	response.raise_for_status()
@@ -113,7 +167,12 @@ def have_human_played():
 
 	return have_played
 
+# Envoi des données pour acutalisation de l'interface
 def send_board_FEN(board):
+	"""
+    Dans le cas où la flask est utilisée, envoie le board via une requête json
+    """
+
 	if(not flask):
 		return
 	
@@ -126,42 +185,14 @@ def send_board_FEN(board):
 	else:
 		print(f"Erreur lors de l'envoi du board : {response.status_code}, {response.text}")
 
-def manage_promotion(promotion_piece, move):
-	if promotion_piece == None : raise Exception("No promotion type")
-
-	print("Demande de promotion sur la case " + move.end() + " en " + promotion_piece)
-	b.modify_piece(move.end(), promotion_piece)
-	valhalla_coord = get_valhalla_coord(promotion_piece, b)
-	print("valhalla coord : " + valhalla_coord)
-	b.modify_piece(valhalla_coord, '.')
-
-def robot_play(moveStr, cautious = False):
-	promotion = None
-	if len(moveStr) != 4 and len(moveStr) !=5:
-		raise Exception(moveStr + " has an unvalid Move length")
-	
-	if len(moveStr) == 5:
-		if moveStr[4] in pieces_list :
-			promotion = moveStr[4] if moveStr[3] == '1' else moveStr[4].upper()
-		else : raise Exception(moveStr + " is not a valid 5-length move")
-	
-	m = b.create_move(moveStr[:4])
-	if not b.is_legal(m): return False
-	robot.play_move(b, m, cautious, promotion)
-	g.play(moveStr)
-	if m.isPromoting() : manage_promotion(promotion, m)
-	return True
-	
-def robot_play_test(moveStr, h):
-	if len(moveStr) != 4:
-		raise Exception("Unvalid Move length")
-	
-	m = b.create_move(moveStr)
-	robot.play_test_move(m, h)
-
 def send_color_FEN(board):
+	"""
+    Si la flask est utilisée, envoie à l 'interface les FEN de couleurs pour colorer les cases de l'échiquier
+    """
+
 	if(not flask):
 		return
+	
 	spec_rules = "b" +  board.special_rules()[1:]
 	best_FEN = ['.']*64
 	if args.stockfish:
@@ -191,7 +222,10 @@ def send_color_FEN(board):
 	    print(f"Erreur lors de l'envoi du board : {response.status_code}, {response.text}")
 
 def send_state(board, unsure = ""):
-	
+	"""
+    Envoie l'état du board à l "interface pour gérer les messages du chatbot
+    """
+
 	url = "http://127.0.0.1:5000/set-state"
 	whiteKingSquare = board.index_to_coord(board.find_king(True))
 	blackKingSquare = board.index_to_coord(board.find_king(False))
@@ -208,43 +242,109 @@ def send_state(board, unsure = ""):
 		print("State envoyé")
 	else:
 	    print(f"Erreur lors de l'envoi du state : {response.status_code}, {response.text}")
+
+
+# Manage play turn
+
+def robot_play(moveStr, cautious = False):
+	"""
+    Gère le tour complet du robot. Avec cautious, le robot demande confirmation à chaque nouveau mouvement
+    """
+
+	# Vérifie que le move envoyé est du bon format (4 caractères ou 5 si c'est une promotion)
+	promotion = None
+	if len(moveStr) != 4 and len(moveStr) !=5:
+		raise Exception(moveStr + " has an unvalid Move length")
+	
+	if len(moveStr) == 5:
+		if moveStr[4] in pieces_list :
+			promotion = moveStr[4] if moveStr[3] == '1' else moveStr[4].upper()
+		else : raise Exception(moveStr + " is not a valid 5-length move")
 	
 
-def get_move():
-	if args.stockfish:
-		return get_stockfish_move(b.FEN(), b.special_rules(), b.en_passant_coord())
-	else:
-		return input("Move :")
+	m = b.create_move(moveStr[:4]) # Création du move
+	if not b.is_legal(m): return False # FALSE si le move n'est pas légal
+
+	robot.play_move(b, m, cautious, promotion) #Jeu du coup sur le plateau réel
+	g.play(moveStr) # Jeu du coup sur PChess
+
+	if m.isPromoting() : manage_promotion(promotion, m) # Gère la promotion sur PChess
+
+	return True # Le robot a bien pu jouer
+	
+def robot_play_test(moveStr, h):
+	"""
+    Fait jouer au robot un coup test
+    """
+
+	if len(moveStr) != 4:
+		raise Exception("Unvalid Move length")
+	
+	m = b.create_move(moveStr)
+	robot.play_test_move(m, h)
 
 def play(moveStr):
-	global isRobotTurn
-	print("Le joueur essaie de jouer " + moveStr)
-	if args.no_robot or not isRobotTurn:
+	"""
+    Gère le tour de jeu, qu'il soit humain ou robot
+    """
+
+	global isRobotTurn #Variable globale déterminant à qui est le tour
+
+	if args.no_robot or not isRobotTurn: #Tour de l'humain
+
+		# Création du move
 		move = b.create_move(moveStr)
-		moveStr = get_human_promotion_move(move, is_human_white)
-		print("On essaie de jouer le move corrigé " + moveStr)
-		if g.play(moveStr):
-			if move.isPromoting() : 
+		moveStr = get_human_promotion_move(move, isWhite)
+		print("Le joueur essaie de jouer le move " + moveStr)
+
+		if g.play(moveStr): #Si le tour de l'humain s'est bien passé
+			if move.isPromoting() :  #Gestion de la promotion
 				promo_type = moveStr[4].upper() if move.moving_piece().isWhite() else moveStr[4]
-				print("Promotion pour prendre " + promo_type)
 				manage_promotion(promo_type, move)
 			isRobotTurn = not isRobotTurn
 			return True
 		return False
-	else:
-		if robot_play(moveStr, cautious = args.cautious):
+	
+	else: # Tour du robot
+		if robot_play(moveStr, cautious = args.cautious): #Si le tour du robot s'est bien passé
 			playCount = g.play_count()
 			isRobotTurn = not isRobotTurn
 			return True
+		
 		return False
 
+
+# Stockfish
+
+def get_move():
+	"""
+    Récupère le move de stockfish
+    """
+
+	if args.stockfish:
+		return get_stockfish_move(b.FEN(), b.special_rules(), b.en_passant_coord())
+	else:
+		return input("Move :")
+	
+# Fonctions de la vision
+
 def see(photoId, human = False):
+	"""
+    Gère la vision du board par le robot en prenant une photo et en la comparant avec la précédente.
+	Renvoie le coup perçu par le robot.
+	Dans les faits, le robot conserve une photo ROBOT après son coup et HUMAN après le coup humain qu'il actualise au cours du jeu à chaque tour.
+	Il compare toujours sa photo HUMAN avec sa photo ROBOT (en changeant juste l'ordre de comparaison.
+	Fait appel aux fonctions du dossier Vision.
+    """
+
 	if args.no_robot: return
-	global im_pre_robot, im_post_robot
+
+	global im_pre_robot, im_post_robot # Variables globales pour les photos
+
 	if not human:
-		sleep(0.5)
-		im_post_robot = take_picture(robot, photoId)
-		origin, end = oracle(im_pre_robot, im_post_robot, imVide, debug=False)
+		sleep(0.5) #Attente pour améliorer la qualité de la photo
+		im_post_robot = take_picture(robot, photoId) #Prise de la photo
+		origin, end = oracle(im_pre_robot, im_post_robot, imVide, debug=False) #Prédit le coup vu par le robot
 	else:
 		sleep(0.5)
 		im_pre_robot = take_picture(robot, photoId)
@@ -253,6 +353,11 @@ def see(photoId, human = False):
 	return origin + end
 
 def valhalla_see(isWhite):
+	"""
+    Renvoie la case du valhalla qui a été vidée après une promotion.
+    """
+
+	#Définit quel valhalla regarder et s'y déplace
 	if isWhite : 
 		string = "V"
 		robot.move_to_V_pose()
@@ -260,34 +365,51 @@ def valhalla_see(isWhite):
 		string = "v"
 		robot.move_to_v_pose()
 
+	#Cherche le fichier de calibration
 	try:
 		reference_valhalla = cv2.imread("Images/" + string + "_calibration_img.png")
 	except e:
 		print("Warning : no valhalla calibration file named " + "Images/" + string + "_calibration_img.png")
 
-	new_valhalla = take_picture(robot, "valhalla")
-	v_index = int(check_valhalla(new_valhalla,reference_valhalla,isWhite))
-	v_index_good_base = b.to_base(v_index,20)
+	new_valhalla = take_picture(robot, "valhalla") #Prend une photo du valhalla
+	v_index = int(check_valhalla(new_valhalla,reference_valhalla,isWhite)) #Trouve l'index de la première case vide
+	v_index_good_base = b.to_base(v_index,20) #Le met dabs la bonne base de 1 à K
 
 	return string + v_index_good_base
 
+# Fonctions du didacticiel
 def didac_move(board, robot, start_square,end_square, end_move = False) : 
+	"""
+    Fait faire au robot un mouvement du didacticiel : il bouge la pièce sans vérification de légalité et modifie le board en conséquence
+    """
+
 	rob_move = RoboticMove(start_square, end_square, board.piece_on_square(start_square),end_move)
 	board.modify_piece(end_square,board.piece_on_square(start_square).type())
 	board.modify_piece(start_square,'.')
 	robot.execute_move(rob_move)
 
+	#Renvoie les état pour actualiser le board
 	send_color_FEN(board)
 	send_board_FEN(board)
 	send_state(board)
 
 def say(robot, text):
+	"""
+    Fait s'exprimer le robot. Affiche un message sur le chatbot et utilise la voix du robot niryo. Affiche aussi sur le temrinal.
+    """
+
 	requests.post("http://127.0.0.1:5000/set-message", json={"message":text})
 	robot.niryo.say(text, 1)
 	print(text)
 	
+
+## ==== Management of learning ====
+
 def sequence_didacticiel():
-	
+	"""
+    Séquence de coups du didacticiel 1 sur les règles de base des échecs
+    """
+
 	FEN_vide = '................................................................'
 	valhalla_FEN = 'QRBNKP.............qrbnkp.............'
 	robot = Robot()
@@ -433,6 +555,9 @@ def sequence_didacticiel():
 
 
 def didacticiel_coups_speciaux():
+	"""
+    Séquence de coups pour le didacticiel sur les coups spéciaux
+    """
 
 	FEN_vide = '................................................................'
 	valhalla_FEN = 'QRBNKP.............qrbnkpr............'
@@ -515,6 +640,10 @@ def didacticiel_coups_speciaux():
 
 	return
 
+
+## ==== Terminal additional functions ====
+
+# Launch victory dance
 if args.victory:
 	robot = Robot()
 	robot.niryo.execute_registered_trajectory("dance11")
@@ -527,6 +656,7 @@ if args.defeat:
 	robot.niryo.move_to_home_pose()
 	exit(0)
 
+# Launch didacticiel
 if args.didacticiel:
 	sequence_didacticiel()
 	exit(0)
@@ -535,10 +665,12 @@ if args.didacticiel2:
 	didacticiel_coups_speciaux()
 	exit(0)
 
+#Launch calibration
 if args.calibration:
 	calibration.main()
 	exit(0)
 
+# Take a picture : take the argument to name the photo
 if args.take_picture:
 	if isinstance(args.take_picture, str):
 		name = args.take_picture
@@ -548,41 +680,37 @@ if args.take_picture:
 	take_picture(robot, name)
 	exit(0)
 
-def close(signal_received, frame):
-	print("\nSignal d'interruption reçu (Ctrl+C). Fermeture en cours...")
-	if not args.no_robot: 
-		robot.niryo.close_connection()
-	exit(0)
-
-signal.signal(signal.SIGINT, close)
-
-
-def save_backup(FEN,valhalla_FEN):
-	ecrire_lignes(backup_file,FEN,valhalla_FEN)
-
+# Move to a specific square
 if args.move_to_square :
 	robot = Robot()
 	robot.move_to_square(args.move_to_square, height.HIGH)
 	exit(0)
 
+# Move to observation pose
 if args.obs_pose:
 	robot = Robot()
 	robot.move_to_obs_pose()
 	exit(0)
 
+# Move to observation pose of white valhalla
 if args.V_pose:
 	robot = Robot()
 	robot.move_to_V_pose()
 	exit(0)
 
+# Move to observation pose of black valhalla
 if args.v_pose:
 	print("v_pose")
 	robot = Robot()
 	robot.move_to_v_pose()
 	exit(0)
 
+## ==== Launch a classic game ====
+
+# Delete previous photos
 del_im('Images/')
 
+# Take the first picture
 if not args.no_robot: 
 	robot = Robot()
 	robot.move_to_obs_pose()
@@ -592,41 +720,51 @@ if not args.no_robot:
 		im_post_robot = im_pre_robot
 
 
+# Send baord state
 send_board_FEN(b)
 send_color_FEN(b)
 isRobotTurn = True
 
-while not g.isOver():	
-	playCount = g.play_count() + 1
+while not g.isOver():	# Tant que la partie continue (ni pat, ni match nul, ni victoire)
+
+	playCount = g.play_count() + 1 #Augmente le tour
 	unsure = ""
 
+	# Tour du robot
 	if isRobotTurn:
-		moveStr = get_move()
+		moveStr = get_move() #Trouve le coup du robot par IA
 		if not play(moveStr): continue
-		if vision:
+
+		if vision: #Vérifie le coup du robot par vision
 			allegedMove = see(playCount)
 			if allegedMove != moveStr:
 				print("Warning : Coup détecté " + allegedMove + " != coup joué " + moveStr)
 
-		print("Save dans backup")
-		save_backup(b.FEN(),b.valhalla_FEN())
+		save_backup(b.FEN(),b.valhalla_FEN()) #Save in backup file
 
-		# Verification du coup joué par le robot
+	# Tour de l'humain
 	else:
-		#moveStr = get_move()
 
+		# Regarde par la caméra le coup joué par l'humain
 		if vision:
-			if args.no_flask: input("Entrée quand le coup est joué...")
-			else : have_human_played()
-			allegedMove = see(playCount, human=True)
+			if args.no_flask: input("Entrée quand le coup est joué...") #Demande le coup s'il n'y a pas de flask
+			else : have_human_played()	#Attend l'input de l'humain avant de continuer
 
-			#Try to reverse the move
+			allegedMove = see(playCount, human=True) #Coup humain supposé par la  vision
+
+			#TPossibilité de se tromper de sens dans la vision : essai dans l'autre sens si coup illégal
 			if not play(allegedMove):
+
+				#Renverse le coup
 				reverseMove = allegedMove[2:] + allegedMove[:2]
 				if len(allegedMove) == 5 : reverseMove += allegedMove[4]
 				print("Coup détecté non légal, on essaie de jouer l'inverse : " + reverseMove)
+
+				#Coup illégal : demande de l'aide à l'humain
 				if not play(reverseMove):
 					print("Mauvaise détection dans les deux sens. Demande au joueur.")
+
+					#Tant que l'humain ne donne pas un coup valide dans le chat
 					while not play(allegedMove):
 						unsure = allegedMove
 						send_state(b, unsure)
@@ -642,11 +780,12 @@ while not g.isOver():
 
 
 		else: 
-			#moveStr = get_move()
+			# Dans le cas où il n'y a pas la vision, on demande tout de suite le coup
 			moveStr = input("Move : ")
 			play(moveStr)
 				
-		
+	
+	# Renvoie l'état du board que ce soit le coup du robot ou de l'humain
 	send_color_FEN(b)
 	send_board_FEN(b)
 	send_state(b)
