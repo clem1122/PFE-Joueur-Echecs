@@ -409,7 +409,7 @@ def sequence_didacticiel():
 	"""
     Séquence de coups du didacticiel 1 sur les règles de base des échecs
     """
-
+	args.stockfish = False
 	FEN_vide = '................................................................'
 	valhalla_FEN = 'QRBNKP.............qrbnkp.............'
 	robot = Robot()
@@ -559,7 +559,7 @@ def didacticiel_coups_speciaux():
 	"""
     Séquence de coups pour le didacticiel sur les coups spéciaux
     """
-
+	args.stockfish = False
 	FEN_vide = '................................................................'
 	valhalla_FEN = 'QRBNKP.............qrbnkpr............'
 	robot = Robot()
