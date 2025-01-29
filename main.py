@@ -63,6 +63,7 @@ parser.add_argument("--take-picture", "--tp", nargs="?", const=True)
 parser.add_argument("--calibration", action="store_true")
 parser.add_argument("--didacticiel", "-d", action="store_true")
 parser.add_argument("--victory", action="store_true")
+parser.add_argument("--defeat", action="store_true")
 parser.add_argument("--reset", action="store_true")
 parser.add_argument("--backup", action="store_true")
 parser.add_argument("--didacticiel2", "-D", action="store_true")
@@ -421,7 +422,7 @@ def sequence_didacticiel():
 	# BASE
 	robot.move_to_obs_pose()
 	say(robot, "Coucou ! Je suis Nini, un robot pour t'apprendre à jouer aux échecs ! Apprenons les règles de base. ")
-	say(robot, "Mets les pièces dans le cimetière comme montré sur l'écran. Une fois fait, appuies sur le bouton.")
+	say(robot, "Mets les pièces dans le cimetière comme montré sur l'écran. Une fois fait, appuie sur le bouton.")
 	have_human_played()
 	say(robot, "Ceci est le plateau de jeu, composé de 64 cases, moitié blanches moitiées noires.")
 	robot.move_to_square("d8")
@@ -442,7 +443,7 @@ def sequence_didacticiel():
 	say(robot, "Les rois ne peuvent se déplacer que d'une case, mais dans toutes les directions.")
 	say(robot, "Clique sur la coche Coups Possibles pour voir les cases accessibles.")
 	robot.move_to_obs_pose()
-	#say(robot, "Appuies sur le bouton pour voir la suite. ")
+	say(robot, "Appuie sur le bouton pour voir la suite. ")
 	have_human_played()
 
 	# TOUR
@@ -460,7 +461,7 @@ def sequence_didacticiel():
 	didac_move(b, robot,"f4","d4", True)
 
 	# FOU
-	#say(robot, "Appuies sur le bouton pour voir la suite. ")
+	say(robot, "Appuie sur le bouton pour voir la suite. ")
 	have_human_played()
 	didac_move(b, robot,"d4","V2")
 	didac_move(b, robot,"d7","v6")
@@ -480,7 +481,7 @@ def sequence_didacticiel():
 	say(robot, "... ou le long d'une ligne ou d'une colonne.")
 	didac_move(b, robot, "g1", "g5", True)
 	say(robot, "Prends-en soin, c'est ta pièce la plus forte !")
-	#say(robot, "Appuies sur le bouton pour voir la suite. ")
+	say(robot, "Appuie sur le bouton pour voir la suite. ")
 	have_human_played()
 
 	# CAVALIER
@@ -494,7 +495,7 @@ def sequence_didacticiel():
 	say(robot, "Sa case d'arrivée doit cependant être vide, ou contenir un adversaire à prendre.")
 	didac_move(b, robot,"c6","V1")
 	didac_move(b, robot,"d4","c6", True)
-	#say(robot, "Appuies sur le bouton pour voir la suite. ")
+	say(robot, "Appuie sur le bouton pour voir la suite. ")
 	have_human_played()
 	didac_move(b, robot,"c6","v4")
 	didac_move(b, robot,"d5","e3")
@@ -512,7 +513,7 @@ def sequence_didacticiel():
 	say(robot, "Enfin, le pion ne peut capturer une pièce que de une case en diagonale, comme ceci.")
 	didac_move(b, robot,"e4","V6")
 	didac_move(b, robot,"d5","e4", True)
-	#say(robot, "Appuies sur le bouton pour voir la suite. ")
+	say(robot, "Appuie sur le bouton pour voir la suite. ")
 	have_human_played()
 
 	say(robot, "Mais comment faire pour gagner ?")
@@ -568,57 +569,58 @@ def didacticiel_coups_speciaux():
 	send_state(b)
 
 	robot.move_to_obs_pose()
-	say(robot, "Maintenant que tu connais les règles de base, intéressons nous aux coups spéciaux !")
-	say(robot, "Mets les pièces dans le cimetière comme montré sur l'écran. Une fois fait, appuies sur le bouton.")
+	say(robot, "Maintenant que tu connais les règles de base, intéressons-nous aux coups spéciaux !")
+	say(robot, "Mets les pièces dans le cimetière comme montré sur l'écran. Une fois fait, appuie sur le bouton.")
 	have_human_played()
 
 	# ROQUE
-	say("Nous allons découvrir un coup qui te permet de protéger ton roi : le roque.")
+	say(robot, "Nous allons découvrir un coup qui te permet de protéger ton roi : le roque.")
 	didac_move(b, robot,"v5","e8")
 	didac_move(b, robot,"v2", "h8")
 	didac_move(b, robot,"v7", "a8")
-	say("Au début de la partie, tes tours et ton roi seront positionnés de la sorte.")
-	say("Le roque te permet de cacher le roi derrière une tour.")
+	say(robot, "Au début de la partie, tes tours et ton roi seront positionnés de la sorte.")
+	say(robot, "Le roque te permet de cacher le roi derrière une tour.")
 	didac_move(b, robot,"e8","g8")
 	didac_move(b, robot,"h8", "f8")
-	say("C'était le petit roque. Attention si tu avais déjà déplacé cette tour, tu ne peux plus effectuer ce coup !")
-	say("Je remets le roi en position initiale, si tu avais déjà déplacé le roi, tu ne peux plus effectuer de roque.")
+	say(robot, "C'était le petit roque. Si tu avais déjà déplacé cette tour, tu ne peux plus effectuer ce coup !")
+	say(robot, "Je remets le roi à sa place. Si tu avais déjà déplacé le roi, tu ne peux plus effectuer de roque.")
 	didac_move(b, robot,"g8","e8")
-	say("Le roque est coup de roi, c'est donc toujours la pièce du roi que tu déplaces en premier.")
-	didac_move(b, robot,"e8","b8")
-	didac_move(b, robot,"a8","c8")
-	say("C'était le grand roque. Attention si tu avais déjà déplacé cette tour, tu ne peux plus effectuer ce coup !")
+	say(robot, "Le roque est coup de roi, c'est donc toujours la pièce du roi que tu déplaces en premier.")
+	didac_move(b, robot,"e8","c8")
+	didac_move(b, robot,"a8","d8")
+	say(robot, "C'était le grand roque. Si tu avais déjà déplacé cette tour, tu ne peux plus effectuer ce coup !")
 
-	didac_move(b, robot,"b8","v5")
-	didac_move(b, robot,"c8","v2")
+	didac_move(b, robot,"c8","v5")
+	didac_move(b, robot,"d8","v2")
 	didac_move(b, robot,"f8","v7")
 
-	say(robot, "Appuies sur le bouton pour voir la suite. ")
+	say(robot, "Appuie sur le bouton pour voir la suite. ")
 	have_human_played()
 
 	# PRISE EN PASSANT
-	say("Nous allons découvrir la prise en passant.")
+	say(robot, "Nous allons découvrir la prise en passant.")
 	didac_move(b, robot,"V6","e2")
 	didac_move(b, robot,"v6","d7")
 	didac_move(b, robot,"v4","g8")
-	say("En début de partie, rappelle toi, tes pions peuvent se déplacer de deux cases en avant")
-	say("Le joueur blanc avance son pion.")
+	say(robot, "En début de partie, rappelle toi, tes pions peuvent se déplacer de deux cases en avant")
+	say(robot, "Le joueur blanc avance son pion.")
 	didac_move(b, robot,"e2","e4")
-	say("Le joueur noir joue quelque chose.")
+	say(robot, "Le joueur noir joue quelque chose.")
 	didac_move(b, robot,"g8","h6")
-	say("Le pion blanc se rapproche...")
+	say(robot, "Le pion blanc se rapproche...")
 	didac_move(b, robot,"e4","e5")
-	say("Et lorsque le joueur noir fait avancer son pion...")
+	say("Et si le joueur noir fait avancer son pion de deux cases...")
 	didac_move(b, robot,"d7","d5")
-	say("... il se fait croquer !")
+	say(robot, "... il se fait croquer !")
 	didac_move(b, robot,"d5","v6")
 	didac_move(b, robot,"e5","d6")
-	say("Le pion blanc a pris le pion noir, en passant !")
+	say(robot, "Le pion blanc a pris le pion noir, en passant !")
+	say(robot, "Attention, si le joueur blanc ne fait pas cette prise maintenant, il perd l'occasion.")
 
 	didac_move(b, robot,"d6","V6")
 	didac_move(b, robot,"h6","v4")
 
-	say(robot, "Appuies sur le bouton pour voir la suite. ")
+	say(robot, "Appuie sur le bouton pour voir la suite. ")
 	have_human_played()
 
 	# PROMOTION
@@ -644,18 +646,22 @@ def didacticiel_coups_speciaux():
 # Launch victory dance
 if args.victory:
 	robot = Robot()
-	robot.execute_registered_trajectory("dance11")
+	robot.niryo.execute_registered_trajectory("dance11")
+	robot.niryo.move_to_home_pose()
+	exit(0)
+
+if args.defeat:
+	robot = Robot()
+	robot.niryo.execute_registered_trajectory("dance_def")
 	robot.niryo.move_to_home_pose()
 	exit(0)
 
 # Launch didacticiel
 if args.didacticiel:
-	robot = Robot()
 	sequence_didacticiel()
 	exit(0)
 
 if args.didacticiel2:
-	robot = Robot()
 	didacticiel_coups_speciaux()
 	exit(0)
 
@@ -677,7 +683,7 @@ if args.take_picture:
 # Move to a specific square
 if args.move_to_square :
 	robot = Robot()
-	robot.move_to_square(args.move_to_square)
+	robot.move_to_square(args.move_to_square, height.HIGH)
 	exit(0)
 
 # Move to observation pose
@@ -732,7 +738,7 @@ while not g.isOver():	# Tant que la partie continue (ni pat, ni match nul, ni vi
 		if vision: #Vérifie le coup du robot par vision
 			allegedMove = see(playCount)
 			if allegedMove != moveStr:
-				print("Warning : Coup détécté " + allegedMove + " != coup joué " + moveStr)
+				print("Warning : Coup détecté " + allegedMove + " != coup joué " + moveStr)
 
 		save_backup(b.FEN(),b.valhalla_FEN()) #Save in backup file
 
@@ -765,6 +771,8 @@ while not g.isOver():	# Tant que la partie continue (ni pat, ni match nul, ni vi
 						if args.no_flask:
 							allegedMove = input("Ecris-moi ton move (qui doit être légal) : ")
 						else:
+							msg = "Hmm... ce coup semble illégal : " + allegedMove + ". Ecris-moi le coup que tu voulais jouer 😊"
+							requests.post("http://127.0.0.1:5000/set-message", json={'message': msg}) 
 							data = requests.get("http://127.0.0.1:5000/get-answer")
 							allegedMove = data.json()['reponse']
 							

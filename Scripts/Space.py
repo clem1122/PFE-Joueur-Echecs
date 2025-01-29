@@ -3,7 +3,7 @@ b = pc.Board()
 
 class Space:
 	def __init__(self):
-		self.a1_pose = [0.136, 0.129, 0.114] #0.136, 0.129, 0.114
+		self.a1_pose = [0.140, 0.1379, 0.125] #0.136, 0.129, 0.114
 		self.square_size = 0.04
 		self.chessboard = self.generate()
 		self.observation_joints = [0, 0.365, -0.393, -0.028, -1.706, -0.029] #0.022, 0.327, -0.392, -0.026, -1.651, -0.011
@@ -25,7 +25,7 @@ class Space:
 				
 		valhalla_offset_y = 1  #square
 		valhalla_offset_x = 0  #square
-		valhalla_offset_z = 0.012 #m
+		valhalla_offset_z = 0.005 #m
 		for i in range(0, 6):
 			for j in range(1,5):
 				b_square_name = "v" + b.to_base((i*4)+j, 20)
@@ -46,7 +46,7 @@ class Height:
 		self.MID = 0.02
 		self.HIGH = 0.029
 		self.POINT = 0.040
-		self.ABOVE = 0.15
+		self.ABOVE = 0.14
 		
 		self.pieces_height = self.generate_height_dictionary()
 		

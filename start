@@ -1,0 +1,26 @@
+#!/bin/bash
+
+cd ~/PFE-Joueur-Echecs
+
+python3 Scripts/bouton.py > /dev/null & #Bouton
+pid1=$!
+python3 Interface/app.py > logs/flask 2>&1 & #Flask
+pid2=$! 
+python3 -m http.server 5500 > logs/server 2>&1 & #Server
+pid3=$!
+firefox http://127.0.0.1:5500/Interface/ >/dev/null 2>&1 & #Firefox
+python3 main.py -s  #Robot & Echecs
+pid4=$!
+
+# Fonction pour tuer tous les processus à l'arrêt
+trap "kill $pid1 $pid2 $pid3 $pid4; exit" SIGINT
+echo "Disconnected from Server"
+echo "Disconnected from Flask"
+echo "Disconnected from Button"
+echo "Exit"
+
+# Attendre que les processus se terminent
+wait $pid1 $pid2 $pid3 $pid4
+
+
+

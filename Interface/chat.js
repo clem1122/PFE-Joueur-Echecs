@@ -48,8 +48,6 @@ const Messages = {
     'controlled': "Prudence sur ces cases, je les controle avec une de mes pièces.",
     'protected': "Ces pièces sont protégées : si je les captures, tu pourras me capturer derrière.",
     'aide': "Si tu veux mon avis, le meilleur coup pour toi est de faire celui-ci.",
-    'unsure' : "J'ai détecté un coup de ta part qui n'est pas légal : ",
-
 }
 
 // Simulate messages appearing one by one
@@ -58,8 +56,7 @@ let previous_state = {
     "check": false,
     "checkmate": false,
     "checked": false,
-    "checkmated": false,
-    "unsure" : "",
+    "checkmated": false
 }
 
 let previous_FEN_to_show = {'threats': false, 'controlled': false, 'playable': false, 'help': false, 'protected':false};
@@ -100,37 +97,12 @@ async function fetchAndAppendMessages() {
                 if (state[cle] || FEN_to_show[cle]){
                     console.log(cle)
                     console.log(message)
-                    if (cle == "unsure"){
-                        console.log("Robot unsure")
-                        message += state[cle]
-                        message += ". Ecris-moi le coup que tu souhaitais jouer."
-                    }
-
-                    appendBotMessage(message);
+                    appendMessage(message);
                     break
                 }
                 i++;
                 }
 
-            // if (state['checkmated']) {
-            //     appendBotMessage(Messages['checkmated']);
-            // } else if (state['checked']) {
-            //     appendBotMessage(Messages['checked']);
-            // } else if (state['checkmate']) {
-            //     appendBotMessage(Messages['checkmate']);
-            // } else if (state['check']) {
-            //     appendBotMessage(Messages['check']);
-            // } else if (FEN_to_show['threats']) {
-            //     appendBotMessage(Messages['threats']);
-            // } else if (FEN_to_show['playable']) {
-            //     appendBotMessage(Messages['playable']);
-            // } else if (FEN_to_show['controlled']) {
-            //     appendBotMessage(Messages['controlled']);
-            // } else if (FEN_to_show['protected']) {
-            //     appendBotMessage(Messages['protected']);
-            // } else if (FEN_to_show['aide']) {
-            //     appendBotMessage(Messages['aide']);
-            // }
 
             previous_state = state;
             previous_FEN_to_show = FEN_to_show;
