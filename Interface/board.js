@@ -180,23 +180,31 @@ function mousePressed() {
 
 
 async function drawGraveyard() {
-    const graveyardDiv = document.getElementById("valhalla");
+    // Récupérer les conteneurs des cimetières
+    const whiteGraveyardDiv = document.getElementById("valhalla-white");
+    const blackGraveyardDiv = document.getElementById("valhalla-black");
 
-    // Optionnel : Tu peux réinitialiser ici si nécessaire
-    graveyardDiv.innerHTML = ""; 
-
-    // Ajouter les pièces du Valhalla dynamiquement
+    // Réinitialiser les cimetières
+    whiteGraveyardDiv.innerHTML = "";
+    blackGraveyardDiv.innerHTML = "";
+    // Ajouter les pièces du Valhalla dans les cimetières respectifs
     for (let i = 0; i < Valhalla.length; i++) {
         const piece = Valhalla[i];
         if (piece !== ".") {
             const img = document.createElement("img");
             img.src = `Images/${piece}.png`; // Chemin vers l'image
             img.alt = piece;
-            img.classList.add("valhalla-piece"); // Ajouter une classe pour le style
-            graveyardDiv.appendChild(img);
+            img.classList.add("valhalla-piece"); // Classe pour le style
+            // Trier les pièces dans le bon cimetière
+            if (piece === piece.toUpperCase()) {
+                whiteGraveyardDiv.appendChild(img); // Pièce blanche
+            } else {
+                blackGraveyardDiv.appendChild(img); // Pièce noire
+            }
         }
     }
 }
+
 
 
 
