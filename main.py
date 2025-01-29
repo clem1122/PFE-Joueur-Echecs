@@ -509,6 +509,7 @@ def didacticiel_coups_speciaux():
 
 	didac_move(b, robot,"d1","v1")
 	say(robot, "Tu as fini les didacticiels, te voilà prêt à me défier.")
+	robot.move_to_obs_pose()
 
 	return
 
