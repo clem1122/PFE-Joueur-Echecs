@@ -50,6 +50,8 @@ def get_stockfish_move(simplified_FEN, player_and_castling = "wKQkq", en_passant
     # Request an evaluation of the current position
         result = engine.play(board, chess.engine.Limit(time=1.0))  # Limit the analysis to 1 seconds
         if display : print("coup de stockfish : ", result.move)
+    if result.move == None :
+        return
     return result.move.uci()
 
 def simplified_FEN(FEN):
