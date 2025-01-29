@@ -68,7 +68,7 @@ function draw() {
     if (FEN_to_show['playable']) { draw_color_FEN(playable, color(0, 150, 0, 100)); }
     if (FEN_to_show['protected']) { draw_color_FEN(protected, color(165, 165, 0, 170)); }
     if (FEN_to_show['help']) { draw_color_FEN(help, color(165, 32, 100, 170)); }
-    draw_color_FEN(checking, color(0, 0, 0, 200));
+    draw_color_FEN(checking, color(136, 66, 29));
     drawPieces();
 }
 
