@@ -93,6 +93,7 @@ win_fen = 'K..........q....k...............................................'
 board_FEN = win_fen # Used board FEN
 board_valhalla_FEN = classic_valhalla_FEN # Used Valhalla FEN
 backup_file = "backup.txt" # Backup file
+difficulty = 1000 #elo
 
 vision = not args.no_robot
 flask = not (args.no_flask or args.take_picture)
@@ -322,7 +323,7 @@ def get_move():
     """
 
 	if args.stockfish:
-		return get_stockfish_move(b.FEN(), b.special_rules(), b.en_passant_coord())
+		return get_stockfish_move(b.FEN(), b.special_rules(), b.en_passant_coord(), diff=difficulty)
 	else:
 		return input("Move :")
 	
@@ -657,6 +658,7 @@ if args.defeat:
 	exit(0)
 
 if args.start_by_interface:
+	global difficulty
 	data = requests.get("http://127.0.0.1:5000/get-start")
 	if data.status_code != 200:
 		raise "Error : Interface Start"
@@ -666,6 +668,12 @@ if args.start_by_interface:
 		sequence_didacticiel()
 	elif start == 'didacticiel2':
 		didacticiel_coups_speciaux()
+	elif start == 'easy':
+		difficulty = 400
+	elif start == 'medium':
+		difficulty = 800
+	elif start == 'hard':
+		difficulty = 1300
 	else:
 		pass
 # Launch didacticiel
