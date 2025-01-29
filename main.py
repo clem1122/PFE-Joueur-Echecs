@@ -660,7 +660,6 @@ if args.defeat:
 	exit(0)
 
 if args.start_by_interface:
-	global difficulty
 	data = requests.get("http://127.0.0.1:5000/get-start")
 	if data.status_code != 200:
 		raise "Error : Interface Start"
