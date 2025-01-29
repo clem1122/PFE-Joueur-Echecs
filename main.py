@@ -627,6 +627,8 @@ while not g.isOver():
 						if args.no_flask:
 							allegedMove = input("Ecris-moi ton move (qui doit être légal) : ")
 						else:
+							msg = "Hmm... ce coup semble illégal : " + allegedMove + ". Ecris-moi le coup que tu voulais jouer 😊"
+							requests.post("http://127.0.0.1:5000/set-message", json={'message': msg}) 
 							data = requests.get("http://127.0.0.1:5000/get-answer")
 							allegedMove = data.json()['reponse']
 							

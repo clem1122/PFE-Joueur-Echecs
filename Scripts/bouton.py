@@ -18,7 +18,7 @@ try:
         # Si le bouton est pressé (l'état est 0 pour un bouton poussoir avec pull-up)
         if button_state == 1:
             print("Bouton appuyé")
-            requests.post("http://127.0.0.1:5000/set-have-played", json={"have_played": True})
+           # requests.post("http://127.0.0.1:5000/set-have-played", json={"have_played": True})
         # Attendre un court instant pour ne pas surcharger le processeur
         time.sleep(0.1)
 
