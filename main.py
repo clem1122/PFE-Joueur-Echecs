@@ -58,6 +58,7 @@ parser.add_argument("--didacticiel", "-d", action="store_true")
 parser.add_argument("--victory", action="store_true")
 parser.add_argument("--reset", action="store_true")
 parser.add_argument("--backup", action="store_true")
+parser.add_argument("--didacticiel2", "-D", action="store_true")
 
 args = parser.parse_args()
 board_FEN = classic_FEN
@@ -518,7 +519,12 @@ if args.victory:
 
 if args.didacticiel:
 	robot = Robot()
-	sequence_didacticiel(robot, b)
+	sequence_didacticiel()
+	exit(0)
+
+if args.didacticiel2:
+	robot = Robot()
+	didacticiel_coups_speciaux()
 	exit(0)
 
 if args.calibration:
