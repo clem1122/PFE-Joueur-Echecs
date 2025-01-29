@@ -19,7 +19,7 @@ html {
 h1.display-4 {
   font-family: "Times New Roman", Times, serif;
   margin-top: 10px;
-  transform: translateY(50%);
+  transform: translateY(175%);
 }
 
 /* Ensure container is centered with proper height */
@@ -181,8 +181,8 @@ h1.display-4 {
   margin: 10px auto;
   margin-left: 200px;
   position: relative;
-  transform: translateY(1155px) ;
-  transform : translateX(-200px)
+  transform: translateY(-70px);
+
 }
 
 #cemetery{
@@ -190,7 +190,7 @@ h1.display-4 {
   flex-direction: column;
   align-items: center;
   background-color: transparent;
-  border-radius: 10px;
+  border-radius: 0px;
   padding: 10px;
   width: 90%;
   max-width: 300px;
@@ -198,8 +198,6 @@ h1.display-4 {
   height : 600px ;
   margin: 10px ;
   margin-left: 300px;
-  transform: translateY(-90px)
-
 }
 
 
@@ -211,11 +209,11 @@ h1.display-4 {
 
 
  .mt-5{
-  transform: translateY(-250%);
+  transform: translateY(-400%);
  }
 
  .back-button{
-  transform: translateX(30%);
+  transform: translateX(200%);
   background-color: #007bff;
  }
 
