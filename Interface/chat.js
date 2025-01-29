@@ -23,13 +23,23 @@ chatInput.addEventListener('keydown', (event) => {
     }
 });
 
-function appendMessage(content, sender) {
+function appendMessage(content, sender, type = null) {
     const message = document.createElement('div');
     message.classList.add('message', sender);
     message.textContent = content;
     chatMessages.appendChild(message);
-    chatMessages.scrollTop = chatMessages.scrollHeight; // Scroll to the bottom
+    message.classList.add('message', sender);
+
+    if (type) {
+        message.classList.add(type); // Ajoute la classe correspondant au type de message
+    }
+
+    message.textContent = content;
+    chatMessages.appendChild(message);
+    chatMessages.scrollTop = chatMessages.scrollHeight; // Scroll automatique vers le bas
 }
+
+
 
 // Example bot messages
 const StartMessages = [
@@ -93,20 +103,16 @@ async function fetchAndAppendMessages() {
         if (JSON.stringify(previous_state) !== JSON.stringify(state) || JSON.stringify(previous_FEN_to_show) !== JSON.stringify(FEN_to_show)) {
             while (i < keys.length) {
                 let [cle, message] = keys[i];
-                console.log(state[cle])
                 if (state[cle] || FEN_to_show[cle]){
-                    console.log(cle)
-                    console.log(message)
-                    appendMessage(message);
-                    break
+                    console.log(cle, message);
+                    appendMessage(message, 'bot', cle); // Passer `cle` comme type
+                    break;
                 }
                 i++;
-                }
-
+            }
 
             previous_state = state;
             previous_FEN_to_show = FEN_to_show;
-            
         }
 
     } catch (error) {
