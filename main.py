@@ -56,6 +56,7 @@ parser.add_argument("--take-picture", "--tp", nargs="?", const=True)
 parser.add_argument("--calibration", action="store_true")
 parser.add_argument("--didacticiel", "-d", action="store_true")
 parser.add_argument("--victory", action="store_true")
+parser.add_argument("--defeat", action="store_true")
 parser.add_argument("--reset", action="store_true")
 parser.add_argument("--backup", action="store_true")
 parser.add_argument("--didacticiel2", "-D", action="store_true")
@@ -517,6 +518,12 @@ def didacticiel_coups_speciaux():
 if args.victory:
 	robot = Robot()
 	robot.niryo.execute_registered_trajectory("dance11")
+	robot.niryo.move_to_home_pose()
+	exit(0)
+
+if args.defeat:
+	robot = Robot()
+	robot.niryo.execute_registered_trajectory("dance_def")
 	robot.niryo.move_to_home_pose()
 	exit(0)
 
