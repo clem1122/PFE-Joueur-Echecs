@@ -431,7 +431,8 @@ def sequence_didacticiel():
 
 if args.victory:
 	robot = Robot()
-	robot.victory_dance()
+	robot.execute_registered_trajectory("dance11")
+	robot.niryo.move_to_home_pose()
 	exit(0)
 
 if args.didacticiel:
