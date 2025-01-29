@@ -201,8 +201,9 @@ def send_color_FEN(board):
 	best_FEN = ['.']*64
 	if args.stockfish:
 		best_move = get_stockfish_move(board.FEN(), spec_rules, board.en_passant_coord(), diff=3000)
-		if best_move == None: best_FEN = ['.']*64
-		else :
+		if best_move == None: 
+			best_FEN = ['.']*64
+		else:
 			index_1 = board.coord_to_index(best_move[:2])
 			index_2 = board.coord_to_index(best_move[2:])
 			best_FEN[index_1] = '1'
