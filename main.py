@@ -68,6 +68,7 @@ parser.add_argument("--defeat", action="store_true")
 parser.add_argument("--reset", action="store_true")
 parser.add_argument("--backup", action="store_true")
 parser.add_argument("--didacticiel2", "-D", action="store_true")
+parser.add_argument("--start-by-interface", "-i", action="store_true")
 
 args = parser.parse_args()
 
@@ -91,7 +92,7 @@ win_fen = 'K..........q....k...............................................'
 
 board_FEN = win_fen # Used board FEN
 board_valhalla_FEN = classic_valhalla_FEN # Used Valhalla FEN
-backup_file = "backup.txt" # Backuop file
+backup_file = "backup.txt" # Backup file
 
 vision = not args.no_robot
 flask = not (args.no_flask or args.take_picture)
@@ -99,7 +100,7 @@ flask = not (args.no_flask or args.take_picture)
 if args.backup : # In case of backup use
 	[board_FEN, board_valhalla_FEN] = lire_lignes(backup_file)
 
-isWhite = False # Defining humannn player color
+isWhite = False # Defining human player color
 
 
 # Creating the game
@@ -155,8 +156,6 @@ def get_human_promotion_move(move, isWhite):
 
 	else :
 		return move.start() + move.end()
-
-
 
 def have_human_played():
 	"""
@@ -248,9 +247,7 @@ def send_state(board, unsure = ""):
 	else:
 	    print(f"Erreur lors de l'envoi du state : {response.status_code}, {response.text}")
 
-
 # Manage play turn
-
 def robot_play(moveStr, cautious = False):
 	"""
     Gère le tour complet du robot. Avec cautious, le robot demande confirmation à chaque nouveau mouvement
@@ -318,9 +315,7 @@ def play(moveStr):
 		
 		return False
 
-
 # Stockfish
-
 def get_move():
 	"""
     Récupère le move de stockfish
@@ -647,7 +642,6 @@ def didacticiel_coups_speciaux():
 
 
 ## ==== Terminal additional functions ====
-
 # Launch victory dance
 if args.victory:
 	robot = Robot()
@@ -662,6 +656,18 @@ if args.defeat:
 	robot.niryo.move_to_home_pose()
 	exit(0)
 
+if args.start_by_interface:
+	data = requests.get("http://127.0.0.1:5000/get-start")
+	if data.status_code != 200:
+		raise "Error : Interface Start"
+	start = data.json()["game"]
+	print("start : " + start)
+	if start == "didacticiel":
+		sequence_didacticiel()
+	elif start == 'didacticiel2':
+		didacticiel_coups_speciaux()
+	else:
+		pass
 # Launch didacticiel
 if args.didacticiel:
 	sequence_didacticiel()
