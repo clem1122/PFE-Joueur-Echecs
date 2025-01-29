@@ -58,6 +58,7 @@ parser.add_argument("--didacticiel", "-d", action="store_true")
 parser.add_argument("--victory", action="store_true")
 parser.add_argument("--reset", action="store_true")
 parser.add_argument("--backup", action="store_true")
+parser.add_argument("--didacticiel2", "-D", action="store_true")
 
 args = parser.parse_args()
 board_FEN = classic_FEN
@@ -429,6 +430,89 @@ def sequence_didacticiel():
 
 	return 
 
+
+def didacticiel_coups_speciaux():
+
+	FEN_vide = '................................................................'
+	valhalla_FEN = 'QRBNKP.............qrbnkpr............'
+	robot = Robot()
+	b = pc.Board(FEN_vide,valhalla_FEN)
+	b.print()
+	send_color_FEN(b)
+	send_board_FEN(b)
+	send_state(b)
+
+	robot.move_to_obs_pose()
+	say(robot, "Maintenant que tu connais les règles de base, intéressons nous aux coups spéciaux !")
+	say(robot, "Mets les pièces dans le cimetière comme montré sur l'écran. Une fois fait, appuies sur le bouton.")
+	have_human_played()
+
+	# ROQUE
+	say("Nous allons découvrir un coup qui te permet de protéger ton roi : le roque.")
+	didac_move(b, robot,"v5","e8")
+	didac_move(b, robot,"v2", "h8")
+	didac_move(b, robot,"v7", "a8")
+	say("Au début de la partie, tes tours et ton roi seront positionnés de la sorte.")
+	say("Le roque te permet de cacher le roi derrière une tour.")
+	didac_move(b, robot,"e8","g8")
+	didac_move(b, robot,"h8", "f8")
+	say("C'était le petit roque. Attention si tu avais déjà déplacé cette tour, tu ne peux plus effectuer ce coup !")
+	say("Je remets le roi en position initiale, si tu avais déjà déplacé le roi, tu ne peux plus effectuer de roque.")
+	didac_move(b, robot,"g8","e8")
+	say("Le roque est coup de roi, c'est donc toujours la pièce du roi que tu déplaces en premier.")
+	didac_move(b, robot,"e8","b8")
+	didac_move(b, robot,"a8","c8")
+	say("C'était le grand roque. Attention si tu avais déjà déplacé cette tour, tu ne peux plus effectuer ce coup !")
+
+	didac_move(b, robot,"b8","v5")
+	didac_move(b, robot,"c8","v2")
+	didac_move(b, robot,"f8","v7")
+
+	say(robot, "Appuies sur le bouton pour voir la suite. ")
+	have_human_played()
+
+	# PRISE EN PASSANT
+	say("Nous allons découvrir la prise en passant.")
+	didac_move(b, robot,"V6","e2")
+	didac_move(b, robot,"v6","d7")
+	didac_move(b, robot,"v4","g8")
+	say("En début de partie, rappelle toi, tes pions peuvent se déplacer de deux cases en avant")
+	say("Le joueur blanc avance son pion.")
+	didac_move(b, robot,"e2","e4")
+	say("Le joueur noir joue quelque chose.")
+	didac_move(b, robot,"g8","h6")
+	say("Le pion blanc se rapproche...")
+	didac_move(b, robot,"e4","e5")
+	say("Et lorsque le joueur noir fait avancer son pion...")
+	didac_move(b, robot,"d7","d5")
+	say("... il se fait croquer !")
+	didac_move(b, robot,"d5","v6")
+	didac_move(b, robot,"e5","d6")
+	say("Le pion blanc a pris le pion noir, en passant !")
+
+	didac_move(b, robot,"d6","V6")
+	didac_move(b, robot,"h6","v4")
+
+	say(robot, "Appuies sur le bouton pour voir la suite. ")
+	have_human_played()
+
+	# PROMOTION
+	say(robot, "Nous allons découvrir la promotion.")
+	didac_move(b, robot,"v6","d2")
+	say(robot, "Tu as réussi à faire monter ton pion noir jusqu'ici, plus qu'une case et tu pourras le promouvoir !")
+	didac_move(b, robot,"d2","d1")
+	didac_move(b, robot,"d1","v6")
+	say(robot, "Tu peux promouvoir ton pion en dame, fou, cavalier ou tour.")
+	say(robot, "Dans la majorité des cas, on choisit la dame !")
+	didac_move(b, robot,"v1","d1")
+	say(robot, "Te voilà avec une nouvelle dame sur le plateau, à toi de jouer !")
+
+	didac_move(b, robot,"d1","v1")
+	say(robot, "Tu as fini les didacticiels, te voilà prêt à me défier.")
+	robot.move_to_obs_pose()
+
+	return
+
 if args.victory:
 	robot = Robot()
 	robot.execute_registered_trajectory("dance11")
@@ -437,7 +521,12 @@ if args.victory:
 
 if args.didacticiel:
 	robot = Robot()
-	sequence_didacticiel(robot, b)
+	sequence_didacticiel()
+	exit(0)
+
+if args.didacticiel2:
+	robot = Robot()
+	didacticiel_coups_speciaux()
 	exit(0)
 
 if args.calibration:
