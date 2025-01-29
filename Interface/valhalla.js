@@ -14,7 +14,20 @@ function preload() {
     pieceImages['r'] = loadImage("Images/r.png");
 }
 
+<<<<<<< HEAD
 function setup(){
     const canvas = createCanvas(700, 700);
     canvas.parent('valhalla');
 }
+=======
+function setup() {
+    // Crée un canevas pour l'échiquier
+
+    // Crée un canevas distinct pour chaque cimetière
+    const whiteCemeteryCanvas = createGraphics(300, 150);
+    whiteCemeteryCanvas.parent('valhalla-white');
+
+    const blackCemeteryCanvas = createGraphics(300, 150);
+    blackCemeteryCanvas.parent('valhalla-black');
+}
+>>>>>>> a8992b6 (presque ça)

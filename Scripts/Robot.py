@@ -31,11 +31,12 @@ class Robot:
 	def move_to_v_pose(self):
 		self.niryo.move_joints(space.b_valhalla_joints)
 
-	def move_to_square(self, square):
+	def move_to_square(self, square, h = height.HIGH):
 		if len(square) != 2:
 			raise Exception("Uncorrect Move argument")
 		list_coord = space.chessboard[square] + [2.36, 1.57, -3.14]
-		self.niryo.move_pose(self.get_pose(list_coord, height.HIGH))
+
+		self.niryo.move_pose(self.get_pose(list_coord, h))
 	
 
 	def get_pose(self, coord_list, h):

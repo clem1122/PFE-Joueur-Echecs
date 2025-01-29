@@ -61,7 +61,7 @@ class Training:
         self.best_model_path = 'best_model_checkpoint.pth'
 
         # Load model checkpoint if exists
-        self.model_path = 'model_checkpoint.pth'
+        self.model_path = 'best_model_checkpoint.pth'
         if os.path.exists(self.model_path):
             checkpoint = torch.load(self.model_path)
             self.model.load_state_dict(checkpoint["model_state_dict"])
