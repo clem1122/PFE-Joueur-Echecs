@@ -254,26 +254,26 @@ h1.display-4 {
 }
 
 .message.threats {
-  background-color: #d15353; /* Rouge */
-  color: white;
+  background-color: #e3b2b2; /* Rouge */
+  color: black;
 }
 
 .message.playable {
-  background-color: rgb(76, 201, 76); /* Vert */
-  color: white;
+  background-color: rgb(183, 233, 183); /* Vert */
+  color: black;
 }
 
 .message.controlled {
-  background-color: #007bff; /* Bleu */
-  color: white;
+  background-color: #b5cde6; /* Bleu */
+  color: black;
 }
 
 .message.protected {
-  background-color: #bccc0a; /* Jaune */
-  color: white;
+  background-color: #dbe0a5; /* Jaune */
+  color: black;
 }
 
 .message.help {
-  background-color: #c44ca6; /* Magenta */
-  color: white;
+  background-color: #db90c8; /* Magenta */
+  color: black;
 }
