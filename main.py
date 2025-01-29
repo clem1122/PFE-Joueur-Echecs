@@ -93,7 +93,7 @@ win_fen = 'K..........q....k...............................................'
 board_FEN = win_fen # Used board FEN
 board_valhalla_FEN = classic_valhalla_FEN # Used Valhalla FEN
 backup_file = "backup.txt" # Backup file
-difficulty = 1000 #elo
+difficulty = 20 #elo
 
 vision = not args.no_robot
 flask = not (args.no_flask or args.take_picture)
@@ -200,7 +200,7 @@ def send_color_FEN(board):
 	spec_rules = "b" +  board.special_rules()[1:]
 	best_FEN = ['.']*64
 	if args.stockfish:
-		best_move = get_stockfish_move(board.FEN(), spec_rules, board.en_passant_coord(), diff=3000)
+		best_move = get_stockfish_move(board.FEN(), spec_rules, board.en_passant_coord())
 		if best_move == None: 
 			best_FEN = ['.']*64
 		else:
