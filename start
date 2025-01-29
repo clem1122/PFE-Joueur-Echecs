@@ -9,7 +9,7 @@ pid2=$!
 python3 -m http.server 5500 > logs/server 2>&1 & #Server
 pid3=$!
 firefox http://127.0.0.1:5500/Interface/ >/dev/null 2>&1 & #Firefox
-python3 main.py -s  #Robot & Echecs
+python3 main.py -s -i  #Robot & Echecs
 pid4=$!
 
 # Fonction pour tuer tous les processus à l'arrêt
