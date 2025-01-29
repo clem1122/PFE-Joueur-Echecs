@@ -49,7 +49,6 @@ def save_backup(FEN,valhalla_FEN):
 
 
 ## ==== Defining args to call from terminal ====
-win_fen = 'k..........Q....K...............................................'
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--move-to-square", "-m", type=str)
@@ -90,7 +89,7 @@ fen = 'r.bqkbnr..p..pppp..p....Pp.Pp.......P........N..P.P..PPPRNBQKB.R'
 classic_valhalla_FEN = 'QRBN...............qrbn...............'
 win_fen = 'K..........q....k...............................................'
 
-board_FEN = win_fen # Used board FEN
+board_FEN = classic_FEN # Used board FEN
 board_valhalla_FEN = classic_valhalla_FEN # Used Valhalla FEN
 backup_file = "backup.txt" # Backup file
 difficulty = 1000 #elo
@@ -747,10 +746,12 @@ send_color_FEN(b)
 isRobotTurn = True
 
 robot.niryo.say("Bonjour, je suis Nini, et je suis un robot qui joue aux échecs !", 1)
-say(robot, "Avant de commencer, mets pièces sur l'échiquier comme indiqué sur l'écran")
-say(robot, "Quand tu rempliras mon cimetière, mets toujours la pièce sur la première case de libre du cimetière")
-say(robot, "Quand tu as joué, appuie sur la pendule pour finir ton tour")
-say(robot, "Dernière chose : quand j'ai joué, attend le son avant de mettre ta main au-dessus de l'échiquier ! ")
+robot.niryo.say(robot, "Avant de commencer, mets les pièces sur l'échiquier comme indiqué sur l'écran")
+robot.niryo.say(robot, "Quand tu rempliras mon cimetière, mets toujours la pièce sur la première case de libre du cimetière")
+robot.niryo.say(robot, "A chaque tour, tu appuieras sur la pendule pour finir ton tour.")
+robot.niryo.say(robot, "Dernière chose : quand j'ai joué, attend le son avant de mettre ta main au-dessus de l'échiquier ! ")
+robot.niryo.say(robot, "Appuie pour commencer la partie : je joue blanc, je commence.")
+have_human_played()
 
 while not g.isOver():	# Tant que la partie continue (ni pat, ni match nul, ni victoire)
 
