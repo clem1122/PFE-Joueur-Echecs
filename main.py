@@ -299,7 +299,7 @@ def sequence_didacticiel():
 	# BASE
 	robot.move_to_obs_pose()
 	say(robot, "Coucou ! Je suis Nini, un robot pour t'apprendre à jouer aux échecs ! Apprenons les règles de base. ")
-	say(robot, "Mets les pièces dans le cimetière comme montré sur l'écran. Une fois fait, appuies sur le bouton.")
+	say(robot, "Mets les pièces dans le cimetière comme montré sur l'écran. Une fois fait, appuie sur le bouton.")
 	have_human_played()
 	say(robot, "Ceci est le plateau de jeu, composé de 64 cases, moitié blanches moitiées noires.")
 	robot.move_to_square("d8")
@@ -443,8 +443,8 @@ def didacticiel_coups_speciaux():
 	send_state(b)
 
 	robot.move_to_obs_pose()
-	say(robot, "Maintenant que tu connais les règles de base, intéressons nous aux coups spéciaux !")
-	say(robot, "Mets les pièces dans le cimetière comme montré sur l'écran. Une fois fait, appuies sur le bouton.")
+	say(robot, "Maintenant que tu connais les règles de base, intéressons-nous aux coups spéciaux !")
+	say(robot, "Mets les pièces dans le cimetière comme montré sur l'écran. Une fois fait, appuie sur le bouton.")
 	have_human_played()
 
 	# ROQUE
@@ -483,12 +483,13 @@ def didacticiel_coups_speciaux():
 	didac_move(b, robot,"g8","h6")
 	say("Le pion blanc se rapproche...")
 	didac_move(b, robot,"e4","e5")
-	say("Et lorsque le joueur noir fait avancer son pion...")
+	say("Et si le joueur noir fait avancer son pion de deux cases...")
 	didac_move(b, robot,"d7","d5")
 	say("... il se fait croquer !")
 	didac_move(b, robot,"d5","v6")
 	didac_move(b, robot,"e5","d6")
 	say("Le pion blanc a pris le pion noir, en passant !")
+	say("Attention, si le joueur blanc ne fait pas cette prise maintenant, il perd l'occasion.")
 
 	didac_move(b, robot,"d6","V6")
 	didac_move(b, robot,"h6","v4")
@@ -515,7 +516,7 @@ def didacticiel_coups_speciaux():
 
 if args.victory:
 	robot = Robot()
-	robot.execute_registered_trajectory("dance11")
+	robot.niryo.execute_registered_trajectory("dance11")
 	robot.niryo.move_to_home_pose()
 	exit(0)
 
@@ -556,7 +557,7 @@ def save_backup(FEN,valhalla_FEN):
 
 if args.move_to_square :
 	robot = Robot()
-	robot.move_to_square(args.move_to_square)
+	robot.move_to_square(args.move_to_square, height.HIGH)
 	exit(0)
 
 if args.obs_pose:
