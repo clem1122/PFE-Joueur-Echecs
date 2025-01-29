@@ -670,11 +670,11 @@ if args.start_by_interface:
 	elif start == 'didacticiel2':
 		didacticiel_coups_speciaux()
 	elif start == 'easy':
-		difficulty = 400
+		difficulty = 1
 	elif start == 'medium':
-		difficulty = 800
+		difficulty = 3
 	elif start == 'hard':
-		difficulty = 1300
+		difficulty = 6
 	else:
 		pass
 # Launch didacticiel
