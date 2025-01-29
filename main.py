@@ -449,48 +449,48 @@ def didacticiel_coups_speciaux():
 	have_human_played()
 
 	# ROQUE
-	say("Nous allons découvrir un coup qui te permet de protéger ton roi : le roque.")
+	say(robot, "Nous allons découvrir un coup qui te permet de protéger ton roi : le roque.")
 	didac_move(b, robot,"v5","e8")
 	didac_move(b, robot,"v2", "h8")
 	didac_move(b, robot,"v7", "a8")
-	say("Au début de la partie, tes tours et ton roi seront positionnés de la sorte.")
-	say("Le roque te permet de cacher le roi derrière une tour.")
+	say(robot, "Au début de la partie, tes tours et ton roi seront positionnés de la sorte.")
+	say(robot, "Le roque te permet de cacher le roi derrière une tour.")
 	didac_move(b, robot,"e8","g8")
 	didac_move(b, robot,"h8", "f8")
-	say("C'était le petit roque. Attention si tu avais déjà déplacé cette tour, tu ne peux plus effectuer ce coup !")
-	say("Je remets le roi en position initiale, si tu avais déjà déplacé le roi, tu ne peux plus effectuer de roque.")
+	say(robot, "C'était le petit roque. Si tu avais déjà déplacé cette tour, tu ne peux plus effectuer ce coup !")
+	say(robot, "Je remets le roi à sa place. Si tu avais déjà déplacé le roi, tu ne peux plus effectuer de roque.")
 	didac_move(b, robot,"g8","e8")
-	say("Le roque est coup de roi, c'est donc toujours la pièce du roi que tu déplaces en premier.")
-	didac_move(b, robot,"e8","b8")
-	didac_move(b, robot,"a8","c8")
-	say("C'était le grand roque. Attention si tu avais déjà déplacé cette tour, tu ne peux plus effectuer ce coup !")
+	say(robot, "Le roque est coup de roi, c'est donc toujours la pièce du roi que tu déplaces en premier.")
+	didac_move(b, robot,"e8","c8")
+	didac_move(b, robot,"a8","d8")
+	say(robot, "C'était le grand roque. Si tu avais déjà déplacé cette tour, tu ne peux plus effectuer ce coup !")
 
-	didac_move(b, robot,"b8","v5")
-	didac_move(b, robot,"c8","v2")
+	didac_move(b, robot,"c8","v5")
+	didac_move(b, robot,"d8","v2")
 	didac_move(b, robot,"f8","v7")
 
 	say(robot, "Appuies sur le bouton pour voir la suite. ")
 	have_human_played()
 
 	# PRISE EN PASSANT
-	say("Nous allons découvrir la prise en passant.")
+	say(robot, "Nous allons découvrir la prise en passant.")
 	didac_move(b, robot,"V6","e2")
 	didac_move(b, robot,"v6","d7")
 	didac_move(b, robot,"v4","g8")
-	say("En début de partie, rappelle toi, tes pions peuvent se déplacer de deux cases en avant")
-	say("Le joueur blanc avance son pion.")
+	say(robot, "En début de partie, rappelle toi, tes pions peuvent se déplacer de deux cases en avant")
+	say(robot, "Le joueur blanc avance son pion.")
 	didac_move(b, robot,"e2","e4")
-	say("Le joueur noir joue quelque chose.")
+	say(robot, "Le joueur noir joue quelque chose.")
 	didac_move(b, robot,"g8","h6")
-	say("Le pion blanc se rapproche...")
+	say(robot, "Le pion blanc se rapproche...")
 	didac_move(b, robot,"e4","e5")
 	say("Et si le joueur noir fait avancer son pion de deux cases...")
 	didac_move(b, robot,"d7","d5")
-	say("... il se fait croquer !")
+	say(robot, "... il se fait croquer !")
 	didac_move(b, robot,"d5","v6")
 	didac_move(b, robot,"e5","d6")
-	say("Le pion blanc a pris le pion noir, en passant !")
-	say("Attention, si le joueur blanc ne fait pas cette prise maintenant, il perd l'occasion.")
+	say(robot, "Le pion blanc a pris le pion noir, en passant !")
+	say(robot, "Attention, si le joueur blanc ne fait pas cette prise maintenant, il perd l'occasion.")
 
 	didac_move(b, robot,"d6","V6")
 	didac_move(b, robot,"h6","v4")
@@ -528,12 +528,10 @@ if args.defeat:
 	exit(0)
 
 if args.didacticiel:
-	robot = Robot()
 	sequence_didacticiel()
 	exit(0)
 
 if args.didacticiel2:
-	robot = Robot()
 	didacticiel_coups_speciaux()
 	exit(0)
 
@@ -635,6 +633,8 @@ while not g.isOver():
 						if args.no_flask:
 							allegedMove = input("Ecris-moi ton move (qui doit être légal) : ")
 						else:
+							msg = "Hmm... ce coup semble illégal : " + allegedMove + ". Ecris-moi le coup que tu voulais jouer 😊"
+							requests.post("http://127.0.0.1:5000/set-message", json={'message': msg}) 
 							data = requests.get("http://127.0.0.1:5000/get-answer")
 							allegedMove = data.json()['reponse']
 							
