@@ -89,7 +89,7 @@ fen = 'r.bqkbnr..p..pppp..p....Pp.Pp.......P........N..P.P..PPPRNBQKB.R'
 classic_valhalla_FEN = 'QRBN...............qrbn...............'
 win_fen = 'K..........q....k...............................................'
 
-board_FEN = classic_FEN # Used board FEN
+board_FEN = 'r..qkb.rppp.ppp...n..n.p......B.Q.pP..b...N..N..PP..PPPPR...KB.R' # Used board FEN
 board_valhalla_FEN = classic_valhalla_FEN # Used Valhalla FEN
 backup_file = "backup.txt" # Backup file
 difficulty = 20 #elo
@@ -137,7 +137,7 @@ def manage_promotion(promotion_piece, move):
 	print("Demande de promotion sur la case " + move.end() + " en " + promotion_piece)
 	b.modify_piece(move.end(), promotion_piece)
 	valhalla_coord = get_valhalla_coord(promotion_piece, b)
-	print("valhalla coord : " + valhalla_coord)
+	#print("valhalla coord : " + valhalla_coord)
 	b.modify_piece(valhalla_coord, '.')
 
 def get_human_promotion_move(move, isWhite):
@@ -147,11 +147,11 @@ def get_human_promotion_move(move, isWhite):
     """
 
 	if move.isPromoting():
-		print("Le move " + move.start() + move.end() + " est une promotion")
+		#print("Le move " + move.start() + move.end() + " est une promotion")
 		emptied_square = valhalla_see(isWhite)
 		new_piece = b.piece_on_square(emptied_square)
 		correct_move = move.start() + move.end() + new_piece.type().lower()
-		print("Le move corrigé est donc " + correct_move)
+		#print("Le move corrigé est donc " + correct_move)
 		return correct_move
 
 	else :
@@ -746,12 +746,12 @@ send_board_FEN(b)
 send_color_FEN(b)
 isRobotTurn = True
 
-robot.niryo.say("Bonjour, je suis Nini, et je suis un robot qui joue aux échecs !", 1)
-robot.niryo.say(robot, "Avant de commencer, mets les pièces sur l'échiquier comme indiqué sur l'écran")
-robot.niryo.say(robot, "Quand tu rempliras mon cimetière, mets toujours la pièce sur la première case de libre du cimetière")
-robot.niryo.say(robot, "A chaque tour, tu appuieras sur la pendule pour finir ton tour.")
-robot.niryo.say(robot, "Dernière chose : quand j'ai joué, attend le son avant de mettre ta main au-dessus de l'échiquier ! ")
-robot.niryo.say(robot, "Appuie pour commencer la partie : je joue blanc, je commence.")
+say(robot, "Bonjour, je suis Nini, et je suis un robot qui joue aux échecs !")
+# say(robot, "Avant de commencer, mets les pièces sur l'échiquier comme indiqué sur l'écran")
+# say(robot, "Quand tu rempliras mon cimetière, mets toujours la pièce sur la première case de libre du cimetière")
+# say(robot, "A chaque tour, tu appuieras sur la pendule pour finir ton tour.")
+# say(robot, "Dernière chose : quand j'ai joué, attend le son avant de mettre ta main au-dessus de l'échiquier ! ")
+say(robot, "Appuie pour commencer la partie : je joue blanc, je commence.")
 have_human_played()
 
 while not g.isOver():	# Tant que la partie continue (ni pat, ni match nul, ni victoire)
@@ -761,6 +761,7 @@ while not g.isOver():	# Tant que la partie continue (ni pat, ni match nul, ni vi
 
 	# Tour du robot
 	if isRobotTurn:
+		save_backup(b.FEN(),b.valhalla_FEN()) #Save in backup file
 		moveStr = get_move() #Trouve le coup du robot par IA
 		if not play(moveStr): continue
 
@@ -769,7 +770,6 @@ while not g.isOver():	# Tant que la partie continue (ni pat, ni match nul, ni vi
 			if allegedMove != moveStr:
 				print("Warning : Coup détecté " + allegedMove + " != coup joué " + moveStr)
 
-		save_backup(b.FEN(),b.valhalla_FEN()) #Save in backup file
 
 	# Tour de l'humain
 	else:
@@ -791,7 +791,7 @@ while not g.isOver():	# Tant que la partie continue (ni pat, ni match nul, ni vi
 
 				#Coup illégal : demande de l'aide à l'humain
 				if not play(reverseMove):
-					print("Mauvaise détection dans les deux sens. Demande au joueur.")
+					#print("Mauvaise détection dans les deux sens. Demande au joueur.")
 
 					#Tant que l'humain ne donne pas un coup valide dans le chat
 					while not play(allegedMove):
@@ -819,6 +819,10 @@ while not g.isOver():	# Tant que la partie continue (ni pat, ni match nul, ni vi
 	send_board_FEN(b)
 	send_state(b)
 
+	print("Tour n° " + str(playCount) + " (trait au " + str(b.spec_rules[0]) + ")")
+	print("FEN : " + b.FEN())
+	print("Valhalla_FEN : " + b.valhalla_FEN())
+	
 if g.end_result() == 'w':
 	robot.niryo.execute_registered_trajectory("dance11")
 	robot.niryo.move_to_home_pose()
