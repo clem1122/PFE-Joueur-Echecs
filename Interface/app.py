@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, Response, request, stream_with_context
+from flask import Flask, jsonify, Response, request, stream_with_context, redirect
 from flask_cors import CORS
 import time
 
@@ -10,6 +10,7 @@ have_played_status = False
 last_click_time = 0
 bot_message = ""
 answer = ""
+start = ""
 
 # Routes de base pour gérer le jeu et la flask
 
@@ -48,6 +49,24 @@ def home():
     print("La route / a été appelée")
     return "Le serveur flask tourne bien à cette URL"
 
+@app.route('/get-start', methods=['GET'])
+def start_get():
+    def wait_for_action():
+        global start
+        while not start:
+            time.sleep(0.1)  # Attendre 100 ms avant de vérifier à nouveau
+        # Réinitialiser après l'action
+        yield jsonify({"game": start}).data
+    return Response(stream_with_context(wait_for_action()), content_type='application/json')
+
+@app.route('/start/<cmd>', methods=['GET'])
+def start_post(cmd):
+    global start
+    try:
+        start = cmd
+        return redirect("http://127.0.0.1:5500/Interface/jeu.html")
+    except Exception as e:
+        return jsonify({"error": str(e)}), 515
 
 # Route pour les boutons à cocher du html
 
