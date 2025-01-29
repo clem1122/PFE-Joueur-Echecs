@@ -49,6 +49,7 @@ def save_backup(FEN,valhalla_FEN):
 
 
 ## ==== Defining args to call from terminal ====
+win_fen = 'k..........Q....K...............................................'
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--move-to-square", "-m", type=str)
@@ -70,6 +71,8 @@ parser.add_argument("--didacticiel2", "-D", action="store_true")
 
 args = parser.parse_args()
 
+backup_file = "backup.txt"
+
 ## ==== Defining variables ====
 
 pieces_list = ['p','P','n','N','b','B	','r','R','q','Q','k','K']
@@ -84,8 +87,9 @@ promotion_FEN2 = '............P........................p...........K............
 promotion_FEN3 = '.nbqkbn..ppppppp................................pPPPPPPP.NBQKBN.'
 fen = 'r.bqkbnr..p..pppp..p....Pp.Pp.......P........N..P.P..PPPRNBQKB.R'
 classic_valhalla_FEN = 'QRBN...............qrbn...............'
+win_fen = 'K..........q....k...............................................'
 
-board_FEN = classic_FEN # Used board FEN
+board_FEN = win_fen # Used board FEN
 board_valhalla_FEN = classic_valhalla_FEN # Used Valhalla FEN
 backup_file = "backup.txt" # Backuop file
 
@@ -198,10 +202,11 @@ def send_color_FEN(board):
 	if args.stockfish:
 		best_move = get_stockfish_move(board.FEN(), spec_rules, board.en_passant_coord())
 		if best_move == None: best_FEN = ['.']*64
-		index_1 = board.coord_to_index(best_move[:2])
-		index_2 = board.coord_to_index(best_move[2:])
-		best_FEN[index_1] = '1'
-		best_FEN[index_2] = '1'
+		else :
+			index_1 = board.coord_to_index(best_move[:2])
+			index_2 = board.coord_to_index(best_move[2:])
+			best_FEN[index_1] = '1'
+			best_FEN[index_2] = '1'
 
 	checking_pieces = ['.']*64
 	if board.checking(isWhite).count('1') != 1:
@@ -650,6 +655,7 @@ if args.victory:
 	robot.niryo.move_to_home_pose()
 	exit(0)
 
+# Launch defeat dance
 if args.defeat:
 	robot = Robot()
 	robot.niryo.execute_registered_trajectory("dance_def")
@@ -665,7 +671,7 @@ if args.didacticiel2:
 	didacticiel_coups_speciaux()
 	exit(0)
 
-#Launch calibration
+# Launch calibration
 if args.calibration:
 	calibration.main()
 	exit(0)
@@ -790,3 +796,18 @@ while not g.isOver():	# Tant que la partie continue (ni pat, ni match nul, ni vi
 	send_board_FEN(b)
 	send_state(b)
 
+if g.end_result() == 'w':
+	robot.niryo.execute_registered_trajectory("dance11")
+	robot.niryo.move_to_home_pose()
+
+if g.end_result() == 'b':
+	robot.niryo.execute_registered_trajectory("dance_def")
+	robot.niryo.move_to_home_pose()
+
+if g.end_result() == 'p':
+	say(robot, "Il y a un pat : le roi ne peut plus bouger... Merci d'avoir joué 😊")
+	robot.niryo.move_to_home_pose()
+
+if g.end_result() == 'n':
+	say(robot, "Match nul ! Tu t'es bien défendu, serrons-nous la main 😊")
+	robot.niryo.move_to_home_pose()
