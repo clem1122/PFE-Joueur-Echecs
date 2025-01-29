@@ -422,7 +422,8 @@ def sequence_didacticiel():
 	# BASE
 	robot.move_to_obs_pose()
 	say(robot, "Coucou ! Je suis Nini, un robot pour t'apprendre à jouer aux échecs ! Apprenons les règles de base. ")
-	say(robot, "Mets les pièces dans le cimetière comme montré sur l'écran. Une fois fait, appuie sur le bouton.")
+	say(robot, "Vide l'échiquier, et mets les pièces dans le cimetière comme montré sur l'écran.")
+	say(robot, "Une fois cela fait, appuie sur la pendule.")
 	have_human_played()
 	say(robot, "Ceci est le plateau de jeu, composé de 64 cases, moitié blanches moitiées noires.")
 	robot.move_to_square("d8")
@@ -432,7 +433,7 @@ def sequence_didacticiel():
 	robot.move_to_square("d4")
 	say(robot, "Une case se définit en donnant sa colonne puis sa ligne : cette case est par exemple la case d4.")
 	say(robot, "Voyons maintenant les pièces.")
-	say(robot, "Lorsque je suis en haut, appuie sur le bouton pour voir la suite. ")
+	say(robot, "Lorsque je suis en haut, appuie sur la pendule pour voir la suite. ")
 	have_human_played()
 
 	# ROI
@@ -443,7 +444,7 @@ def sequence_didacticiel():
 	say(robot, "Les rois ne peuvent se déplacer que d'une case, mais dans toutes les directions.")
 	say(robot, "Clique sur la coche Coups Possibles pour voir les cases accessibles.")
 	robot.move_to_obs_pose()
-	say(robot, "Appuie sur le bouton pour voir la suite. ")
+	say(robot, "Appuie sur la pendule pour voir la suite. ")
 	have_human_played()
 
 	# TOUR
@@ -461,7 +462,7 @@ def sequence_didacticiel():
 	didac_move(b, robot,"f4","d4", True)
 
 	# FOU
-	say(robot, "Appuie sur le bouton pour voir la suite. ")
+	say(robot, "Appuie sur la pendule pour voir la suite. ")
 	have_human_played()
 	didac_move(b, robot,"d4","V2")
 	didac_move(b, robot,"d7","v6")
@@ -481,7 +482,7 @@ def sequence_didacticiel():
 	say(robot, "... ou le long d'une ligne ou d'une colonne.")
 	didac_move(b, robot, "g1", "g5", True)
 	say(robot, "Prends-en soin, c'est ta pièce la plus forte !")
-	say(robot, "Appuie sur le bouton pour voir la suite. ")
+	say(robot, "Appuie sur la pendule pour voir la suite. ")
 	have_human_played()
 
 	# CAVALIER
@@ -495,7 +496,7 @@ def sequence_didacticiel():
 	say(robot, "Sa case d'arrivée doit cependant être vide, ou contenir un adversaire à prendre.")
 	didac_move(b, robot,"c6","V1")
 	didac_move(b, robot,"d4","c6", True)
-	say(robot, "Appuie sur le bouton pour voir la suite. ")
+	say(robot, "Appuie sur la pendule pour voir la suite. ")
 	have_human_played()
 	didac_move(b, robot,"c6","v4")
 	didac_move(b, robot,"d5","e3")
@@ -513,7 +514,7 @@ def sequence_didacticiel():
 	say(robot, "Enfin, le pion ne peut capturer une pièce que de une case en diagonale, comme ceci.")
 	didac_move(b, robot,"e4","V6")
 	didac_move(b, robot,"d5","e4", True)
-	say(robot, "Appuie sur le bouton pour voir la suite. ")
+	say(robot, "Appuie sur la pendule pour voir la suite. ")
 	have_human_played()
 
 	say(robot, "Mais comment faire pour gagner ?")
@@ -570,7 +571,8 @@ def didacticiel_coups_speciaux():
 
 	robot.move_to_obs_pose()
 	say(robot, "Maintenant que tu connais les règles de base, intéressons-nous aux coups spéciaux !")
-	say(robot, "Mets les pièces dans le cimetière comme montré sur l'écran. Une fois fait, appuie sur le bouton.")
+	say(robot, "Coucou ! Je suis Nini, un robot pour t'apprendre à jouer aux échecs ! Apprenons les règles de base. ")
+	say(robot, "Vide l'échiquier, et mets les pièces dans le cimetière comme montré sur l'écran.")
 	have_human_played()
 
 	# ROQUE
@@ -594,7 +596,7 @@ def didacticiel_coups_speciaux():
 	didac_move(b, robot,"d8","v2")
 	didac_move(b, robot,"f8","v7")
 
-	say(robot, "Appuie sur le bouton pour voir la suite. ")
+	say(robot, "Appuie sur la pendule pour voir la suite. ")
 	have_human_played()
 
 	# PRISE EN PASSANT
@@ -620,7 +622,7 @@ def didacticiel_coups_speciaux():
 	didac_move(b, robot,"d6","V6")
 	didac_move(b, robot,"h6","v4")
 
-	say(robot, "Appuie sur le bouton pour voir la suite. ")
+	say(robot, "Appuie sur la pendule pour voir la suite. ")
 	have_human_played()
 
 	# PROMOTION
@@ -736,6 +738,12 @@ if not args.no_robot:
 send_board_FEN(b)
 send_color_FEN(b)
 isRobotTurn = True
+
+robot.niryo.say("Bonjour, je suis Nini, et je suis un robot qui joue aux échecs !", 1)
+say(robot, "Avant de commencer, mets pièces sur l'échiquier comme indiqué sur l'écran")
+say(robot, "Quand tu rempliras mon cimetière, mets toujours la pièce sur la première case de libre du cimetière")
+say(robot, "Quand tu as joué, appuie sur la pendule pour finir ton tour")
+say(robot, "Dernière chose : quand j'ai joué, attend le son avant de mettre ta main au-dessus de l'échiquier ! ")
 
 while not g.isOver():	# Tant que la partie continue (ni pat, ni match nul, ni victoire)
 
