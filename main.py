@@ -18,6 +18,18 @@ import cv2
 import signal
 from time import sleep
 
+def ecrire_lignes(nom_fichier, ligne1, ligne2):
+    with open(nom_fichier, 'w') as f:
+        f.write(ligne1 + '\n')
+        f.write(ligne2 + '\n')
+
+def lire_lignes(nom_fichier):
+    with open(nom_fichier, 'r') as f:
+        lignes = f.readlines()
+    return [ligne.strip() for ligne in lignes]
+
+
+
 pieces_list = ['p','P','n','N','b','B	','r','R','q','Q','k','K']
 piece_dictionnary = {"p" : "pion", "P" : "pion", "n" : "cavalier", "N" : "cavalier", "b" : "fou",  "B" : "fou", "r" : "tour", "R" : "tour", "k" : "roi", "K" : "roi", "q" : "dame", "Q" : "dame"}
 classic_FEN = 'rnbqkbnrpppppppp................................PPPPPPPPRNBQKBNR'
@@ -29,6 +41,7 @@ promotion_FEN = 'r.b.kbnrpPpp.ppp..n.................p.q..P...N....PPPPPPRNBQKB.
 promotion_FEN2 = '............P........................p...........K.............k'
 promotion_FEN3 = '.nbqkbn..ppppppp................................pPPPPPPP.NBQKBN.'
 fen = 'r.bqkbnr..p..pppp..p....Pp.Pp.......P........N..P.P..PPPRNBQKB.R'
+classic_valhalla_FEN = 'QRBN...............qrbn...............'
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--move-to-square", "-m", type=str)
@@ -42,12 +55,22 @@ parser.add_argument("--stockfish", "-s", action="store_true")
 parser.add_argument("--take-picture", "--tp", nargs="?", const=True)
 parser.add_argument("--calibration", action="store_true")
 parser.add_argument("--didacticiel", "-d", action="store_true")
+parser.add_argument("--victory", action="store_true")
+parser.add_argument("--reset", action="store_true")
+parser.add_argument("--backup", action="store_true")
+
 args = parser.parse_args()
+board_FEN = classic_FEN
+board_valhalla_FEN = classic_valhalla_FEN
+
+backup_file = "backup.txt"
+if args.backup :
+	[board_FEN, board_valhalla_FEN] = lire_lignes(backup_file)
 isWhite = False
 vision = not args.no_robot
 
 is_human_white = False
-g = pc.Game(h8_FEN)
+g = pc.Game(board_FEN, board_valhalla_FEN)
 b = g.board
 b.print()
 flask = not (args.no_flask or args.take_picture)
@@ -333,6 +356,11 @@ def sequence_didacticiel():
 
 	return 
 
+if args.victory:
+	robot = Robot()
+	robot.victory_dance()
+	exit(0)
+
 if args.didacticiel:
 	sequence_didacticiel()
 	exit(0)
@@ -357,6 +385,10 @@ def close(signal_received, frame):
 	exit(0)
 
 signal.signal(signal.SIGINT, close)
+
+
+def save_backup(FEN,valhalla_FEN):
+	ecrire_lignes(backup_file,FEN,valhalla_FEN)
 
 if args.move_to_square :
 	robot = Robot()
@@ -406,6 +438,9 @@ while not g.isOver():
 			if allegedMove != moveStr:
 				print("Warning : Coup détécté " + allegedMove + " != coup joué " + moveStr)
 
+		print("Save dans backup")
+		save_backup(b.FEN(),b.valhalla_FEN())
+
 		# Verification du coup joué par le robot
 	else:
 		#moveStr = get_move()
@@ -427,6 +462,7 @@ while not g.isOver():
 						send_state(b, unsure)
 						allegedMove = input("Ecris-moi ton move (qui doit être légal) : ")
 					take_picture(robot, playCount)
+
 
 		else: 
 			#moveStr = get_move()
