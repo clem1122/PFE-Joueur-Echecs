@@ -89,7 +89,7 @@ fen = 'r.bqkbnr..p..pppp..p....Pp.Pp.......P........N..P.P..PPPRNBQKB.R'
 classic_valhalla_FEN = 'QRBN...............qrbn...............'
 win_fen = 'K..........q....k...............................................'
 
-board_FEN = 'r..qkb.rppp.ppp...n..n.p......B.Q.pP..b...N..N..PP..PPPPR...KB.R' # Used board FEN
+board_FEN = classic_FEN # Used board FEN
 board_valhalla_FEN = classic_valhalla_FEN # Used Valhalla FEN
 backup_file = "backup.txt" # Backup file
 difficulty = 20 #elo
@@ -819,7 +819,7 @@ while not g.isOver():	# Tant que la partie continue (ni pat, ni match nul, ni vi
 	send_board_FEN(b)
 	send_state(b)
 
-	print("Tour n° " + str(playCount) + " (trait au " + str(b.spec_rules[0]) + ")")
+	print("Tour n° " + str(playCount) + " (trait au " + str(b.special_rules()[0]) + ")")
 	print("FEN : " + b.FEN())
 	print("Valhalla_FEN : " + b.valhalla_FEN())
 	
