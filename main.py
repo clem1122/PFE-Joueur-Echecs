@@ -26,9 +26,9 @@ from time import sleep
 ## ==== Defining utilitary functions ====
 
 def ecrire_lignes(nom_fichier, ligne1, ligne2):
-    with open(nom_fichier, 'w') as f:
-        f.write(ligne1 + '\n')
-        f.write(ligne2 + '\n')
+	with open(nom_fichier, 'w') as f:
+		f.write(ligne1 + '\n')
+		f.write(ligne2 + '\n')
 
 def lire_lignes(nom_fichier):
     with open(nom_fichier, 'r') as f:
@@ -45,11 +45,14 @@ signal.signal(signal.SIGINT, close)
 
 
 def save_backup(FEN,valhalla_FEN):
-	ecrire_lignes(backup_file,FEN,valhalla_FEN)
+	[FEN_1, v_FEN_1] = lire_lignes(backup_file_1)
+	[FEN_2, v_FEN_2] = lire_lignes(backup_file_2)
+	ecrire_lignes(backup_file_3, FEN_2, v_FEN_2)
+	ecrire_lignes(backup_file_2, FEN_1, v_FEN_1)
+	ecrire_lignes(backup_file_1, FEN, valhalla_FEN)
 
 
 ## ==== Defining args to call from terminal ====
-win_fen = 'k..........Q....K...............................................'
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--move-to-square", "-m", type=str)
@@ -66,13 +69,11 @@ parser.add_argument("--didacticiel", "-d", action="store_true")
 parser.add_argument("--victory", action="store_true")
 parser.add_argument("--defeat", action="store_true")
 parser.add_argument("--reset", action="store_true")
-parser.add_argument("--backup", action="store_true")
+parser.add_argument("--backup", type=str)
 parser.add_argument("--didacticiel2", "-D", action="store_true")
 parser.add_argument("--start-by-interface", "-i", action="store_true")
 
 args = parser.parse_args()
-
-backup_file = "backup.txt"
 
 ## ==== Defining variables ====
 
@@ -90,15 +91,21 @@ fen = 'r.bqkbnr..p..pppp..p....Pp.Pp.......P........N..P.P..PPPRNBQKB.R'
 classic_valhalla_FEN = 'QRBN...............qrbn...............'
 win_fen = 'K..........q....k...............................................'
 
-board_FEN = win_fen # Used board FEN
+board_FEN = classic_FEN # Used board FEN
 board_valhalla_FEN = classic_valhalla_FEN # Used Valhalla FEN
-backup_file = "backup.txt" # Backup file
+isRobotTurn = True #Which turn it is
+backup_file_1 = "backup1.txt"
+backup_file_2 = "backup2.txt"
+backup_file_3 = "backup3.txt" # Backup files
 
 vision = not args.no_robot
 flask = not (args.no_flask or args.take_picture)
 
 if args.backup : # In case of backup use
-	[board_FEN, board_valhalla_FEN] = lire_lignes(backup_file)
+	nb = args.backup
+	file_to_load = "backup" + nb + ".txt"
+	[board_FEN, board_valhalla_FEN] = lire_lignes(file_to_load)
+
 
 isWhite = False # Defining human player color
 
@@ -571,7 +578,6 @@ def didacticiel_coups_speciaux():
 
 	robot.move_to_obs_pose()
 	say(robot, "Maintenant que tu connais les règles de base, intéressons-nous aux coups spéciaux !")
-	say(robot, "Coucou ! Je suis Nini, un robot pour t'apprendre à jouer aux échecs ! Apprenons les règles de base. ")
 	say(robot, "Vide l'échiquier, et mets les pièces dans le cimetière comme montré sur l'écran.")
 	have_human_played()
 
@@ -737,21 +743,21 @@ if not args.no_robot:
 # Send baord state
 send_board_FEN(b)
 send_color_FEN(b)
-isRobotTurn = True
 
-robot.niryo.say("Bonjour, je suis Nini, et je suis un robot qui joue aux échecs !", 1)
-say(robot, "Avant de commencer, mets pièces sur l'échiquier comme indiqué sur l'écran")
-say(robot, "Quand tu rempliras mon cimetière, mets toujours la pièce sur la première case de libre du cimetière")
-say(robot, "Quand tu as joué, appuie sur la pendule pour finir ton tour")
-say(robot, "Dernière chose : quand j'ai joué, attend le son avant de mettre ta main au-dessus de l'échiquier ! ")
+#robot.niryo.say("Bonjour, je suis Nini, et je suis un robot qui joue aux échecs !", 1)
+#say(robot, "Avant de commencer, mets pièces sur l'échiquier comme indiqué sur l'écran")
+#say(robot, "Quand tu rempliras mon cimetière, mets toujours la pièce sur la première case de libre du cimetière")
+#say(robot, "Quand tu as joué, appuie sur la pendule pour finir ton tour")
+#say(robot, "Dernière chose : quand j'ai joué, attend le son avant de mettre ta main au-dessus de l'échiquier ! ")
 
 while not g.isOver():	# Tant que la partie continue (ni pat, ni match nul, ni victoire)
 
 	playCount = g.play_count() + 1 #Augmente le tour
 	unsure = ""
-
 	# Tour du robot
 	if isRobotTurn:
+		save_backup(b.FEN(),b.valhalla_FEN()) #Save in backup file
+
 		moveStr = get_move() #Trouve le coup du robot par IA
 		if not play(moveStr): continue
 
@@ -760,11 +766,10 @@ while not g.isOver():	# Tant que la partie continue (ni pat, ni match nul, ni vi
 			if allegedMove != moveStr:
 				print("Warning : Coup détecté " + allegedMove + " != coup joué " + moveStr)
 
-		save_backup(b.FEN(),b.valhalla_FEN()) #Save in backup file
+		
 
 	# Tour de l'humain
 	else:
-
 		# Regarde par la caméra le coup joué par l'humain
 		if vision:
 			if args.no_flask: input("Entrée quand le coup est joué...") #Demande le coup s'il n'y a pas de flask
