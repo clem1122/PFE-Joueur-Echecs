@@ -1,2 +1,2 @@
-rnbqkbnrppp..ppp...........pp.......P........N..PPPP.PPPRNBQKB.R
+r.bqkbnrpppp.ppp..n.........p.......P........N..PPPP.PPPRNBQKB.R
 QRBN...............qrbn...............

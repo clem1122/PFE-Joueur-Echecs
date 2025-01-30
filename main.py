@@ -93,7 +93,7 @@ win_fen = 'K..........q....k...............................................'
 check_FEN = "rnbqk.nrpppp.ppp............p....b..P......P....PPP..PPPRNBQKBNR"
 
 
-board_FEN = check_FEN # Used board FEN
+board_FEN = classic_FEN # Used board FEN
 board_valhalla_FEN = classic_valhalla_FEN # Used Valhalla FEN
 isRobotTurn = True #Which turn it is
 backup_file_1 = "backup1.txt"
@@ -759,13 +759,6 @@ if not args.no_robot:
 send_board_FEN(b)
 send_color_FEN(b)
 
-<<<<<<< HEAD
-#robot.niryo.say("Bonjour, je suis Nini, et je suis un robot qui joue aux échecs !", 1)
-#say(robot, "Avant de commencer, mets pièces sur l'échiquier comme indiqué sur l'écran")
-#say(robot, "Quand tu rempliras mon cimetière, mets toujours la pièce sur la première case de libre du cimetière")
-#say(robot, "Quand tu as joué, appuie sur la pendule pour finir ton tour")
-#say(robot, "Dernière chose : quand j'ai joué, attend le son avant de mettre ta main au-dessus de l'échiquier ! ")
-=======
 say(robot, "Bonjour, je suis Nini, et je suis un robot qui joue aux échecs !")
 # say(robot, "Avant de commencer, mets les pièces sur l'échiquier comme indiqué sur l'écran")
 # say(robot, "Quand tu rempliras mon cimetière, mets toujours la pièce sur la première case de libre du cimetière")
@@ -774,7 +767,6 @@ say(robot, "Bonjour, je suis Nini, et je suis un robot qui joue aux échecs !")
 say(robot, "Surtout ne mets pas ta main au dessus de l'échiquier tant que tu n'as pas entendu le signal sonore.")
 say(robot, "Appuie pour commencer la partie : je joue blanc, je commence.")
 have_human_played()
->>>>>>> 1f056b995e751a058ede1aacee4e57666a530d10
 
 while not g.isOver():	# Tant que la partie continue (ni pat, ni match nul, ni victoire)
 
@@ -783,10 +775,6 @@ while not g.isOver():	# Tant que la partie continue (ni pat, ni match nul, ni vi
 	# Tour du robot
 	if isRobotTurn:
 		save_backup(b.FEN(),b.valhalla_FEN()) #Save in backup file
-<<<<<<< HEAD
-
-=======
->>>>>>> 1f056b995e751a058ede1aacee4e57666a530d10
 		moveStr = get_move() #Trouve le coup du robot par IA
 		if not play(moveStr): continue
 
@@ -795,10 +783,7 @@ while not g.isOver():	# Tant que la partie continue (ni pat, ni match nul, ni vi
 			if allegedMove != moveStr:
 				print("Warning : Coup détecté " + allegedMove + " != coup joué " + moveStr)
 
-<<<<<<< HEAD
 		
-=======
->>>>>>> 1f056b995e751a058ede1aacee4e57666a530d10
 
 	# Tour de l'humain
 	else:
