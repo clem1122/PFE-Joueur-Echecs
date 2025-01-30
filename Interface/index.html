@@ -16,43 +16,51 @@
       display: flex;
       justify-content: center;
       align-items: center;
+      padding: 20px;
     }
 
     /* Conteneur principal */
     .container {
       background-color: #ffffff;
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+      padding: 50px; /* Augmenté pour plus d'espace */
       text-align: center;
-      width: 80%;
-      max-width: 600px;
+      width: 90%;
+      max-width: 900px; /* Conteneur plus large */
+    }
+
+    /* Style du titre */
+    h1 {
+      font-family: "Times New Roman", Times, serif;
+      color: #2c3e50;
+      font-size: 3rem; /* Augmentation de la taille du titre */
+      margin-bottom: 30px;
+    }
+
+    /* Style des paragraphes */
+    p {
+      font-family: "Times New Roman", Times, serif;
+      font-size: 2.2rem; /* Augmentation de la taille des textes */
+      color: #555;
+      margin-bottom: 25px;
     }
 
     /* Style des boutons */
     .btn {
       background-color: #ffffff !important; /* Fond blanc */
       color: #333 !important; /* Texte noir */
-      border: 2px solid #333 !important; /* Bordure noire */
-      margin: 10px;
-      font-size: 1.77rem;
+      border: 3px solid #333 !important; /* Bordure plus épaisse */
+      padding: 20px 40px; /* Agrandir les boutons */
+      font-size: 2rem; /* Augmentation de la taille des boutons */
+      margin: 15px;
+      border-radius: 12px; /* Boutons plus arrondis */
     }
 
     .btn:hover {
       background-color: #f0f0f0 !important; /* Légère variation au survol */
     }
 
-    h1 {
-      font-family: "Times New Roman", Times, serif;
-      color: #2c3e50;
-      margin-bottom: 20px;
-    }
-
-    p {
-      font-family: "Times New Roman", Times, serif;
-      font-size: 2rem;
-      color: #555;
-    }
   </style>
 </head>
 
@@ -63,15 +71,15 @@
       <p>Choisissez un niveau de difficulté pour commencer une partie contre le robot :</p>
 
       <!-- Boutons uniformes -->
-      <a href="jeu.html" class="btn btn-lg">Facile</a>
-      <a href="jeu.html" class="btn btn-lg">Moyen</a>
-      <a href="jeu.html" class="btn btn-lg">Difficile</a>
+      <a href="http://127.0.0.1:5000/start/easy" class="btn btn-lg">Facile</a>
+      <a href="http://127.0.0.1:5000/start/medium" class="btn btn-lg">Moyen</a>
+      <a href="http://127.0.0.1:5000/start/hard" class="btn btn-lg">Difficile</a>
+
       <p>Si vous souhaitez apprendre à jouer aux échecs :</p>
 
       <!-- Boutons uniformes -->
       <a href="http://127.0.0.1:5000/start/didacticiel" class="btn btn-lg">Règles de base</a>
       <a href="http://127.0.0.1:5000/start/didacticiel2" class="btn btn-lg">Coups spéciaux</a>
-
     </div>
   </div>
 </body>

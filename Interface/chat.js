@@ -41,11 +41,6 @@ function appendMessage(content, sender, type = null) {
 
 
 
-// Example bot messages
-const StartMessages = [
-    "Bonjour ! Je suis Niryo ! Je suis un robot pédagogique pour enseigner les échecs. On joue ? 😊"
-    //"Pour information, les pièces déjà présentes dans le cimetière en début de partie sont simplement prévues en cas de promotion."
-];
 
 const Messages = {
     'checkmate': "Tu as gagné ! Je m'incline, mon roi est définitivement perdu...",
@@ -74,14 +69,6 @@ let previous_FEN_to_show = {'threats': false, 'controlled': false, 'playable': f
 setInterval(fetchAndAppendMessages, 1000);
 setInterval(getMessage, 1000);
 
-const interval = setInterval(() => {
-    if (index < StartMessages.length) {
-        appendMessage(StartMessages[index], 'bot');
-        index++;
-    } else {
-        clearInterval(interval);
-    }
-}, 2000);
 
 async function fetchAndAppendMessages() {
     try {

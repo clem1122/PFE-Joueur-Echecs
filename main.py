@@ -97,6 +97,8 @@ isRobotTurn = True #Which turn it is
 backup_file_1 = "backup1.txt"
 backup_file_2 = "backup2.txt"
 backup_file_3 = "backup3.txt" # Backup files
+difficulty = 20 #elo
+
 
 vision = not args.no_robot
 flask = not (args.no_flask or args.take_picture)
@@ -144,7 +146,7 @@ def manage_promotion(promotion_piece, move):
 	print("Demande de promotion sur la case " + move.end() + " en " + promotion_piece)
 	b.modify_piece(move.end(), promotion_piece)
 	valhalla_coord = get_valhalla_coord(promotion_piece, b)
-	print("valhalla coord : " + valhalla_coord)
+	#print("valhalla coord : " + valhalla_coord)
 	b.modify_piece(valhalla_coord, '.')
 
 def get_human_promotion_move(move, isWhite):
@@ -154,11 +156,11 @@ def get_human_promotion_move(move, isWhite):
     """
 
 	if move.isPromoting():
-		print("Le move " + move.start() + move.end() + " est une promotion")
+		#print("Le move " + move.start() + move.end() + " est une promotion")
 		emptied_square = valhalla_see(isWhite)
 		new_piece = b.piece_on_square(emptied_square)
 		correct_move = move.start() + move.end() + new_piece.type().lower()
-		print("Le move corrigé est donc " + correct_move)
+		#print("Le move corrigé est donc " + correct_move)
 		return correct_move
 
 	else :
@@ -207,8 +209,9 @@ def send_color_FEN(board):
 	best_FEN = ['.']*64
 	if args.stockfish:
 		best_move = get_stockfish_move(board.FEN(), spec_rules, board.en_passant_coord())
-		if best_move == None: best_FEN = ['.']*64
-		else :
+		if best_move == None: 
+			best_FEN = ['.']*64
+		else:
 			index_1 = board.coord_to_index(best_move[:2])
 			index_2 = board.coord_to_index(best_move[2:])
 			best_FEN[index_1] = '1'
@@ -329,7 +332,7 @@ def get_move():
     """
 
 	if args.stockfish:
-		return get_stockfish_move(b.FEN(), b.special_rules(), b.en_passant_coord())
+		return get_stockfish_move(b.FEN(), b.special_rules(), b.en_passant_coord(), diff=difficulty)
 	else:
 		return input("Move :")
 	
@@ -674,6 +677,12 @@ if args.start_by_interface:
 		sequence_didacticiel()
 	elif start == 'didacticiel2':
 		didacticiel_coups_speciaux()
+	elif start == 'easy':
+		difficulty = 1
+	elif start == 'medium':
+		difficulty = 3
+	elif start == 'hard':
+		difficulty = 6
 	else:
 		pass
 # Launch didacticiel
@@ -744,11 +753,22 @@ if not args.no_robot:
 send_board_FEN(b)
 send_color_FEN(b)
 
+<<<<<<< HEAD
 #robot.niryo.say("Bonjour, je suis Nini, et je suis un robot qui joue aux échecs !", 1)
 #say(robot, "Avant de commencer, mets pièces sur l'échiquier comme indiqué sur l'écran")
 #say(robot, "Quand tu rempliras mon cimetière, mets toujours la pièce sur la première case de libre du cimetière")
 #say(robot, "Quand tu as joué, appuie sur la pendule pour finir ton tour")
 #say(robot, "Dernière chose : quand j'ai joué, attend le son avant de mettre ta main au-dessus de l'échiquier ! ")
+=======
+say(robot, "Bonjour, je suis Nini, et je suis un robot qui joue aux échecs !")
+# say(robot, "Avant de commencer, mets les pièces sur l'échiquier comme indiqué sur l'écran")
+# say(robot, "Quand tu rempliras mon cimetière, mets toujours la pièce sur la première case de libre du cimetière")
+# say(robot, "A chaque tour, tu appuieras sur la pendule pour finir ton tour.")
+# say(robot, "Dernière chose : quand j'ai joué, attend le son avant de mettre ta main au-dessus de l'échiquier ! ")
+say(robot, "Surtout ne mets pas ta main au dessus de l'échiquier tant que tu n'as pas entendu le signal sonore.")
+say(robot, "Appuie pour commencer la partie : je joue blanc, je commence.")
+have_human_played()
+>>>>>>> 1f056b995e751a058ede1aacee4e57666a530d10
 
 while not g.isOver():	# Tant que la partie continue (ni pat, ni match nul, ni victoire)
 
@@ -757,7 +777,10 @@ while not g.isOver():	# Tant que la partie continue (ni pat, ni match nul, ni vi
 	# Tour du robot
 	if isRobotTurn:
 		save_backup(b.FEN(),b.valhalla_FEN()) #Save in backup file
+<<<<<<< HEAD
 
+=======
+>>>>>>> 1f056b995e751a058ede1aacee4e57666a530d10
 		moveStr = get_move() #Trouve le coup du robot par IA
 		if not play(moveStr): continue
 
@@ -766,7 +789,10 @@ while not g.isOver():	# Tant que la partie continue (ni pat, ni match nul, ni vi
 			if allegedMove != moveStr:
 				print("Warning : Coup détecté " + allegedMove + " != coup joué " + moveStr)
 
+<<<<<<< HEAD
 		
+=======
+>>>>>>> 1f056b995e751a058ede1aacee4e57666a530d10
 
 	# Tour de l'humain
 	else:
@@ -787,7 +813,7 @@ while not g.isOver():	# Tant que la partie continue (ni pat, ni match nul, ni vi
 
 				#Coup illégal : demande de l'aide à l'humain
 				if not play(reverseMove):
-					print("Mauvaise détection dans les deux sens. Demande au joueur.")
+					#print("Mauvaise détection dans les deux sens. Demande au joueur.")
 
 					#Tant que l'humain ne donne pas un coup valide dans le chat
 					while not play(allegedMove):
@@ -815,6 +841,10 @@ while not g.isOver():	# Tant que la partie continue (ni pat, ni match nul, ni vi
 	send_board_FEN(b)
 	send_state(b)
 
+	print("Tour n° " + str(playCount) + " (trait au " + str(b.special_rules()[0]) + ")")
+	print("FEN : " + b.FEN())
+	print("Valhalla_FEN : " + b.valhalla_FEN())
+	
 if g.end_result() == 'w':
 	robot.niryo.execute_registered_trajectory("dance11")
 	robot.niryo.move_to_home_pose()
