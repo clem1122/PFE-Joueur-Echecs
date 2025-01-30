@@ -751,6 +751,7 @@ say(robot, "Bonjour, je suis Nini, et je suis un robot qui joue aux échecs !")
 # say(robot, "Quand tu rempliras mon cimetière, mets toujours la pièce sur la première case de libre du cimetière")
 # say(robot, "A chaque tour, tu appuieras sur la pendule pour finir ton tour.")
 # say(robot, "Dernière chose : quand j'ai joué, attend le son avant de mettre ta main au-dessus de l'échiquier ! ")
+say(robot, "Surtout ne mets pas ta main au dessus de l'échiquier tant que tu n'as pas entendu le signal sonore.")
 say(robot, "Appuie pour commencer la partie : je joue blanc, je commence.")
 have_human_played()
 
