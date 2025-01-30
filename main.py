@@ -90,14 +90,16 @@ promotion_FEN3 = '.nbqkbn..ppppppp................................pPPPPPPP.NBQKB
 fen = 'r.bqkbnr..p..pppp..p....Pp.Pp.......P........N..P.P..PPPRNBQKB.R'
 classic_valhalla_FEN = 'QRBN...............qrbn...............'
 win_fen = 'K..........q....k...............................................'
+check_FEN = "rnbqk.nrpppp.ppp............p....b..P......P....PPP..PPPRNBQKBNR"
 
-board_FEN = classic_FEN # Used board FEN
+
+board_FEN = check_FEN # Used board FEN
 board_valhalla_FEN = classic_valhalla_FEN # Used Valhalla FEN
 isRobotTurn = True #Which turn it is
 backup_file_1 = "backup1.txt"
 backup_file_2 = "backup2.txt"
 backup_file_3 = "backup3.txt" # Backup files
-difficulty = 20 #elo
+difficulty = 1 #diff :1, 2, 3
 
 
 vision = not args.no_robot
@@ -208,7 +210,11 @@ def send_color_FEN(board):
 	spec_rules = "b" +  board.special_rules()[1:]
 	best_FEN = ['.']*64
 	if args.stockfish:
-		best_move = get_stockfish_move(board.FEN(), spec_rules, board.en_passant_coord())
+		try:
+			best_move = get_stockfish_move(board.FEN(), spec_rules, board.en_passant_coord())
+		except:
+			best_move = None
+
 		if best_move == None: 
 			best_FEN = ['.']*64
 		else:
@@ -678,11 +684,11 @@ if args.start_by_interface:
 	elif start == 'didacticiel2':
 		didacticiel_coups_speciaux()
 	elif start == 'easy':
-		difficulty = 1
+		difficulty = 2
 	elif start == 'medium':
 		difficulty = 3
 	elif start == 'hard':
-		difficulty = 6
+		difficulty = 4
 	else:
 		pass
 # Launch didacticiel
